@@ -19,7 +19,6 @@ import {
   PenTool,
   FileText,
   Clock,
-  AlertCircle,
   Zap,
   Shield
 } from 'lucide-react';
@@ -323,7 +322,7 @@ export default function POSWizard({ isOpen, onClose, onComplete }: POSWizardProp
       <div className="text-center">
         <User className="w-12 h-12 text-teal-600 mx-auto mb-4" />
         <h3 className="text-2xl font-bold text-gray-900">Patient Information</h3>
-        <p className="text-gray-600 mt-2">Enter the patient's contact details</p>
+        <p className="text-gray-600 mt-2">Enter the patient&apos;s contact details</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -413,7 +412,7 @@ export default function POSWizard({ isOpen, onClose, onComplete }: POSWizardProp
       <div className="text-center">
         <CreditCard className="w-12 h-12 text-teal-600 mx-auto mb-4" />
         <h3 className="text-2xl font-bold text-gray-900">Payment Method</h3>
-        <p className="text-gray-600 mt-2">Choose how you'd like to make payments</p>
+        <p className="text-gray-600 mt-2">Choose how you&#39;d like to make payments</p>
       </div>
 
       {/* Payment Type Selection */}
@@ -842,7 +841,7 @@ export default function POSWizard({ isOpen, onClose, onComplete }: POSWizardProp
       <div>
         <h3 className="text-3xl font-bold text-gray-900">Payment Plan Created!</h3>
         <p className="text-gray-600 mt-2 text-lg">
-          {wizardData.patientName}'s payment plan has been successfully set up
+          {wizardData.patientName}&#39;s payment plan has been successfully set up
         </p>
       </div>
 

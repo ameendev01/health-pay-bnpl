@@ -279,7 +279,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                   ) : searchTerm.trim() && (
                     <div className="px-4 py-8 text-center">
                       <Search className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">No results found for "{searchTerm}"</p>
+                      <p className="text-sm text-gray-500">No results found for &quot;{searchTerm}&quot;</p>
                       <p className="text-xs text-gray-400 mt-1">Try different keywords or check spelling</p>
                     </div>
                   )}
