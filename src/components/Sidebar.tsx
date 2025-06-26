@@ -21,10 +21,10 @@ interface SidebarProps {
 
 const navigation = [
   { name: 'Dashboard', id: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Clinics', id: 'clinics', href: '/dashboard/clinics', icon: Building2 },
-  { name: 'Payments', id: 'payments', href: '/dashboard/payments', icon: CreditCard },
-  { name: 'Analytics', id: 'analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'Settings', id: 'settings', href: '/dashboard/settings', icon: Settings },
+  { name: 'Clinics', id: 'clinics', href: '/clinics', icon: Building2 },
+  { name: 'Payments', id: 'payments', href: '/payments', icon: CreditCard },
+  { name: 'Analytics', id: 'analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Settings', id: 'settings', href: '/settings', icon: Settings },
 ];
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {

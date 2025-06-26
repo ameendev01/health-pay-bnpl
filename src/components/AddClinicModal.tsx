@@ -5,8 +5,6 @@ import {
   X, 
   Building2, 
   Phone, 
-  Mail, 
-  MapPin, 
   User,
   FileText,
   Save,

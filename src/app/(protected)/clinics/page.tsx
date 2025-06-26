@@ -14,7 +14,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
-import ClinicViewModal from './ClinicViewModal';
+import ClinicViewModal from '@/components/ClinicViewModal';
 
 const clinics = [
   {

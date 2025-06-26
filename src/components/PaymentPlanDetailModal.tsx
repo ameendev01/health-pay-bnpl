@@ -8,22 +8,16 @@ import {
   Building2, 
   Calendar, 
   DollarSign,
-  Phone,
-  Mail,
-  MapPin,
   Clock,
   CheckCircle,
   AlertCircle,
   XCircle,
-  Edit3,
   Send,
   Download,
   TrendingUp,
   FileText,
   Activity,
   Pause,
-  Play,
-  RefreshCw
 } from 'lucide-react';
 
 interface PaymentPlan {

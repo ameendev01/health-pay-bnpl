@@ -14,7 +14,7 @@ import {
   ArrowUpDown,
   Eye
 } from 'lucide-react';
-import PaymentPlanDetailModal from './PaymentPlanDetailModal';
+import PaymentPlanDetailModal from '@/components/PaymentPlanDetailModal';
 
 const payments = [
   {
@@ -107,7 +107,6 @@ const payments = [
 export default function Payments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('createdAt');
   const [selectedPaymentPlan, setSelectedPaymentPlan] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
