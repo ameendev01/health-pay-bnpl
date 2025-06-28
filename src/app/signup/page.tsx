@@ -104,15 +104,15 @@ export default function SignUpPage() {
           <div className="w-8 h-8 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-white rounded-sm"></div>
           </div>
-          <span className="text-[22px] font-semibold text-[#1f2937]">Harper</span>
+          <span className="text-[22px] font-semibold text-[#1f2937]">Health Pay</span>
         </div>
 
         {/* Main Content */}
         <div className="space-y-12">
           <div>
-            <h1 className="text-[32px] font-semibold text-[#1f2937] leading-[40px] mb-8">
+            <h1 className="text-[26px] font-semibold text-[#1f2937] leading-[35px] mb-8">
               Increase Your Clinical<br />
-              Revenue with Harper
+              Revenue with Health Pay
             </h1>
           </div>
 
@@ -158,7 +158,7 @@ export default function SignUpPage() {
 
         {/* Footer */}
         <div className="text-[14px] text-[#6b7280]">
-          © 2024 Harper · Privacy & Terms
+          © 2024 Health Pay · Privacy & Terms
         </div>
       </div>
 
@@ -170,13 +170,13 @@ export default function SignUpPage() {
             <div className="w-8 h-8 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-lg flex items-center justify-center">
               <div className="w-4 h-4 bg-white rounded-sm"></div>
             </div>
-            <span className="text-[22px] font-semibold text-[#1f2937]">Harper</span>
+            <span className="text-[22px] font-semibold text-[#1f2937]">Health Pay</span>
           </div>
 
           {/* Form Header */}
           <div className="text-center mb-8">
-            <h2 className="text-[24px] font-semibold text-[#1f2937] mb-2">Get started with Harper</h2>
-            <p className="text-[14px] text-[#6b7280]">See how Harper can revolutionize your pharmacy operations</p>
+            <h2 className="text-[24px] font-semibold text-[#1f2937] mb-2">Get started with Health Pay</h2>
+            <p className="text-[14px] text-[#6b7280]">See how Health Pay can revolutionize your pharmacy operations</p>
           </div>
 
           {/* Sign Up Form */}
@@ -370,7 +370,7 @@ export default function SignUpPage() {
           <div className="mt-8 text-center">
             <button
               onClick={() => router.push('/')}
-              className="inline-flex items-center text-[14px] text-[#6b7280] hover:text-[#374151] font-medium transition-colors duration-200"
+              className="inline-flex items-center text-[14px] text-[#6b7280] hover:text-[#374151] font-medium transition-colors duration-200 cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to homepage
