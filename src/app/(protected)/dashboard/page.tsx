@@ -3,97 +3,26 @@
 import React, { useState } from "react";
 import {
   TrendingUp,
-  DollarSign,
-  Users,
+  // DollarSign,
+  // Users,
   Building2,
-  Clock,
+  // Clock,
   ArrowUpRight,
   ArrowDownRight,
   CreditCard,
 } from "lucide-react";
 import AddClinicModal from "@/components/AddClinicModal";
 import POSWizard from "@/components/POSWizard";
-// import Sidebar from "@/components/Sidebar";
-// import Header from "@/components/Header";
+import { useAdminStats } from "@/features/dashboard/hooks/useAdminStats";
+import { useRecentTransactions } from "@/features/dashboard/hooks/useRecentTransactions";
 
-const stats = [
-  {
-    name: "Total Revenue",
-    value: "$2.4M",
-    change: "+12.5%",
-    changeType: "positive",
-    icon: DollarSign,
-  },
-  {
-    name: "Active Clinics",
-    value: "156",
-    change: "+8.2%",
-    changeType: "positive",
-    icon: Building2,
-  },
-  {
-    name: "Active Plans",
-    value: "3,247",
-    change: "+23.1%",
-    changeType: "positive",
-    icon: Users,
-  },
-  {
-    name: "Avg. Processing Time",
-    value: "2.4 min",
-    change: "-18.3%",
-    changeType: "positive",
-    icon: Clock,
-  },
-];
-
-const recentTransactions = [
-  {
-    id: 1,
-    clinic: "Sunrise Medical Center",
-    patient: "John D.",
-    amount: "$450",
-    status: "completed",
-    time: "2 min ago",
-  },
-  {
-    id: 2,
-    clinic: "Valley Health Clinic",
-    patient: "Sarah M.",
-    amount: "$1,200",
-    status: "processing",
-    time: "5 min ago",
-  },
-  {
-    id: 3,
-    clinic: "Metro Dental Care",
-    patient: "Michael R.",
-    amount: "$850",
-    status: "completed",
-    time: "8 min ago",
-  },
-  {
-    id: 4,
-    clinic: "Family Health Partners",
-    patient: "Emma K.",
-    amount: "$320",
-    status: "pending",
-    time: "12 min ago",
-  },
-  {
-    id: 5,
-    clinic: "Westside Cardiology",
-    patient: "David L.",
-    amount: "$2,400",
-    status: "completed",
-    time: "15 min ago",
-  },
-];
 
 export default function Dashboard() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
   const [isPOSWizardOpen, setIsPOSWizardOpen] = useState(false);
-  // const [sidebarOpen, setSidebarOpen] = useState(false);
+  const stats = useAdminStats();
+  const recentTransactions = useRecentTransactions();
+  if (!stats || !recentTransactions) return <div>Loading...</div>;
 
   const handleAddClinic = (clinicData: { name: string }) => {
     console.log("New clinic added:", clinicData);
