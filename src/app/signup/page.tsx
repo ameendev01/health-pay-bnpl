@@ -26,7 +26,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [countryCode, setCountryCode] = useState('+1');
+  const countryCode = '+1'; // Default country code, can be made dynamic if needed
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
