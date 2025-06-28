@@ -77,7 +77,7 @@ export function useRecentTransactions(): RecentTxItem[] | null {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'transaction' },
         async ({ new: { id } }) => {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from('transaction')
             .select(`
               id,
@@ -90,6 +90,10 @@ export function useRecentTransactions(): RecentTxItem[] | null {
             .eq('id', id)
             .single();
 
+          if (error) {
+            console.error('Realtime fetch error:', error);
+            return;
+          }
           if (!data) return;
           const fresh = toItem(data as RawTx, 0);
 

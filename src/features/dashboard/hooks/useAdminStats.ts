@@ -44,6 +44,7 @@ const pct = (delta: number, base: number) =>
 
 export function useAdminStats(): StatItem[] | null {
   const [stats, setStats] = useState<StatItem[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const prev = useRef<Metrics | null>(null);
 
   const buildStats = (row: Metrics, prevRow: Metrics | null): StatItem[] => {
@@ -89,6 +90,8 @@ export function useAdminStats(): StatItem[] | null {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    const abortController = new AbortController();
     /* 1️⃣  initial snapshot */
     supabase
       .from('admin_dashboard_metrics')
@@ -96,17 +99,15 @@ export function useAdminStats(): StatItem[] | null {
       .eq('id', 1)
       .single()
       .then(({ data, error }) => {
+        if (!isMounted || abortController.signal.aborted) return;
         if (!error && data) {
           const row = parseRow(data);
           prev.current = row;
           setStats(buildStats(row, null));
+        } else if (error) {
+          setError(error.message || 'Failed to fetch admin stats');
         }
-		else {
-			console.log("Error fetching initial data:", error);
-		}
       });
-
-
 
     /* 2️⃣  realtime subscription */
     const channel = supabase
@@ -115,6 +116,7 @@ export function useAdminStats(): StatItem[] | null {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'admin_dashboard_metrics', filter: 'id=eq.1' },
         payload => {
+          if (!isMounted || abortController.signal.aborted) return;
           const row = parseRow(payload.new);
           setStats(buildStats(row, prev.current));
           prev.current = row;
@@ -123,9 +125,17 @@ export function useAdminStats(): StatItem[] | null {
       .subscribe();
 
     return () => {
+      isMounted = false;
+      abortController.abort();
       supabase.removeChannel(channel);
     };
   }, []);
+
+  if (error) {
+    
+    console.error(error);
+    return null;
+  }
 
   return stats;
 }
