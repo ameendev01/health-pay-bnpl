@@ -94,9 +94,11 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fb] flex">
+    <div className="min-h-screen flex bg-[#d5f9fb]"
+    >
       {/* Left Side - Benefits */}
-      <div className="hidden lg:flex lg:w-[400px] xl:w-[480px] bg-[#f8f9fb] flex-col justify-between p-12">
+      <div className="hidden lg:flex lg:w-[400px] xl:w-[480px] flex-col justify-between p-12 bg-[#d5f9fb]"
+      >
         {/* Logo */}
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-[#4ade80] to-[#22c55e] rounded-lg flex items-center justify-center">
@@ -161,7 +163,7 @@ export default function SignUpPage() {
       </div>
 
       {/* Right Side - Sign Up Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+      <div className="flex-1 flex items-center justify-center p-28 lg:p-12 bg-[#fefcf5] mt-5 mr-5 mb-5 rounded-2xl">
         <div className="w-full max-w-[400px]">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
