@@ -207,18 +207,17 @@ export default function LandingPage(
             {/* CTA Buttons */}
             <div className="flex items-center space-x-4">
               <Link
-                // onClick={onLogin}
-                href='/dashboard'
+                href='/login'
                 className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
               >
                 Login
               </Link>
-              <button 
-                // onClick={onGetStarted}
+              <Link
+                href='/signup'
                 className="bg-gradient-to-r from-teal-600 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-teal-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 Get Started
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -255,13 +254,13 @@ export default function LandingPage(
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-6">
-                  <button 
-                    // onClick={onGetStarted}
+                  <Link
+                    href='/signup'
                     className="group inline-flex items-center justify-center px-10 py-5 bg-gradient-to-r from-teal-600 to-blue-600 text-white font-bold text-lg rounded-2xl hover:from-teal-700 hover:to-blue-700 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
                   >
                     Start Free Trial
                     <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
+                  </Link>
                   
                   <button className="group inline-flex items-center justify-center px-10 py-5 bg-white border-2 border-gray-300 text-gray-700 font-bold text-lg rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     <Play className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
@@ -425,7 +424,7 @@ export default function LandingPage(
                 </div>
                 
                 <blockquote className="text-gray-700 mb-6 leading-relaxed italic">
-                  &quot;{story.story}&quot;
+                  "{story.story}"
                 </blockquote>
                 
                 <div className="flex items-center justify-between pt-6 border-t border-gray-100">
@@ -513,7 +512,7 @@ export default function LandingPage(
                 </div>
                 
                 <blockquote className="text-gray-700 mb-8 leading-relaxed text-lg italic">
-                  &quot;{testimonial.content}&quot;
+                  "{testimonial.content}"
                 </blockquote>
                 
                 <div className="flex items-center space-x-4 pt-6 border-t border-gray-100">
@@ -621,13 +620,13 @@ export default function LandingPage(
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
-            <button 
-              // onClick={onGetStarted}
+            <Link
+              href='/signup'
               className="group inline-flex items-center justify-center px-10 py-5 bg-white text-teal-600 font-bold text-lg rounded-2xl hover:bg-gray-50 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
             >
               Start Your Free Trial
               <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
-            </button>
+            </Link>
             
             <button className="group inline-flex items-center justify-center px-10 py-5 border-2 border-white text-white font-bold text-lg rounded-2xl hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1">
               <Phone className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
