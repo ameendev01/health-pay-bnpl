@@ -12,12 +12,15 @@ export default function ProtectedLayout({
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#effafb]">
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-      <div className="pl-0 lg:pl-64 transition-all duration-300">
+      {/* Dynamic padding based on sidebar state */}
+      <div className="transition-all duration-300 ease-in-out pl-0 lg:pl-72">
         <Header setSidebarOpen={setSidebarOpen} />
-        {children}
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
+          {children}
+        </div>
       </div>
     </div>
   );
