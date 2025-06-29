@@ -164,6 +164,35 @@ body {
   }
 }
 
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+@keyframes sidebarExpand {
+  from {
+    width: 4rem;
+  }
+  to {
+    width: 18rem;
+  }
+}
+
+@keyframes sidebarCollapse {
+  from {
+    width: 18rem;
+  }
+  to {
+    width: 4rem;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out;
 }
@@ -174,6 +203,14 @@ body {
 
 .animate-pulse-slow {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.sidebar-expand {
+  animation: sidebarExpand 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.sidebar-collapse {
+  animation: sidebarCollapse 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Glass morphism effect */
@@ -206,4 +243,32 @@ body {
 
 .text-pretty {
   text-wrap: pretty;
+}
+
+/* Sidebar transition utilities */
+.sidebar-transition {
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tooltip styles */
+.tooltip-enter {
+  animation: tooltipFadeIn 200ms ease-out forwards;
+}
+
+/* Icon hover effects */
+.icon-hover {
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-hover:hover {
+  transform: scale(1.05);
+}
+
+/* Focus ring for better accessibility */
+.focus-ring {
+  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
 }
