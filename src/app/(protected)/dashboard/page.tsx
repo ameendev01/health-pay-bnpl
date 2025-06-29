@@ -7,17 +7,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   CreditCard,
-  Users,
-  DollarSign,
-  Activity,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  Plus,
   MoreHorizontal,
   Calendar,
-  Target,
-  Zap
 } from "lucide-react";
 import AddClinicModal from "@/components/AddClinicModal";
 import POSWizard from "@/components/POSWizard";
