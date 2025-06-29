@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Bell, Search, Building2, CreditCard, Users, ArrowRight } from 'lucide-react';
+import { Menu, Bell, Search, Building2, CreditCard, Users, ArrowRight, Settings, User, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
@@ -15,23 +15,15 @@ const searchData = {
     { id: 3, name: 'Metro Dental Care', type: 'Dental', location: 'Denver, CO' },
     { id: 4, name: 'Family Health Partners', type: 'Pediatrics', location: 'Austin, TX' },
     { id: 5, name: 'Westside Cardiology', type: 'Cardiology', location: 'San Diego, CA' },
-    { id: 6, name: 'Northside Orthopedics', type: 'Orthopedics', location: 'Seattle, WA' },
-    { id: 7, name: 'Downtown Dermatology', type: 'Dermatology', location: 'Chicago, IL' },
-    { id: 8, name: 'Central Eye Care', type: 'Ophthalmology', location: 'Dallas, TX' },
   ],
   payments: [
     { id: 'PMT-001', patientName: 'John Smith', clinicName: 'Sunrise Medical Center', amount: 2400, procedure: 'Dental Implant' },
     { id: 'PMT-002', patientName: 'Sarah Johnson', clinicName: 'Valley Health Clinic', amount: 1800, procedure: 'Orthodontic Treatment' },
     { id: 'PMT-003', patientName: 'Michael Davis', clinicName: 'Metro Dental Care', amount: 850, procedure: 'Root Canal' },
-    { id: 'PMT-004', patientName: 'Emma Wilson', clinicName: 'Family Health Partners', amount: 3200, procedure: 'Surgical Procedure' },
-    { id: 'PMT-005', patientName: 'David Brown', clinicName: 'Westside Cardiology', amount: 5500, procedure: 'Cardiac Surgery' },
   ],
   transactions: [
     { id: 'TXN-001', type: 'Payment Received', clinic: 'Sunrise Medical Center', patient: 'John D.', amount: 450, time: '2 min ago' },
     { id: 'TXN-002', type: 'New Plan Created', clinic: 'Valley Health Clinic', patient: 'Sarah M.', amount: 1200, time: '5 min ago' },
-    { id: 'TXN-003', type: 'Plan Completed', clinic: 'Metro Dental Care', patient: 'Michael R.', amount: 850, time: '8 min ago' },
-    { id: 'TXN-004', type: 'Payment Pending', clinic: 'Family Health Partners', patient: 'Emma K.', amount: 320, time: '12 min ago' },
-    { id: 'TXN-005', type: 'Payment Received', clinic: 'Westside Cardiology', patient: 'David L.', amount: 2400, time: '15 min ago' },
   ]
 };
 
@@ -45,8 +37,17 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Mock notifications
+  const notifications = [
+    { id: 1, title: 'New payment received', message: 'John Smith completed payment #3 of 12', time: '2 min ago', type: 'success' },
+    { id: 2, title: 'Payment overdue', message: 'Emma Wilson payment is 5 days overdue', time: '1 hour ago', type: 'warning' },
+    { id: 3, title: 'New clinic registered', message: 'Downtown Medical Center joined the platform', time: '3 hours ago', type: 'info' },
+  ];
 
   // Search function
   const performSearch = (query: string) => {
@@ -87,13 +88,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
       }
     });
 
-    // Limit results and prioritize clinics
-    const sortedResults = results.sort((a, b) => {
-      const priority = { clinic: 0, payment: 1, transaction: 2 };
-      return priority[a.type] - priority[b.type];
-    });
-
-    setSearchResults(sortedResults.slice(0, 8));
+    setSearchResults(results.slice(0, 6));
   };
 
   // Handle search input
@@ -141,11 +136,10 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
     setSearchTerm('');
     setSearchResults([]);
     setIsSearchFocused(false);
-    // Here you would typically navigate to the selected item
     console.log('Selected:', result);
   };
 
-  // Handle clicks outside search
+  // Handle clicks outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -162,26 +156,26 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
   const getResultIcon = (type: string) => {
     switch (type) {
       case 'clinic':
-        return <Building2 className="w-5 h-5 text-teal-600" />;
+        return <Building2 className="w-4 h-4 text-blue-600" />;
       case 'payment':
-        return <CreditCard className="w-5 h-5 text-blue-600" />;
+        return <CreditCard className="w-4 h-4 text-green-600" />;
       case 'transaction':
-        return <Users className="w-5 h-5 text-purple-600" />;
+        return <Users className="w-4 h-4 text-purple-600" />;
       default:
-        return <Search className="w-5 h-5 text-gray-400" />;
+        return <Search className="w-4 h-4 text-gray-400" />;
     }
   };
 
   const getResultBadgeColor = (type: string) => {
     switch (type) {
       case 'clinic':
-        return 'bg-teal-100 text-teal-700';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'payment':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-green-50 text-green-700 border-green-200';
       case 'transaction':
-        return 'bg-purple-100 text-purple-700';
+        return 'bg-purple-50 text-purple-700 border-purple-200';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
@@ -192,8 +186,8 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
       <div
         key={`${result.type}-${result.data.id}`}
         onClick={() => handleResultClick(result)}
-        className={`px-4 py-3 cursor-pointer transition-colors duration-150 ${
-          isSelected ? 'bg-teal-50' : 'hover:bg-gray-50'
+        className={`px-4 py-3 cursor-pointer transition-all duration-150 ${
+          isSelected ? 'bg-blue-50 border-l-2 border-blue-500' : 'hover:bg-gray-50'
         }`}
       >
         <div className="flex items-center space-x-3">
@@ -202,7 +196,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getResultBadgeColor(result.type)}`}>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getResultBadgeColor(result.type)}`}>
                 {result.type.charAt(0).toUpperCase() + result.type.slice(1)}
               </span>
             </div>
@@ -234,19 +228,19 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
   };
 
   return (
-    <div className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
+    <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-200/50">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <button
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors duration-200"
+            className="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-200"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="w-6 h-6" />
           </button>
 
           {/* Search */}
-          <div className="flex-1 max-w-lg lg:ml-0 ml-4" ref={searchRef}>
+          <div className="flex-1 max-w-2xl lg:ml-0 ml-4" ref={searchRef}>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <Search className="w-5 h-5 text-gray-400" />
@@ -259,15 +253,15 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                 onChange={handleSearchChange}
                 onFocus={() => setIsSearchFocused(true)}
                 onKeyDown={handleKeyDown}
-                className="block w-full rounded-lg border-gray-300 pl-10 pr-3 py-2 text-sm placeholder-gray-500 focus:border-teal-500 focus:ring-teal-500 transition-colors duration-200"
+                className="block w-full rounded-xl border-gray-300 pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
               />
               
               {/* Search Results Dropdown */}
               {isSearchFocused && (searchResults.length > 0 || searchTerm.trim()) && (
-                <div className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+                <div className="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
                   {searchResults.length > 0 ? (
                     <>
-                      <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-xl">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                           {searchResults.length} Result{searchResults.length !== 1 ? 's' : ''}
                         </p>
@@ -279,7 +273,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                   ) : searchTerm.trim() && (
                     <div className="px-4 py-8 text-center">
                       <Search className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">No results found for &quot;{searchTerm}&quot;</p>
+                      <p className="text-sm text-gray-500">No results found for "{searchTerm}"</p>
                       <p className="text-xs text-gray-400 mt-1">Try different keywords or check spelling</p>
                     </div>
                   )}
@@ -290,18 +284,89 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
 
           {/* Right section */}
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-              <Bell className="w-6 h-6" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            {/* Notifications */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              >
+                <Bell className="w-6 h-6" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+
+              {/* Notifications Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                  <div className="p-4 border-b border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {notifications.map((notification) => (
+                      <div key={notification.id} className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start space-x-3">
+                          <div className={`w-2 h-2 rounded-full mt-2 ${
+                            notification.type === 'success' ? 'bg-green-500' :
+                            notification.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                          }`} />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                            <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
+                            <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-3 border-t border-gray-200">
+                    <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                      View all notifications
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             
             <div className="hidden lg:block w-px h-6 bg-gray-300"></div>
             
-            <div className="flex items-center space-x-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900">Today</p>
-                <p className="text-xs text-gray-500">{new Date().toLocaleDateString()}</p>
-              </div>
+            {/* User Profile */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowProfile(!showProfile)}
+                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-semibold text-white">AD</span>
+                </div>
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-medium text-gray-900">Admin User</p>
+                  <p className="text-xs text-gray-500">{new Date().toLocaleDateString()}</p>
+                </div>
+              </button>
+
+              {/* Profile Dropdown */}
+              {showProfile && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                  <div className="p-3 border-b border-gray-200">
+                    <p className="text-sm font-medium text-gray-900">Admin User</p>
+                    <p className="text-xs text-gray-500">admin@healthpay.com</p>
+                  </div>
+                  <div className="py-2">
+                    <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <User className="w-4 h-4 mr-3" />
+                      Profile
+                    </button>
+                    <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <Settings className="w-4 h-4 mr-3" />
+                      Settings
+                    </button>
+                    <hr className="my-2 border-gray-200" />
+                    <button className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                      <LogOut className="w-4 h-4 mr-3" />
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
