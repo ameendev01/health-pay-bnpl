@@ -8,7 +8,12 @@ import {
   BarChart3, 
   Settings,
   X,
-  Heart
+  Heart,
+  Users,
+  FileText,
+  Bell,
+  Search,
+  ChevronDown
 } from 'lucide-react';
 
 import Link from 'next/link';
@@ -20,11 +25,47 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', id: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Clinics', id: 'clinics', href: '/clinics', icon: Building2 },
-  { name: 'Payments', id: 'payments', href: '/payments', icon: CreditCard },
-  { name: 'Analytics', id: 'analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Settings', id: 'settings', href: '/settings', icon: Settings },
+  { 
+    name: 'Dashboard', 
+    id: 'dashboard', 
+    href: '/dashboard', 
+    icon: LayoutDashboard,
+    description: 'Overview & insights'
+  },
+  { 
+    name: 'Clinics', 
+    id: 'clinics', 
+    href: '/clinics', 
+    icon: Building2,
+    description: 'Manage providers'
+  },
+  { 
+    name: 'Payments', 
+    id: 'payments', 
+    href: '/payments', 
+    icon: CreditCard,
+    description: 'Payment plans'
+  },
+  { 
+    name: 'Analytics', 
+    id: 'analytics', 
+    href: '/analytics', 
+    icon: BarChart3,
+    description: 'Reports & metrics'
+  },
+  { 
+    name: 'Settings', 
+    id: 'settings', 
+    href: '/settings', 
+    icon: Settings,
+    description: 'System configuration'
+  },
+];
+
+const quickActions = [
+  { name: 'All Patients', icon: Users, count: '2,847' },
+  { name: 'Active Plans', icon: FileText, count: '1,234' },
+  { name: 'Notifications', icon: Bell, count: '12' },
 ];
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
@@ -35,73 +76,126 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Mobile backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0
+        fixed inset-y-0 left-0 z-50 w-72 bg-white/95 backdrop-blur-xl shadow-xl border-r border-gray-200/50 transform transition-transform duration-300 ease-in-out lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex h-full flex-col">
-          {/* Logo */}
-          <div className="flex h-16 shrink-0 items-center px-6 border-b border-gray-200">
+          {/* Logo & Header */}
+          <div className="flex h-20 shrink-0 items-center justify-between px-6 border-b border-gray-200/50">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+                <Heart className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">HealthPay</span>
+              <div>
+                <span className="text-xl font-bold text-gray-900">HealthPay</span>
+                <p className="text-xs text-gray-500 font-medium">Healthcare Platform</p>
+              </div>
             </div>
             <button
-              className="ml-auto lg:hidden"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              <X className="w-6 h-6 text-gray-400" />
+              <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-1">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
+          {/* Search */}
+          <div className="px-6 py-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Quick search..."
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
+          </div>
 
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`
-                    w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group
-                    ${isActive
-                      ? 'bg-teal-50 text-teal-700 shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
-                  `}
-                >
-                  <Icon
+          {/* Navigation */}
+          <nav className="flex-1 px-4 space-y-2">
+            <div className="mb-6">
+              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Main Navigation
+              </p>
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
                     className={`
-                      w-5 h-5 mr-3 transition-colors duration-200
-                      ${isActive ? 'text-teal-600' : 'text-gray-400 group-hover:text-gray-500'}
+                      group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 relative overflow-hidden
+                      ${isActive
+                        ? 'bg-blue-50 text-blue-700 shadow-sm'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
                     `}
-                  />
-                  {item.name}
-                </Link>
-              );
-            })}
+                  >
+                    {isActive && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full" />
+                    )}
+                    <Icon
+                      className={`
+                        w-5 h-5 mr-3 transition-colors duration-200
+                        ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}
+                      `}
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium">{item.name}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{item.description}</div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="mb-6">
+              <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Quick Actions
+              </p>
+              <div className="space-y-2">
+                {quickActions.map((action, index) => {
+                  const Icon = action.icon;
+                  return (
+                    <button
+                      key={index}
+                      className="w-full flex items-center justify-between px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors group"
+                    >
+                      <div className="flex items-center">
+                        <Icon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
+                        <span className="font-medium">{action.name}</span>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {action.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </nav>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-xs font-semibold text-white">AD</span>
+          {/* User Profile */}
+          <div className="p-4 border-t border-gray-200/50">
+            <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-sm">
+                <span className="text-sm font-semibold text-white">AD</span>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-500">admin@healthpay.com</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">Admin User</p>
+                <p className="text-xs text-gray-500 truncate">admin@healthpay.com</p>
               </div>
+              <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
             </div>
           </div>
         </div>

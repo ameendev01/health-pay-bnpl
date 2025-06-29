@@ -30,6 +30,9 @@ interface ClinicData {
   totalPlans: number;
   monthlyRevenue: string;
   joinDate: string;
+  rating: number;
+  patients: number;
+  growth: string;
   address?: string;
   city?: string;
   state?: string;
@@ -88,7 +91,10 @@ export default function ClinicViewModal({ isOpen, onClose, clinic, onUpdate }: C
         contactEmail: clinic.contactEmail || clinic.email,
         description: clinic.description || 'Full-service medical facility providing comprehensive healthcare services to the community.',
         operatingHours: clinic.operatingHours || 'Mon-Fri 8AM-6PM, Sat 9AM-2PM',
-        specialties: clinic.specialties || 'General Medicine, Preventive Care'
+        specialties: clinic.specialties || 'General Medicine, Preventive Care',
+        rating: clinic.rating || 0,
+        patients: clinic.patients || 0,
+        growth: clinic.growth || '0%'
       });
     }
   }, [clinic]);
