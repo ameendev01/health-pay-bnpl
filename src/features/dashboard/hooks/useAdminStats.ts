@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { DollarSign, Building2, Users, Clock } from 'lucide-react';
-import supabase from '../../../../utils/supabase/client';
+import { useSupabaseClient } from '../../../../utils/supabase/client';
 
 /* ---------- types ---------- */
 
@@ -46,6 +46,7 @@ export function useAdminStats(): StatItem[] | null {
   const [stats, setStats] = useState<StatItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const prev = useRef<Metrics | null>(null);
+  const { supabase } = useSupabaseClient();
 
   const buildStats = (row: Metrics, prevRow: Metrics | null): StatItem[] => {
     // fall back to current row if no previous row yet

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import supabase from '../../../../utils/supabase/client';
+import { useSupabaseClient } from '../../../../utils/supabase/client';
 
 dayjs.extend(relativeTime);
 
@@ -50,6 +50,7 @@ const toItem = (row: RawTx, idx: number): RecentTxItem => ({
 
 export function useRecentTransactions(): RecentTxItem[] | null {
   const [items, setItems] = useState<RecentTxItem[] | null>(null);
+  const { supabase } = useSupabaseClient();
 
   useEffect(() => {
     /* initial fetch */
