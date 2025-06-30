@@ -12,7 +12,7 @@ export const useSupabaseClient = () => {
   function createClerkSupabaseClient() {
     return createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         async accessToken() {
           return session?.getToken() ?? null;
