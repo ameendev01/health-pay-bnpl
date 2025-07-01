@@ -18,14 +18,22 @@ import { useRecentTransactions } from "@/features/dashboard/hooks/useRecentTrans
 export default function Dashboard() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
   const [isPOSWizardOpen, setIsPOSWizardOpen] = useState(false);
-  const stats = useAdminStats();
-  const recentTransactions = useRecentTransactions();
+  const { stats, isLoading: isLoadingStats, error: errorStats } = useAdminStats();
+  const { transactions, isLoading: isLoadingTransactions, error: errorTransactions } = useRecentTransactions();
   
-  if (!stats || !recentTransactions) {
+  if (isLoadingStats || isLoadingTransactions) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh]">
         <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
         <div className="text-lg text-gray-700">Loading dashboard data…</div>
+      </div>
+    );
+  }
+
+  if (errorStats || errorTransactions) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh]">
+        <div className="text-lg text-red-600">Error loading dashboard data. Please try again later.</div>
       </div>
     );
   }
@@ -124,7 +132,7 @@ export default function Dashboard() {
 
           {/* Main Stats Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => {
+            {stats?.map((stat) => {
               const Icon = stat.icon;
               return (
                 <div
@@ -186,7 +194,7 @@ export default function Dashboard() {
               </div>
               <div className="p-6">
                 <div className="space-y-4">
-                  {recentTransactions.map((transaction) => (
+                  {transactions?.map((transaction) => (
                     <div
                       key={transaction.id}
                       className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors duration-200"
