@@ -1,9 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
-import { DollarSign, Building2, Users, Clock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useSupabaseClient } from '../../../../utils/supabase/client';
+import { DollarSign, Building2, Users, Clock } from 'lucide-react';
 
-/* ---------- types ---------- */
-
+// Types
 interface Metrics {
   updatedAt: Date;
   totalRevenueCents: number;
@@ -12,7 +11,7 @@ interface Metrics {
   avgProcessingMs: number;
 }
 
-interface StatItem {
+export interface StatItem {
   name: string;
   value: string;
   change: string;
@@ -20,123 +19,90 @@ interface StatItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-/* ---------- helpers ---------- */
-
-// Supabase sends BIGINT / NUMERIC as strings ⇒ cast once here
+// Helper functions
 const parseRow = (row: any): Metrics => ({
   updatedAt: new Date(row.updated_at),
   totalRevenueCents: Number(row.total_revenue_cents),
   activeClinics: Number(row.active_clinics),
   activePlans: Number(row.active_plans),
-  avgProcessingMs: Number(row.avg_processing_ms)
+  avgProcessingMs: Number(row.avg_processing_ms),
 });
 
 const moneyFmt = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
-  notation: 'compact'
+  notation: 'compact',
 });
 
-const pct = (delta: number, base: number) =>
-  base === 0 ? 0 : +(100 * delta / base).toFixed(1);
 
-/* ---------- main hook ---------- */
 
-export function useAdminStats(): StatItem[] | null {
-  const [stats, setStats] = useState<StatItem[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const prev = useRef<Metrics | null>(null);
+// Main hook using React Query
+export function useAdminStats() {
   const { supabase } = useSupabaseClient();
 
-  const buildStats = (row: Metrics, prevRow: Metrics | null): StatItem[] => {
-    // fall back to current row if no previous row yet
-    const base = prevRow ?? row;
+  const fetchStats = async () => {
+    const { data, error } = await supabase
+      .from('admin_dashboard_metrics')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle();
 
-    const deltaRevenue = pct(row.totalRevenueCents - base.totalRevenueCents, base.totalRevenueCents);
-    const deltaClin    = pct(row.activeClinics     - base.activeClinics,     base.activeClinics);
-    const deltaPlans   = pct(row.activePlans       - base.activePlans,       base.activePlans);
-    // lower processing time is better  → delta = old − new
-    const deltaProc    = pct(base.avgProcessingMs  - row.avgProcessingMs,    base.avgProcessingMs);
+    if (error) {
+      throw new Error(error.message);
+    }
+    if (!data) {
+      return null;
+    }
+    return parseRow(data);
+  };
+
+  const { data: currentStats, error } = useQuery<Metrics | null>({
+    queryKey: ['admin_stats'],
+    queryFn: fetchStats,
+    refetchInterval: 15000, // Refetch every 15 seconds
+  });
+
+  // For now, we will not calculate change until we have a historical snapshot
+  const buildStats = (row: Metrics | null): StatItem[] | null => {
+    if (!row) {
+      return null;
+    }
 
     return [
       {
         name: 'Total Revenue',
         value: moneyFmt.format(row.totalRevenueCents / 100),
-        change: `${deltaRevenue >= 0 ? '+' : ''}${deltaRevenue}%`,
-        changeType: deltaRevenue >= 0 ? 'positive' : 'negative',
-        icon: DollarSign
+        change: '+0.0%',
+        changeType: 'positive',
+        icon: DollarSign,
       },
       {
         name: 'Active Clinics',
         value: row.activeClinics.toLocaleString(),
-        change: `${deltaClin >= 0 ? '+' : ''}${deltaClin}%`,
-        changeType: deltaClin >= 0 ? 'positive' : 'negative',
-        icon: Building2
+        change: '+0.0%',
+        changeType: 'positive',
+        icon: Building2,
       },
       {
         name: 'Active Plans',
         value: row.activePlans.toLocaleString(),
-        change: `${deltaPlans >= 0 ? '+' : ''}${deltaPlans}%`,
-        changeType: deltaPlans >= 0 ? 'positive' : 'negative',
-        icon: Users
+        change: '+0.0%',
+        changeType: 'positive',
+        icon: Users,
       },
       {
         name: 'Avg. Processing Time',
-        value: `${(row.avgProcessingMs / 1000 / 60).toFixed(1)} min`,
-        change: `${deltaProc >= 0 ? '+' : ''}${deltaProc}%`,
-        changeType: deltaProc >= 0 ? 'positive' : 'negative',
-        icon: Clock
-      }
+        value: `${(row.avgProcessingMs / 1000).toFixed(2)}s`,
+        change: '0.0%',
+        changeType: 'positive',
+        icon: Clock,
+      },
     ];
   };
 
-  useEffect(() => {
-    let isMounted = true;
-    const abortController = new AbortController();
-    /* 1️⃣  initial snapshot */
-    supabase
-      .from('admin_dashboard_metrics')
-      .select('*')
-      .eq('id', 1)
-      .single()
-      .then(({ data, error }) => {
-        if (!isMounted || abortController.signal.aborted) return;
-        if (!error && data) {
-          const row = parseRow(data);
-          prev.current = row;
-          setStats(buildStats(row, null));
-        } else if (error) {
-          setError(error.message || 'Failed to fetch admin stats');
-        }
-      });
-
-    /* 2️⃣  realtime subscription */
-    const channel = supabase
-      .channel('admin_kpi')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'admin_dashboard_metrics', filter: 'id=eq.1' },
-        payload => {
-          if (!isMounted || abortController.signal.aborted) return;
-          const row = parseRow(payload.new);
-          setStats(buildStats(row, prev.current));
-          prev.current = row;
-        }
-      )
-      .subscribe();
-
-    return () => {
-      isMounted = false;
-      abortController.abort();
-      supabase.removeChannel(channel);
-    };
-  }, [supabase]);
-
-  if (error) {
-    
-    console.error(error);
-    return null;
-  }
-
-  return stats;
+  return {
+    stats: buildStats(currentStats ?? null),
+    isLoading: !currentStats && !error,
+    error: error?.message || null,
+  };
 }
