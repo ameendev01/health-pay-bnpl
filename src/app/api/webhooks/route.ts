@@ -1,4 +1,3 @@
-
 import { NextRequest } from "next/server";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
@@ -47,6 +46,7 @@ export async function POST(req: NextRequest) {
       return new Response("Error: Missing user ID or email", { status: 400 });
     }
 
+    console.log(`Attempting to insert user: ID=${id}, Email=${email}`);
     // Insert the new user into your Supabase `users` table
     const { error } = await supabaseAdmin.from("users").insert({
       user_id: id,
@@ -56,12 +56,41 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      if (error.code === '23505') {
-        console.warn("User with this email already exists in Supabase. Skipping insertion.", error);
+      if (error.code === "23505") {
+        console.warn(
+          "Supabase: User with this email already exists. Skipping insertion.",
+          error
+        );
       } else {
-        console.error("Error inserting new user into Supabase:", error);
-        return new Response("Error occured while creating user", { status: 500 });
+        console.error("Supabase: Error inserting new user:", error);
+        return new Response("Error occurred while creating user", {
+          status: 500,
+        });
       }
+    } else {
+      console.log(`Supabase: User ${id} (${email}) successfully inserted.`);
+    }
+  } else if (eventType === "user.deleted") {
+    const { id } = evt.data;
+
+    if (!id) {
+      return new Response("Error: Missing user ID", { status: 400 });
+    }
+
+    console.log(`Attempting to delete user: ID=${id}`);
+    // Delete the user from your Supabase `users` table
+    const { error } = await supabaseAdmin
+      .from("users")
+      .delete()
+      .eq("user_id", id);
+
+    if (error) {
+      console.error("Supabase: Error deleting user:", error);
+      return new Response("Error occurred while deleting user", {
+        status: 500,
+      });
+    } else {
+      console.log(`Supabase: User ${id} successfully deleted.`);
     }
   }
 

@@ -37,7 +37,6 @@ interface SearchResult {
 export default function Header({ setSidebarOpen }: HeaderProps) {
   const { signOut } = useClerk();
   const { user } = useUser();
-  console.log(user)
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
