@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
   // const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
-  if (!process.env.CLERK_WEBHOOK_SECRET) {
+  if (!process.env.CLERK_WEBHOOK_SIGNING_SECRET) {
     throw new Error(
-      "Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
+      "Please add CLERK_WEBHOOK_SIGNING_SECRE from Clerk Dashboard to .env or .env.local"
     );
   }
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   // Verify the payload with the headers
   try {
     evt = await verifyWebhook(req, {
-      signingSecret: process.env.CLERK_WEBHOOK_SECRET,
+      signingSecret: process.env.CLERK_WEBHOOK_SIGNING_SECRET,
     });
   } catch (err) {
     console.error("Error verifying webhook:", err);
@@ -49,15 +49,19 @@ export async function POST(req: NextRequest) {
 
     // Insert the new user into your Supabase `users` table
     const { error } = await supabaseAdmin.from("users").insert({
-      clerk_user_id: id,
+      user_id: id,
       email: email,
       first_name: first_name,
       last_name: last_name,
     });
 
     if (error) {
-      console.error("Error inserting new user into Supabase:", error);
-      return new Response("Error occured while creating user", { status: 500 });
+      if (error.code === '23505') {
+        console.warn("User with this email already exists in Supabase. Skipping insertion.", error);
+      } else {
+        console.error("Error inserting new user into Supabase:", error);
+        return new Response("Error occured while creating user", { status: 500 });
+      }
     }
   }
 
