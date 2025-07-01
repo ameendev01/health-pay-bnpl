@@ -1,30 +1,18 @@
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import type { UseFormRegister, FieldError } from 'react-hook-form';
+import type { UseFormRegister, FieldError, FieldValues, Path } from 'react-hook-form';
 
-
-type FormInputProps = {
-  id: "firstName" | "lastName" | "workEmail" | 
-  // "phoneNumber" | 
-  // "organization" | 
-  "password";
+interface FormInputProps<TFormValues extends FieldValues> {
+  id: Path<TFormValues>;
   name: string;
   type: React.HTMLInputTypeAttribute;
   placeholder: string;
-  register: UseFormRegister<{
-    password: string;
-    firstName: string;
-    lastName: string;
-    workEmail: string;
-    // phoneNumber: string;
-    // organization: string;
-}>;
-  error?: FieldError;          
-  isPassword?: boolean;        
-};
+  register: UseFormRegister<TFormValues>;
+  error?: FieldError;
+  isPassword?: boolean;
+}
 
-
-export const FormInput = ({ 
+export const FormInput = <TFormValues extends FieldValues>({ 
   id, 
   name, 
   type, 
@@ -32,18 +20,18 @@ export const FormInput = ({
   register,
   error, 
   isPassword 
-}: FormInputProps
+}: FormInputProps<TFormValues>
 ) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div>
-      <label htmlFor={id} className="block text-[14px] font-medium text-[#374151] mb-2">
+      <label htmlFor={id as string} className="block text-[14px] font-medium text-[#374151] mb-2">
         {name}
       </label>
       <div className="relative">
         <input
-          id={id}
+          id={id as string}
           type={isPassword ? (showPassword ? 'text' : 'password') : type}
           placeholder={placeholder}
           {...register(id)}

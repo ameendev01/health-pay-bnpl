@@ -9,7 +9,13 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-export const LoginForm = ({ onSubmit, isLoading }) => {
+export const LoginForm = ({ 
+  onSubmit, 
+  isLoading 
+}: {
+  onSubmit: (data: z.infer<typeof loginSchema>) => Promise<void>, 
+  isLoading: boolean
+}) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
   });
