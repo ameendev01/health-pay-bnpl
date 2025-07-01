@@ -1,19 +1,28 @@
-import { createBrowserClient } from "@supabase/ssr"
+"use client";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+import { useSession } from "@clerk/nextjs";
+import { createClient } from "@supabase/supabase-js";
 
-if (!url) {
-  throw new Error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL environment variable"
-  )
-}
-if (!anonKey) {
-  throw new Error(
-    "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable"
-  )
-}
+export const useSupabaseClient = () => {
+  // The `useSession()` hook is used to get the Clerk session object
+  // The session object is used to get the Clerk session token
+  const { session } = useSession();
 
-const supabase = createBrowserClient(url, anonKey)
+  // Create a custom Supabase client that injects the Clerk session token into the request headers
+  function createClerkSupabaseClient() {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        async accessToken() {
+          return session?.getToken() ?? null;
+        },
+      }
+    );
+  }
 
-export default supabase
+  // Create a `client` object for accessing Supabase data using the Clerk token
+  const supabase = createClerkSupabaseClient();
+
+  return { supabase, session };
+};
