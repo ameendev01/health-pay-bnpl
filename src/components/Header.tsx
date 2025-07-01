@@ -2,6 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Menu, Bell, Search, Building2, CreditCard, Users, ArrowRight, Settings, User, LogOut } from 'lucide-react';
+import { useClerk, useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
@@ -33,6 +35,10 @@ interface SearchResult {
 }
 
 export default function Header({ setSidebarOpen }: HeaderProps) {
+  const { signOut } = useClerk();
+  const { user } = useUser();
+  console.log(user)
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -338,7 +344,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                   <span className="text-xs font-semibold text-white">AD</span>
                 </div>
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-gray-900">Admin User</p>
+                  <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
                   <p className="text-xs text-gray-500">{new Date().toLocaleDateString()}</p>
                 </div>
               </button>
@@ -347,8 +353,8 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
               {showProfile && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
                   <div className="p-3 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900">Admin User</p>
-                    <p className="text-xs text-gray-500">admin@healthpay.com</p>
+                    <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
+                    <p className="text-xs text-gray-500">{user?.emailAddresses[0].emailAddress}</p>
                   </div>
                   <div className="py-2">
                     <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
@@ -360,7 +366,10 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                       Settings
                     </button>
                     <hr className="my-2 border-gray-200" />
-                    <button className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                    <button 
+                      onClick={() => signOut(() => router.push('/'))}
+                      className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
                       <LogOut className="w-4 h-4 mr-3" />
                       Sign out
                     </button>
