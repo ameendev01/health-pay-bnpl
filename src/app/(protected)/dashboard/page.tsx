@@ -2,20 +2,23 @@
 
 import React, { useState } from "react";
 import {
-  TrendingUp,
   Building2,
-  ArrowUpRight,
-  ArrowDownRight,
   CreditCard,
   MoreHorizontal,
   Calendar,
+  ArrowUpRight,
+  ArrowDownRight,
+  TrendingUp,
 } from "lucide-react";
 import AddClinicModal from "@/components/AddClinicModal";
 import POSWizard from "@/components/POSWizard";
+import PageHeader from "@/components/shared/PageHeader";
+import StatCard from "@/components/shared/StatCard";
 import { useAdminStats } from "@/features/dashboard/hooks/useAdminStats";
 import { useRecentTransactions } from "@/features/dashboard/hooks/useRecentTransactions";
+import { quickStats, upcomingTasks, recentAlerts } from "@/features/dashboard/constants";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
   const [isPOSWizardOpen, setIsPOSWizardOpen] = useState(false);
   const { stats, isLoading: isLoadingStats, error: errorStats } = useAdminStats();
@@ -53,58 +56,26 @@ export default function Dashboard() {
     }, 1000);
   };
 
-  // Mock data for additional dashboard components
-  const quickStats = [
-    { label: 'Today\'s Revenue', value: '$12,450', change: '+8.2%', trend: 'up' },
-    { label: 'New Patients', value: '23', change: '+12%', trend: 'up' },
-    { label: 'Pending Approvals', value: '7', change: '-15%', trend: 'down' },
-    { label: 'Success Rate', value: '94.2%', change: '+2.1%', trend: 'up' },
-  ];
-
-  const upcomingTasks = [
-    { id: 1, title: 'Review payment plan applications', priority: 'high', dueTime: '2:00 PM' },
-    { id: 2, title: 'Monthly clinic performance review', priority: 'medium', dueTime: '4:30 PM' },
-    { id: 3, title: 'Update system configurations', priority: 'low', dueTime: 'Tomorrow' },
-  ];
-
-  const recentAlerts = [
-    { id: 1, type: 'warning', message: 'Payment overdue: Emma Wilson - $320', time: '5 min ago' },
-    { id: 2, type: 'success', message: 'New clinic approved: Downtown Medical', time: '1 hour ago' },
-    { id: 3, type: 'info', message: 'System maintenance scheduled for tonight', time: '2 hours ago' },
-  ];
-
   return (
     <main className="py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="space-y-8">
-          {/* Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Welcome back, Admin 👋
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Here's what's happening with your healthcare platform today
-              </p>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setIsAddClinicModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-sm"
-              >
-                <Building2 className="w-5 h-5 mr-2" />
-                Add Clinic
-              </button>
-              <button
-                onClick={() => setIsPOSWizardOpen(true)}
-                className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <CreditCard className="w-5 h-5 mr-2" />
-                Create Payment Plan
-              </button>
-            </div>
-          </div>
+          <PageHeader title="Welcome back, Admin 👋" description="Here's what's happening with your healthcare platform today">
+            <button
+              onClick={() => setIsAddClinicModalOpen(true)}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-sm"
+            >
+              <Building2 className="w-5 h-5 mr-2" />
+              Add Clinic
+            </button>
+            <button
+              onClick={() => setIsPOSWizardOpen(true)}
+              className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <CreditCard className="w-5 h-5 mr-2" />
+              Create Payment Plan
+            </button>
+          </PageHeader>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -135,40 +106,14 @@ export default function Dashboard() {
             {stats?.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div
+                <StatCard
                   key={stat.name}
-                  className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 card-hover"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-3 bg-blue-50 rounded-xl">
-                        <Icon className="w-6 h-6 text-blue-600" />
-                      </div>
-                    </div>
-                    <div
-                      className={`flex items-center space-x-1 text-sm font-medium ${
-                        stat.changeType === "positive"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {stat.changeType === "positive" ? (
-                        <ArrowUpRight className="w-4 h-4" />
-                      ) : (
-                        <ArrowDownRight className="w-4 h-4" />
-                      )}
-                      <span>{stat.change}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-3xl font-bold text-gray-900">
-                      {stat.value}
-                    </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {stat.name}
-                    </p>
-                  </div>
-                </div>
+                  label={stat.name}
+                  value={stat.value}
+                  icon={Icon}
+                  change={stat.change}
+                  changeType={stat.changeType}
+                />
               );
             })}
           </div>
