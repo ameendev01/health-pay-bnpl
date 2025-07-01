@@ -130,7 +130,7 @@ export function useAdminStats(): StatItem[] | null {
       abortController.abort();
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [supabase]);
 
   if (error) {
     

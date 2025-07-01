@@ -53,63 +53,32 @@ export function useRecentTransactions(): RecentTxItem[] | null {
   const { supabase } = useSupabaseClient();
 
   useEffect(() => {
-    /* initial fetch */
-    supabase
-      .from('transaction')
-      .select(`
-        id,
-        amount_cents,
-        status,
-        created_at,
-        clinic:clinic_id ( name ),
-        patient:patient_id ( full_name )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(5)
-      .then(({ data, error }) => {
-        if (error) { console.error(error); return; }
-        if (data) setItems((data as RawTx[]).map(toItem));
-      });
+    const fetchInitialTx = async () => {
+      const { data, error } = await supabase
+        .from('recent_transactions')
+        .select('*, clinic:clinics(name), patient:patients(full_name)')
+        .order('created_at', { ascending: false })
+        .limit(5);
 
-    /* realtime */
+      if (error) {
+        console.error("Error fetching recent transactions:", error);
+        return;
+      }
+
+      setItems(data.map((row, idx) => toItem(row as RawTx, idx)));
+    };
+
+    fetchInitialTx();
+
     const channel = supabase
-      .channel('recent_tx')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'transaction' },
-        async ({ new: { id } }) => {
-          const { data, error } = await supabase
-            .from('transaction')
-            .select(`
-              id,
-              amount_cents,
-              status,
-              created_at,
-              clinic:clinic_id ( name ),
-              patient:patient_id ( full_name )
-            `)
-            .eq('id', id)
-            .single();
-
-          if (error) {
-            console.error('Realtime fetch error:', error);
-            return;
-          }
-          if (!data) return;
-          const fresh = toItem(data as RawTx, 0);
-
-          setItems(prev =>
-            prev ? [fresh, ...prev].slice(0, 5).map((it, i) => ({ ...it, id: i + 1 }))
-                 : [fresh]
-          );
-        }
-      )
+      .channel('recent-transactions')
+      .on('postgres_changes', { event: '*', schema: 'public' }, fetchInitialTx)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [supabase]);
 
   return items;
 }
