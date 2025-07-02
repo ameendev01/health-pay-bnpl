@@ -17,11 +17,13 @@ import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { useRecentTransactions } from "@/features/dashboard/hooks/useRecentTransactions";
 import { kpis } from "@/features/dashboard/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useUser } from "@clerk/nextjs";
 
 export default function DashboardPage() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
   const [isPOSWizardOpen, setIsPOSWizardOpen] = useState(false);
   const { transactions, isLoading: isLoadingTransactions, error: errorTransactions } = useRecentTransactions();
+  const {user} = useUser();
   
   if (isLoadingTransactions) {
     return (
@@ -59,7 +61,7 @@ export default function DashboardPage() {
     <main className="py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="space-y-8">
-          <PageHeader title="Welcome back, Maria 👋" description="Here's a summary of your clinics' performance and activities.">
+          <PageHeader title={`Welcome back, ${user?.firstName}👋`} description="Here's a summary of your clinics' performance and activities.">
             <button
               onClick={() => setIsAddClinicModalOpen(true)}
               className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-sm"
