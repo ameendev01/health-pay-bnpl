@@ -1,6 +1,7 @@
 import React from 'react';
 import { Building2, Mail, MapPin, MoreVertical, Phone, Star, Eye } from 'lucide-react';
 import { Clinic } from '@/features/clinics/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ClinicCardProps {
   clinic: Clinic;
@@ -35,25 +36,24 @@ const renderStars = (rating: number) => {
 
 export default function ClinicCard({ clinic, onView }: ClinicCardProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-200 card-hover overflow-hidden">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Building2 className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">{clinic.name}</h3>
-              <p className="text-sm text-gray-600">{clinic.type}</p>
-            </div>
+    <Card className="shadow-sm border border-gray-200 bg-white hover:shadow-lg transition-all duration-200 card-hover overflow-hidden">
+      <CardHeader className="flex flex-row items-start justify-between pb-4">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+            <Building2 className="w-6 h-6 text-white" />
           </div>
-          <div className="relative">
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-              <MoreVertical className="w-5 h-5 text-gray-400" />
-            </button>
+          <div>
+            <CardTitle className="font-semibold text-gray-900">{clinic.name}</CardTitle>
+            <p className="text-sm text-gray-600">{clinic.type}</p>
           </div>
         </div>
-
+        <div className="relative">
+          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+            <MoreVertical className="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
+      </CardHeader>
+      <CardContent className="p-6 pt-0">
         <div className="space-y-3 mb-4">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <MapPin className="w-4 h-4" />
@@ -70,14 +70,10 @@ export default function ClinicCard({ clinic, onView }: ClinicCardProps) {
         </div>
 
         {clinic.status === 'active' && (
-          <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-xl">
+          <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-xl">
             <div className="text-center">
               <p className="text-lg font-bold text-gray-900">{clinic.totalPlans}</p>
-              <p className="text-xs text-gray-600">Plans</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-bold text-gray-900">{clinic.patients}</p>
-              <p className="text-xs text-gray-600">Patients</p>
+              <p className="text-xs text-gray-600">Active Plans</p>
             </div>
             <div className="text-center">
               <p className="text-lg font-bold text-gray-900">{clinic.monthlyRevenue}</p>
@@ -108,7 +104,7 @@ export default function ClinicCard({ clinic, onView }: ClinicCardProps) {
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

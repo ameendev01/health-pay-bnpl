@@ -9,10 +9,12 @@ import EmptyState from '@/components/shared/EmptyState';
 import PaymentPlanDetailModal from '@/components/PaymentPlanDetailModal';
 import { usePayments } from '@/features/payments/hooks/usePayments';
 import { PaymentPlan } from '@/features/payments/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [procedureFilter, setProcedureFilter] = useState('all');
   const [selectedPaymentPlan, setSelectedPaymentPlan] = useState<PaymentPlan | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
@@ -44,6 +46,19 @@ export default function PaymentsPage() {
     }
   };
 
+  const getRowClassName = (payment: PaymentPlan) => {
+    switch (payment.status) {
+      case 'overdue':
+        return 'border-l-4 border-red-500';
+      case 'active':
+        return 'border-l-4 border-blue-500';
+      case 'completed':
+        return 'border-l-4 border-green-500';
+      default:
+        return '';
+    }
+  };
+
   const handleViewPaymentPlan = (paymentPlan: PaymentPlan) => {
     setSelectedPaymentPlan(paymentPlan);
     setIsDetailModalOpen(true);
@@ -55,7 +70,8 @@ export default function PaymentsPage() {
                          payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          payment.procedure.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesProcedure = procedureFilter === 'all' || payment.procedure === procedureFilter;
+    return matchesSearch && matchesStatus && matchesProcedure;
   });
 
   const statusFilterOptions = [
@@ -63,6 +79,14 @@ export default function PaymentsPage() {
     { value: 'active', label: 'Active' },
     { value: 'completed', label: 'Completed' },
     { value: 'overdue', label: 'Overdue' },
+  ];
+
+  const procedureFilterOptions = [
+    { value: 'all', label: 'All Procedures' },
+    { value: 'Dental Cleaning', label: 'Dental Cleaning' },
+    { value: 'Invisalign', label: 'Invisalign' },
+    { value: 'Root Canal', label: 'Root Canal' },
+    { value: 'Crown', label: 'Crown' },
   ];
 
   const tableHeaders = [
@@ -77,7 +101,7 @@ export default function PaymentsPage() {
   ];
 
   const renderPaymentRow = (payment: PaymentPlan) => (
-    <tr key={payment.id} className="hover:bg-gray-50 transition-colors duration-200">
+    <tr key={payment.id} className={`hover:bg-gray-50 transition-colors duration-200 ${getRowClassName(payment)}`}>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="font-medium text-gray-900">{payment.id}</div>
         <div className="text-sm text-gray-500">{payment.procedure}</div>
@@ -142,55 +166,51 @@ export default function PaymentsPage() {
         </button>
       </PageHeader>
 
-      {/* Stats Cards - These will be refactored into StatCard components later */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <CreditCard className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">1,247</p>
-              <p className="text-sm text-gray-600">Active Plans</p>
-            </div>
-          </div>
-        </div>
+        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Active Plans</CardTitle>
+            <CreditCard className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">1,247</div>
+            <p className="text-xs text-gray-500">+20.1% from last month</p>
+          </CardContent>
+        </Card>
         
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">356</p>
-              <p className="text-sm text-gray-600">Completed</p>
-            </div>
-          </div>
-        </div>
+        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">356</div>
+            <p className="text-xs text-gray-500">+15.5% from last month</p>
+          </CardContent>
+        </Card>
         
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <XCircle className="w-6 h-6 text-red-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">43</p>
-              <p className="text-sm text-gray-600">Overdue</p>
-            </div>
-          </div>
-        </div>
+        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Overdue</CardTitle>
+            <XCircle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">43</div>
+            <p className="text-xs text-gray-500">+5.2% from last month</p>
+          </CardContent>
+        </Card>
         
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-teal-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-teal-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">$2.4M</p>
-              <p className="text-sm text-gray-600">Total Value</p>
-            </div>
-          </div>
-        </div>
+        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Total Value</CardTitle>
+            <Calendar className="h-4 w-4 text-teal-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">$2.4M</div>
+            <p className="text-xs text-gray-500">+10.0% from last month</p>
+          </CardContent>
+        </Card>
       </div>
 
       <FilterBar
@@ -200,6 +220,15 @@ export default function PaymentsPage() {
         selectedFilter={statusFilter}
         onFilterChange={setStatusFilter}
       >
+        <select
+          value={procedureFilter}
+          onChange={(e) => setProcedureFilter(e.target.value)}
+          className="px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        >
+          {procedureFilterOptions.map(option => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
         <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
           <ArrowUpDown className="w-4 h-4 mr-2" />
           Sort

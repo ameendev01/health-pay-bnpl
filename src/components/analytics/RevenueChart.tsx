@@ -1,5 +1,6 @@
 import React from 'react';
 import { RefreshCw, Eye } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { RevenueData } from '@/features/analytics/types';
 
 interface RevenueChartProps {
@@ -26,46 +27,28 @@ export default function RevenueChart({ data }: RevenueChartProps) {
         </div>
       </div>
       <div className="p-6">
-        <div className="h-80 flex items-end justify-between space-x-2">
-          {data.map((item, index) => (
-            <div key={index} className="flex-1 flex flex-col items-center space-y-2">
-              <div className="w-full space-y-1">
-                <div 
-                  className="w-full bg-gradient-to-t from-teal-500 to-teal-400 rounded-t-lg transition-all duration-500 hover:from-teal-600 hover:to-teal-500"
-                  style={{ 
-                    height: `${(item.amount / Math.max(...data.map(d => d.amount))) * 180}px`,
-                    minHeight: '20px'
-                  }}
-                  title={`Revenue: $${item.amount.toLocaleString()}`}
-                ></div>
-                <div 
-                  className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-500 hover:from-blue-600 hover:to-blue-500"
-                  style={{ 
-                    height: `${(item.plans / Math.max(...data.map(d => d.plans))) * 80}px`,
-                    minHeight: '10px'
-                  }}
-                  title={`Plans: ${item.plans}`}
-                ></div>
-              </div>
-              <div className="text-center">
-                <p className="text-xs font-medium text-gray-900">{item.month}</p>
-                <p className="text-xs text-gray-600">${(item.amount / 1000).toFixed(0)}k</p>
-                <p className="text-xs text-blue-600">{item.plans} plans</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-6 flex items-center justify-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-teal-500 rounded"></div>
-            <span className="text-sm text-gray-600">Revenue</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded"></div>
-            <span className="text-sm text-gray-600">Payment Plans</span>
-          </div>
-        </div>
+        <ResponsiveContainer width="100%" height={350}>
+          <LineChart
+            data={data}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
+            <XAxis dataKey="month" className="text-sm text-gray-600" />
+            <YAxis yAxisId="left" orientation="left" stroke="#8884d8" className="text-sm text-gray-600" />
+            <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" className="text-sm text-gray-600" />
+            <Tooltip />
+            <Legend />
+            <Line yAxisId="left" type="monotone" dataKey="amount" stroke="#8884d8" activeDot={{ r: 8 }} name="Revenue" />
+            <Line yAxisId="right" type="monotone" dataKey="plans" stroke="#82ca9d" name="Plans" />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
 }
+

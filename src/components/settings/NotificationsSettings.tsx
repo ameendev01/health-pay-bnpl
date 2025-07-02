@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bell, Mail, Phone } from 'lucide-react';
 import { NotificationSettings } from '@/features/settings/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface NotificationsSettingsProps {
   notifications: NotificationSettings;
@@ -16,16 +17,18 @@ export default function NotificationsSettings({ notifications, onNotificationsCh
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Notification Preferences</h3>
+    <Card className='bg-white text-black border-0 shadow-sm'>
+      <CardHeader>
+        <CardTitle>Notification Preferences</CardTitle>
+      </CardHeader>
+      <CardContent>
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
             <div className="flex items-center space-x-3">
               <Mail className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="font-medium text-gray-900">Email Notifications</p>
-                <p className="text-sm text-gray-600">Receive updates via email</p>
+                <p className="text-sm text-gray-600">Receive a daily summary of new plans and collected payments.</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -44,7 +47,7 @@ export default function NotificationsSettings({ notifications, onNotificationsCh
               <Bell className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="font-medium text-gray-900">Push Notifications</p>
-                <p className="text-sm text-gray-600">Browser push notifications</p>
+                <p className="text-sm text-gray-600">Get real-time alerts for important events.</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -63,7 +66,7 @@ export default function NotificationsSettings({ notifications, onNotificationsCh
               <Phone className="w-5 h-5 text-gray-400" />
               <div>
                 <p className="font-medium text-gray-900">SMS Notifications</p>
-                <p className="text-sm text-gray-600">Text message alerts</p>
+                <p className="text-sm text-gray-600">Receive critical alerts via text message.</p>
               </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -77,7 +80,7 @@ export default function NotificationsSettings({ notifications, onNotificationsCh
             </label>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
