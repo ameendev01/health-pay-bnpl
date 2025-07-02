@@ -1,8 +1,8 @@
-export const quickStats = [
-  { label: "Today's Revenue", value: '$12,450', change: '+8.2%', trend: 'up' },
-  { label: 'New Patients', value: '23', change: '+12%', trend: 'up' },
-  { label: 'Pending Approvals', value: '7', change: '-15%', trend: 'down' },
-  { label: 'Success Rate', value: '94.2%', change: '+2.1%', trend: 'up' }
+export const kpis = [
+  { label: "Total BNPL Revenue", value: '$72,450', change: '+15.2%', trend: 'up' },
+  { label: 'New Payment Plans (MTD)', value: '128', change: '+20%', trend: 'up' },
+  { label: 'Overdue Payments', value: '9', change: '+3', trend: 'down' },
+  { label: 'Patient Satisfaction', value: '98.2%', change: '+0.1%', trend: 'up' }
 ];
 
 export const upcomingTasks = [
@@ -12,7 +12,7 @@ export const upcomingTasks = [
 ];
 
 export const recentAlerts = [
-  { id: 1, type: 'warning', message: 'Payment overdue: Emma Wilson - $320', time: '5 min ago' },
-  { id: 2, type: 'success', message: 'New clinic approved: Downtown Medical', time: '1 hour ago' },
-  { id: 3, type: 'info', message: 'System maintenance scheduled for tonight', time: '2 hours ago' },
+  { id: 1, type: 'warning', message: 'Payment overdue: Emma Wilson - $320', time: '5 min ago', link: '/payments/123' },
+  { id: 2, type: 'success', message: 'New clinic approved: Downtown Medical', time: '1 hour ago', link: '/clinics/456' },
+  { id: 3, type: 'info', message: 'System maintenance scheduled for tonight', time: '2 hours ago', link: '#' },
 ];

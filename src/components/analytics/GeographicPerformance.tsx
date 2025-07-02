@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, TrendingUp } from 'lucide-react';
 import { GeographicData } from '@/features/analytics/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface GeographicPerformanceProps {
   data: GeographicData[];
@@ -9,12 +10,12 @@ interface GeographicPerformanceProps {
 export default function GeographicPerformance({ data }: GeographicPerformanceProps) {
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Geographic Performance</h2>
+      <Card className="shadow-sm border border-gray-200">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">Geographic Performance</CardTitle>
           <p className="text-sm text-gray-600 mt-1">Revenue and growth by state</p>
-        </div>
-        <div className="p-6">
+        </CardHeader>
+        <CardContent>
           <div className="space-y-4">
             {data.map((location, index) => (
               <div key={index} className="flex items-center space-x-4 p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors duration-200">
@@ -42,53 +43,61 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Distribution</h3>
-          <div className="space-y-3">
-            {data.map((location, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <span className="w-20 text-sm text-gray-600">{location.state}</span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-teal-500 to-blue-500 h-2 rounded-full transition-all duration-500" 
-                    style={{ 
-                      width: `${(location.revenue / Math.max(...data.map(l => l.revenue))) * 100}%` 
-                    }}
-                  ></div>
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Revenue Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {data.map((location, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <span className="w-20 text-sm text-gray-600">{location.state}</span>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-teal-500 h-2 rounded-full"
+                      style={{ 
+                        width: `${(location.revenue / Math.max(...data.map(l => l.revenue))) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900 w-20 text-right">
+                    ${(location.revenue / 1000).toFixed(0)}k
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-gray-900 w-20 text-right">
-                  ${(location.revenue / 1000).toFixed(0)}k
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Clinic Distribution</h3>
-          <div className="space-y-3">
-            {data.map((location, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <span className="w-20 text-sm text-gray-600">{location.state}</span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500" 
-                    style={{ 
-                      width: `${(location.clinics / Math.max(...data.map(l => l.clinics))) * 100}%` 
-                    }}
-                  ></div>
+        <Card className="shadow-sm border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Clinic Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {data.map((location, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <span className="w-20 text-sm text-gray-600">{location.state}</span>
+                  <div className="flex-1 bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full"
+                      style={{ 
+                        width: `${(location.clinics / Math.max(...data.map(l => l.clinics))) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900 w-16 text-right">
+                    {location.clinics}
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-gray-900 w-16 text-right">
-                  {location.clinics}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

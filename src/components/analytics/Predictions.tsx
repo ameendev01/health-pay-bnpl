@@ -7,8 +7,8 @@ export default function Predictions() {
       {/* Revenue Predictions */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Revenue Forecasting</h2>
-          <p className="text-sm text-gray-600 mt-1">AI-powered revenue predictions for next 6 months</p>
+          <h2 className="text-lg font-semibold text-gray-900">Next Month's Forecast</h2>
+          <p className="text-sm text-gray-600 mt-1">Based on current trends, we project you will add <span className="font-bold text-teal-600">50 new payment plans</span> next month, generating an estimated <span className="font-bold text-teal-600">$150,000</span> in revenue.</p>
         </div>
         <div className="p-6">
           <div className="h-80 flex items-end justify-between space-x-2">
@@ -29,7 +29,7 @@ export default function Predictions() {
                         height: `${(item.actual / 400000) * 250}px`,
                         minHeight: '20px'
                       }}
-                      title={`Actual: $${item.actual.toLocaleString()}`}
+                      title={`Actual: ${item.actual.toLocaleString()}`}
                     ></div>
                   ) : (
                     <div 
@@ -38,7 +38,7 @@ export default function Predictions() {
                         height: `${(item.predicted! / 400000) * 250}px`,
                         minHeight: '20px'
                       }}
-                      title={`Predicted: $${item.predicted!.toLocaleString()}`}
+                      title={`Predicted: ${item.predicted!.toLocaleString()}`}
                     ></div>
                   )}
                 </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import type { GeneralSettings } from '@/features/settings/types';
 import { timezones, dateFormats, currencies } from '@/features/settings/constants';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface GeneralSettingsProps {
   generalSettings: GeneralSettings;
@@ -16,9 +17,11 @@ export default function GeneralSettings({ generalSettings, onGeneralSettingsChan
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">General Settings</h3>
+    <Card>
+      <CardHeader>
+        <CardTitle>General Settings</CardTitle>
+      </CardHeader>
+      <CardContent>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
@@ -56,7 +59,7 @@ export default function GeneralSettings({ generalSettings, onGeneralSettingsChan
             </select>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

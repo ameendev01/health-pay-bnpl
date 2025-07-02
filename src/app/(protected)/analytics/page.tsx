@@ -14,6 +14,7 @@ import ProcedureAnalytics from '@/components/analytics/ProcedureAnalytics';
 import RiskAnalysis from '@/components/analytics/RiskAnalysis';
 import Predictions from '@/components/analytics/Predictions';
 import { useAnalyticsData } from '@/features/analytics/hooks/useAnalyticsData';
+import KeyInsights from '@/components/analytics/KeyInsights';
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState('6months');
@@ -42,6 +43,7 @@ export default function AnalyticsPage() {
       case 'overview':
         return (
           <div className="space-y-6">
+            <KeyInsights />
             <KeyMetrics />
             <RevenueChart data={data.revenue} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
