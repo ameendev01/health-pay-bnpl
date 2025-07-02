@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function BillingSettings() {
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className='bg-white text-black border-0 shadow-sm'>
         <CardHeader>
           <CardTitle>Subscription Plan</CardTitle>
         </CardHeader>
@@ -22,7 +22,7 @@ export default function BillingSettings() {
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className='bg-white text-black border-0 shadow-sm'>
         <CardHeader>
           <CardTitle>Payment Method</CardTitle>
         </CardHeader>

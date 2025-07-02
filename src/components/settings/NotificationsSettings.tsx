@@ -17,7 +17,7 @@ export default function NotificationsSettings({ notifications, onNotificationsCh
   };
 
   return (
-    <Card>
+    <Card className='bg-white text-black border-0 shadow-sm'>
       <CardHeader>
         <CardTitle>Notification Preferences</CardTitle>
       </CardHeader>

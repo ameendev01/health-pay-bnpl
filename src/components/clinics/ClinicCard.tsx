@@ -36,7 +36,7 @@ const renderStars = (rating: number) => {
 
 export default function ClinicCard({ clinic, onView }: ClinicCardProps) {
   return (
-    <Card className="shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-200 card-hover overflow-hidden">
+    <Card className="shadow-sm border border-gray-200 bg-white hover:shadow-lg transition-all duration-200 card-hover overflow-hidden">
       <CardHeader className="flex flex-row items-start justify-between pb-4">
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">

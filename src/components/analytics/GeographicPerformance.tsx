@@ -10,7 +10,7 @@ interface GeographicPerformanceProps {
 export default function GeographicPerformance({ data }: GeographicPerformanceProps) {
   return (
     <div className="space-y-6">
-      <Card className="shadow-sm border border-gray-200">
+      <Card className="shadow-sm border border-gray-200 bg-white">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-900">Geographic Performance</CardTitle>
           <p className="text-sm text-gray-600 mt-1">Revenue and growth by state</p>
@@ -47,7 +47,7 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-sm border border-gray-200">
+        <Card className="shadow-sm border border-gray-200 bg-white">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900">Revenue Distribution</CardTitle>
           </CardHeader>
@@ -73,7 +73,7 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border border-gray-200">
+        <Card className="shadow-sm border border-gray-200 bg-white">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900">Clinic Distribution</CardTitle>
           </CardHeader>

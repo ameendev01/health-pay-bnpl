@@ -7,7 +7,7 @@ export default function SecuritySettings() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className='bg-white text-black border-0 shadow-sm'>
         <CardHeader>
           <CardTitle>Password & Security</CardTitle>
         </CardHeader>
@@ -53,7 +53,7 @@ export default function SecuritySettings() {
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className='bg-white text-black border-0 shadow-sm'>
         <CardHeader>
           <CardTitle>Two-Factor Authentication</CardTitle>
         </CardHeader>

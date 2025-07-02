@@ -26,7 +26,7 @@ export default function ProfileSettings({ profile, companyInfo, onProfileChange,
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className='bg-white text-black border-0'>
         <CardHeader>
           <CardTitle>Profile Information</CardTitle>
         </CardHeader>
@@ -76,7 +76,7 @@ export default function ProfileSettings({ profile, companyInfo, onProfileChange,
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className='bg-white text-black border-0'>
         <CardHeader>
           <CardTitle>Company Information</CardTitle>
         </CardHeader>

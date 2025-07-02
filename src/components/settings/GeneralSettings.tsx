@@ -17,7 +17,7 @@ export default function GeneralSettings({ generalSettings, onGeneralSettingsChan
   };
 
   return (
-    <Card>
+    <Card className='bg-white text-black border-0 shadow-sm'>
       <CardHeader>
         <CardTitle>General Settings</CardTitle>
       </CardHeader>
