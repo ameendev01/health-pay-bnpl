@@ -22,9 +22,13 @@ import { useUser } from "@clerk/nextjs";
 export default function DashboardPage() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
   const [isPOSWizardOpen, setIsPOSWizardOpen] = useState(false);
-  const { transactions, isLoading: isLoadingTransactions, error: errorTransactions } = useRecentTransactions();
-  const {user} = useUser();
-  
+  const {
+    transactions,
+    isLoading: isLoadingTransactions,
+    error: errorTransactions,
+  } = useRecentTransactions();
+  const { user } = useUser();
+
   if (isLoadingTransactions) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh]">
@@ -37,7 +41,9 @@ export default function DashboardPage() {
   if (errorTransactions) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh]">
-        <div className="text-lg text-red-600">Error loading dashboard data. Please try again later.</div>
+        <div className="text-lg text-red-600">
+          Error loading dashboard data. Please try again later.
+        </div>
       </div>
     );
   }
@@ -61,7 +67,15 @@ export default function DashboardPage() {
     <main className="py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="space-y-8">
-          <PageHeader title={`Welcome back, ${user?.firstName}👋`} description="Here's a summary of your clinics' performance and activities.">
+          <PageHeader
+            title={`Welcome back, ${
+              user?.firstName
+                ? user.firstName.charAt(0).toUpperCase() +
+                  user.firstName.slice(1)
+                : ""
+            }👋`}
+            description="Here's a summary of your clinics' performance and activities."
+          >
             <button
               onClick={() => setIsAddClinicModalOpen(true)}
               className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all duration-200 shadow-sm"
@@ -84,7 +98,9 @@ export default function DashboardPage() {
               {/* Revenue Chart */}
               <Card className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-900 mb-4">BNPL Revenue (Last 30 Days)</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900 mb-4">
+                    BNPL Revenue (Last 30 Days)
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <RevenueChart />
@@ -169,20 +185,33 @@ export default function DashboardPage() {
               {/* Key Performance Indicators */}
               <Card className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-900 mb-4">Key Metrics</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900 mb-4">
+                    Key Metrics
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {kpis.map((kpi, index) => (
-                      <div key={index} className="flex items-center justify-between">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between"
+                      >
                         <div>
-                          <p className="text-sm font-medium text-gray-600">{kpi.label}</p>
-                          <p className="text-xl font-bold text-gray-900 mt-1">{kpi.value}</p>
+                          <p className="text-sm font-medium text-gray-600">
+                            {kpi.label}
+                          </p>
+                          <p className="text-xl font-bold text-gray-900 mt-1">
+                            {kpi.value}
+                          </p>
                         </div>
-                        <div className={`flex items-center space-x-1 text-sm font-medium ${
-                          kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {kpi.trend === 'up' ? (
+                        <div
+                          className={`flex items-center space-x-1 text-sm font-medium ${
+                            kpi.trend === "up"
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {kpi.trend === "up" ? (
                             <ArrowUpRight className="w-4 h-4" />
                           ) : (
                             <ArrowDownRight className="w-4 h-4" />
@@ -198,17 +227,25 @@ export default function DashboardPage() {
               {/* Needs Attention */}
               <Card className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-900 mb-4">Needs Attention</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900 mb-4">
+                    Needs Attention
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <Link href="/payments?status=overdue" className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-red-300 transition-all duration-200 group">
+                    <Link
+                      href="/payments?status=overdue"
+                      className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-red-300 transition-all duration-200 group"
+                    >
                       <span className="font-medium text-gray-900 group-hover:text-red-700">
                         3 Payments Overdue
                       </span>
                       <AlertCircle className="w-5 h-5 text-red-400 group-hover:text-red-600" />
                     </Link>
-                    <Link href="/clinics?status=pending" className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-yellow-300 transition-all duration-200 group">
+                    <Link
+                      href="/clinics?status=pending"
+                      className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-yellow-300 transition-all duration-200 group"
+                    >
                       <span className="font-medium text-gray-900 group-hover:text-yellow-700">
                         2 Clinic Applications Pending
                       </span>
@@ -239,4 +276,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
