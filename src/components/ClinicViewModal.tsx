@@ -26,9 +26,9 @@ interface ClinicData {
   location: string;
   phone: string;
   email: string;
-  status: string;
-  totalPlans: number;
-  monthlyRevenue: string;
+  status: 'active' | 'paused' | 'discontinued';
+  activePlans: number;
+  revenue: string;
   joinDate: string;
   rating: number;
   patients: number;
@@ -167,10 +167,10 @@ export default function ClinicViewModal({ isOpen, onClose, clinic, onUpdate }: C
     switch (status) {
       case 'active':
         return 'bg-green-100 text-green-800';
-      case 'pending':
+      case 'paused':
         return 'bg-yellow-100 text-yellow-800';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-800';
+      case 'discontinued':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -180,8 +180,10 @@ export default function ClinicViewModal({ isOpen, onClose, clinic, onUpdate }: C
     switch (status) {
       case 'active':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'pending':
+      case 'paused':
         return <Clock className="w-4 h-4 text-yellow-600" />;
+      case 'discontinued':
+        return <AlertCircle className="w-4 h-4 text-red-600" />;
       default:
         return <AlertCircle className="w-4 h-4 text-gray-600" />;
     }
@@ -210,7 +212,7 @@ export default function ClinicViewModal({ isOpen, onClose, clinic, onUpdate }: C
             <h4 className="font-semibold text-gray-900">Active Plans</h4>
             <CreditCard className="w-5 h-5 text-blue-600" />
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formData.totalPlans}</p>
+          <p className="text-2xl font-bold text-gray-900">{formData.activePlans}</p>
           <p className="text-sm text-gray-600 mt-1">Payment plans</p>
         </div>
         
@@ -219,7 +221,7 @@ export default function ClinicViewModal({ isOpen, onClose, clinic, onUpdate }: C
             <h4 className="font-semibold text-gray-900">Monthly Revenue</h4>
             <TrendingUp className="w-5 h-5 text-green-600" />
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formData.monthlyRevenue}</p>
+          <p className="text-2xl font-bold text-gray-900">{formData.revenue}</p>
           <p className="text-sm text-gray-600 mt-1">This month</p>
         </div>
       </div>
@@ -543,7 +545,7 @@ export default function ClinicViewModal({ isOpen, onClose, clinic, onUpdate }: C
             <CreditCard className="w-6 h-6 text-blue-600" />
           </div>
           <div className="space-y-2">
-            <p className="text-3xl font-bold text-gray-900">{formData.totalPlans}</p>
+            <p className="text-3xl font-bold text-gray-900">{formData.activePlans}</p>
             <p className="text-sm text-gray-600">Active payment plans</p>
             <div className="flex items-center space-x-2 text-sm">
               <span className="text-green-600 font-medium">+12%</span>
@@ -558,7 +560,7 @@ export default function ClinicViewModal({ isOpen, onClose, clinic, onUpdate }: C
             <TrendingUp className="w-6 h-6 text-green-600" />
           </div>
           <div className="space-y-2">
-            <p className="text-3xl font-bold text-gray-900">{formData.monthlyRevenue}</p>
+            <p className="text-3xl font-bold text-gray-900">{formData.revenue}</p>
             <p className="text-sm text-gray-600">Monthly revenue</p>
             <div className="flex items-center space-x-2 text-sm">
               <span className="text-green-600 font-medium">+8.5%</span>

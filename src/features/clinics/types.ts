@@ -7,11 +7,12 @@ export interface Clinic {
   location: string;
   phone: string;
   email: string;
-  status: ClinicStatus;
-  totalPlans: number;
-  monthlyRevenue: string; // Will be number in the future
+  status: 'active' | 'paused' | 'discontinued';
+  activePlans: number;
+  revenue: string;
   joinDate: string;
   rating: number;
+  reviews: number;
   patients: number;
   growth: string;
 }

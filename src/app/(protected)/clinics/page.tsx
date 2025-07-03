@@ -36,8 +36,8 @@ export default function ClinicsPage() {
   const statusFilterOptions = [
     { value: 'all', label: 'All Status' },
     { value: 'active', label: 'Active' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'inactive', label: 'Inactive' },
+    { value: 'paused', label: 'Paused' },
+    { value: 'discontinued', label: 'Discontinued' },
   ];
 
   if (isLoading) {
