@@ -107,14 +107,27 @@ body {
   outline-offset: 2px;
 }
 
-/* Card hover effects */
+/* Airbnb-inspired card hover effects */
 .card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Enhanced shadow system for Airbnb-style cards */
+.shadow-airbnb {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-airbnb-hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.shadow-airbnb-active {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* Gradient backgrounds */
@@ -206,4 +219,74 @@ body {
 
 .text-pretty {
   text-wrap: pretty;
+}
+
+/* Airbnb-inspired star rating styles */
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star-rating .star {
+  width: 14px;
+  height: 14px;
+  transition: all 0.2s ease;
+}
+
+.star-rating .star.filled {
+  color: #FF385C;
+  fill: #FF385C;
+}
+
+.star-rating .star.empty {
+  color: #e5e7eb;
+  fill: #e5e7eb;
+}
+
+/* Enhanced hover states for better UX */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Subtle background colors for better visual hierarchy */
+.bg-gray-25 {
+  background-color: #fafafa;
+}
+
+.bg-gray-75 {
+  background-color: #f7f7f7;
+}
+
+/* Enhanced focus states for accessibility */
+.focus-ring {
+  transition: box-shadow 0.2s ease;
+}
+
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Improved table styles for better readability */
+.table-hover tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* Enhanced button styles */
+.btn-airbnb {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-airbnb:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
