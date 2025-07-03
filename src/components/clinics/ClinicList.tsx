@@ -12,10 +12,10 @@ const getStatusColor = (status: string) => {
   switch (status) {
     case 'active':
       return 'bg-green-100 text-green-800 border-green-200';
-    case 'pending':
+    case 'paused':
       return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    case 'inactive':
-      return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'discontinued':
+      return 'bg-red-100 text-red-800 border-red-200';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
   }
@@ -72,9 +72,9 @@ export default function ClinicList({ clinics, onViewClinic }: ClinicListProps) {
               </TableCell>
               <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{clinic.type}</TableCell>
               <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{clinic.location}</TableCell>
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{clinic.totalPlans}</TableCell>
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{clinic.activePlans}</TableCell>
               <TableCell className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">{clinic.monthlyRevenue}</div>
+                <div className="text-sm font-medium text-gray-900">{clinic.revenue}</div>
                 {clinic.growth !== '0%' && (
                   <div className={`text-xs ${clinic.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
                     {clinic.growth}

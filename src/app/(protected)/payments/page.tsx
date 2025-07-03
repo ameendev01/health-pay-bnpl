@@ -101,7 +101,7 @@ export default function PaymentsPage() {
   ];
 
   const renderPaymentRow = (payment: PaymentPlan) => (
-    <tr key={payment.id} className={`hover:bg-gray-50 transition-colors duration-200 ${getRowClassName(payment)}`}>
+    <tr key={payment.id} className={`hover:bg-gray-50 transition-colors duration-200 ${getRowClassName(payment)} border-b-white`}>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="font-medium text-gray-900">{payment.id}</div>
         <div className="text-sm text-gray-500">{payment.procedure}</div>
@@ -169,7 +169,7 @@ export default function PaymentsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Active Plans</CardTitle>
             <CreditCard className="h-4 w-4 text-blue-600" />
           </CardHeader>
@@ -180,7 +180,7 @@ export default function PaymentsPage() {
         </Card>
         
         <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -191,7 +191,7 @@ export default function PaymentsPage() {
         </Card>
         
         <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Overdue</CardTitle>
             <XCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
@@ -202,7 +202,7 @@ export default function PaymentsPage() {
         </Card>
         
         <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-gray-600">Total Value</CardTitle>
             <Calendar className="h-4 w-4 text-teal-600" />
           </CardHeader>
