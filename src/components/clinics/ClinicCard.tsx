@@ -41,8 +41,8 @@ export default function Component({ clinic, onView }: ClinicCardProps) {
         <div className="bg-white px-6 ">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-4">
-              <Avatar className="h-12 w-12 bg-gray-900">
-                <AvatarFallback className="bg-gray-900 text-white">
+              <Avatar className="h-12 w-12 bg-[#1557f6]">
+                <AvatarFallback className="bg-[#1557f6] text-white">
                   <Building2 className="h-6 w-6" />
                 </AvatarFallback>
               </Avatar>
@@ -69,7 +69,7 @@ export default function Component({ clinic, onView }: ClinicCardProps) {
                 variant="secondary"
                 className="bg-green-100 text-green-700 border-0"
               >
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-[2px]"></div>
                 Active
               </Badge>
             </div>
@@ -83,7 +83,7 @@ export default function Component({ clinic, onView }: ClinicCardProps) {
 
         <CardContent className="p-0">
           {/* Key Metrics - Clean Layout */}
-          <div className="px-6 py-5 bg-gray-100 border-y border-gray-100 rounded-xl mx-5">
+          <div className="px-6 py-5 bg-[#e9f9fb] border-y border-[#effafb] rounded-xl mx-5">
             <div className="grid grid-cols-2 gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
@@ -186,7 +186,7 @@ export default function Component({ clinic, onView }: ClinicCardProps) {
           <div className="px-6 pt-4 bg-white border-t border-gray-100">
             <div className="flex space-x-3">
               <Button
-                className="flex-1 bg-black hover:bg-gray-800 text-white"
+                className="flex-1 bg-white border-[1.5px] border-gray-200 hover:bg-[#1557f6] hover:text-white text-black"
                 onClick={() => onView(clinic)}
               >
                 View Details
@@ -194,7 +194,7 @@ export default function Component({ clinic, onView }: ClinicCardProps) {
               <Button
                 // variant="outline"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="px-4 bg-white border-gray-300 border-[1.5px] hover:bg-gray-50"
+                className="px-4 bg-white border-gray-200 border-[1.5px] hover:bg-gray-50"
               >
                 {isExpanded ? (
                   <ChevronUp className="h-4 w-4 text-black" />
