@@ -15,10 +15,13 @@ import RiskAnalysis from '@/components/analytics/RiskAnalysis';
 import Predictions from '@/components/analytics/Predictions';
 import { useAnalyticsData } from '@/features/analytics/hooks/useAnalyticsData';
 import KeyInsights from '@/components/analytics/KeyInsights';
+import ClinicViewModal from '@/components/ClinicViewModal';
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState('6months');
   const [activeView, setActiveView] = useState('overview');
+  const [selectedClinic, setSelectedClinic] = useState<any>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const { data, isLoading, error } = useAnalyticsData();
 
@@ -30,6 +33,28 @@ export default function AnalyticsPage() {
     { id: 'risk', name: 'Risk Analysis', icon: AlertTriangle },
     { id: 'predictions', name: 'Predictions', icon: TrendingUp },
   ];
+
+  const handleViewClinic = (clinic: any) => {
+    // Transform the clinic data to match the expected format
+    const clinicData = {
+      id: clinic.id,
+      name: clinic.name,
+      type: clinic.type,
+      location: clinic.location,
+      phone: clinic.phone,
+      email: clinic.email,
+      status: clinic.status,
+      totalPlans: clinic.totalPlans,
+      monthlyRevenue: clinic.monthlyRevenue,
+      joinDate: new Date().toISOString().split('T')[0], // Mock join date
+      rating: clinic.rating || 0,
+      patients: Math.floor(Math.random() * 1000) + 500, // Mock patient count
+      growth: `${clinic.growth > 0 ? '+' : ''}${clinic.growth}%`
+    };
+    
+    setSelectedClinic(clinicData);
+    setIsViewModalOpen(true);
+  };
 
   const renderViewContent = () => {
     if (isLoading) {
@@ -56,7 +81,7 @@ export default function AnalyticsPage() {
         return (
           <div className="space-y-6">
             <PaymentPerformanceMetrics data={data.paymentPerformance} />
-            <ClinicPerformanceTable data={data.clinicPerformance} />
+            <ClinicPerformanceTable data={data.clinicPerformance} onViewClinic={handleViewClinic} />
           </div>
         );
       case 'geographic':
@@ -114,6 +139,17 @@ export default function AnalyticsPage() {
       </div>
 
       {renderViewContent()}
+
+      {/* Clinic View Modal */}
+      <ClinicViewModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedClinic(null);
+        }}
+        clinic={selectedClinic}
+        onUpdate={() => { /* Implement update logic */ }}
+      />
     </div>
   );
 }
