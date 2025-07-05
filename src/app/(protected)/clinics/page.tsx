@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Building2, Plus, Grid3X3, List } from 'lucide-react';
+import { Building2, Plus, Grid3X3, List, FileText } from 'lucide-react';
 import { useClinics } from '@/features/clinics/hooks/useClinics';
 import { Clinic } from '@/features/clinics/types';
 import PageHeader from '@/components/shared/PageHeader';
@@ -10,6 +10,7 @@ import EmptyState from '@/components/shared/EmptyState';
 import ClinicGrid from '@/components/clinics/ClinicGrid';
 import ClinicList from '@/components/clinics/ClinicList';
 import ClinicViewModal from '@/components/ClinicViewModal';
+import NewPaymentPlanWizard from '@/components/NewPaymentPlanWizard';
 
 export default function ClinicsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +18,7 @@ export default function ClinicsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   const { data: clinics, isLoading, error } = useClinics();
 
@@ -51,10 +53,16 @@ export default function ClinicsPage() {
   return (
     <div className="space-y-8">
       <PageHeader title="Healthcare Providers" description="Manage and monitor your clinic network">
-        <button className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-          <Plus className="w-5 h-5 mr-2" />
-          Add New Clinic
-        </button>
+        <div className="flex space-x-2">
+          <button className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all duration-200">
+            <Plus className="w-5 h-5 mr-2" />
+            Add New Clinic
+          </button>
+          <button onClick={() => setIsWizardOpen(true)} className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            <FileText className="w-5 h-5 mr-2" />
+            New Payment Plan
+          </button>
+        </div>
       </PageHeader>
 
       <FilterBar
@@ -110,6 +118,11 @@ export default function ClinicsPage() {
         }}
         clinic={selectedClinic}
         onUpdate={() => { /* Implement update logic */ }}
+      />
+
+      <NewPaymentPlanWizard 
+        isOpen={isWizardOpen} 
+        onClose={() => setIsWizardOpen(false)} 
       />
     </div>
   );
