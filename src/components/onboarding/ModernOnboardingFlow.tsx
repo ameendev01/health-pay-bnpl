@@ -372,13 +372,7 @@ export default function ModernOnboardingFlow() {
               </RadioGroup>
             )}
             {currentStep === 2 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Payment Information</CardTitle>
-                  <CardDescription>
-                    Secure payment processing for your practice
-                  </CardDescription>
-                </CardHeader>
+              <Card className="border-2 border-slate-200 shadow-xl">
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="cardNumber">Card Number</Label>
