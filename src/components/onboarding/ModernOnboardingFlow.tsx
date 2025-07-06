@@ -232,7 +232,7 @@ export default function ModernOnboardingFlow() {
                       className={`h-full transition-all duration-500 ease-out relative overflow-hidden ${
                         selectedOption === "single-clinic"
                           ? "ring-4 ring-blue-500/30 shadow-xl border-blue-700 border-4 bg-blue-50/50 scale-[1.02]"
-                          : "border-2 border-slate-300 shadow-md"
+                          : "border-2 border-slate-200 shadow-xl"
                       }`}
                     >
                       <div
@@ -307,8 +307,8 @@ export default function ModernOnboardingFlow() {
                     <Card
                       className={`h-full transition-all duration-500 ease-out relative overflow-hidden ${
                         selectedOption === "multiple-clinics"
-                          ? "ring-4 ring-emerald-500/30 shadow-xl border-emerald-700 border-4 bg-emerald-50/50  scale-[1.02]"
-                          : "border-2 border-slate-300 shadow-md"
+                          ? "ring-4 ring-emerald-500/30 shadow-xl border-emerald-700 border-4 bg-emerald-50/50"
+                          : "border-2 border-slate-200 shadow-xl"
                       }`}
                     >
                       <div
