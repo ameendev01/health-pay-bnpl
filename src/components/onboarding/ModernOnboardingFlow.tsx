@@ -364,13 +364,7 @@ export default function ModernOnboardingFlow() {
             )}
 
             {currentStep === 2 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{steps[1].title}</CardTitle>
-                  <CardDescription>
-                    {steps[1].subtitle}
-                  </CardDescription>
-                </CardHeader>
+              <Card className="border-slate-200 shadow-xl">
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="bankName">Bank Name</Label>
@@ -429,13 +423,7 @@ export default function ModernOnboardingFlow() {
             )}
 
             {currentStep === 3 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{steps[2].title}</CardTitle>
-                  <CardDescription>
-                    {steps[2].subtitle}
-                  </CardDescription>
-                </CardHeader>
+              <Card className="border-slate-200 shadow-xl">
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="clinicName">Clinic Name</Label>
