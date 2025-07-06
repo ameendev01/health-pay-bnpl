@@ -8,7 +8,7 @@ export default async function OnboardingLayout({ children }: PropsWithChildren) 
     redirect('/dashboard')
   }
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen bg-[#fefcf5]">
       {children}
     </div>
   );

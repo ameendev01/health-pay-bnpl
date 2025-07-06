@@ -4,11 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Sparkles, Heart } from 'lucide-react';
 
-interface SuccessAnimationProps {
-  onComplete?: () => void;
-}
-
-export default function SuccessAnimation({ onComplete }: SuccessAnimationProps) {
+export default function SuccessAnimation() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Confetti Animation */}
