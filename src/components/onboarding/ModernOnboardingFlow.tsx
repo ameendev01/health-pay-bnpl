@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import {
-  CreditCard,
   Building2,
   Stethoscope,
   CheckCircle,
@@ -38,10 +37,10 @@ import {
 interface FormData {
   footprint: "single" | "multiple";
   // Payment Information
-  cardNumber: string;
-  expiryDate: string;
-  cvv: string;
-  cardholderName: string;
+  // cardNumber: string;
+  // expiryDate: string;
+  // cvv: string;
+  // cardholderName: string;
 
   // Banking Details
   bankName: string;
@@ -67,18 +66,12 @@ const steps = [
   },
   {
     id: 2,
-    title: "Payment Information",
-    subtitle: "Secure payment processing for your practice",
-    icon: CreditCard,
-  },
-  {
-    id: 3,
     title: "Banking Details",
     subtitle: "Connect your bank account for seamless transactions",
     icon: Building2,
   },
   {
-    id: 4,
+    id: 3,
     title: "Clinic Profile",
     subtitle: "Tell us about your healthcare practice",
     icon: Stethoscope,
@@ -102,14 +95,12 @@ export default function ModernOnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     footprint: "single",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    cardholderName: "",
+    // Banking Details
     bankName: "",
     accountNumber: "",
     routingNumber: "",
     accountType: "checking",
+    // Clinic Profile
     clinicName: "",
     clinicType: "",
     address: "",
@@ -371,63 +362,13 @@ export default function ModernOnboardingFlow() {
                 </div>
               </RadioGroup>
             )}
-            {currentStep === 2 && (
-              <Card className="border-2 border-slate-200 shadow-xl">
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cardNumber">Card Number</Label>
-                    <Input
-                      id="cardNumber"
-                      placeholder="Card Number"
-                      value={formData.cardNumber}
-                      onChange={(e) =>
-                        updateField("cardNumber", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="expiryDate">Expiry Date</Label>
-                      <Input
-                        id="expiryDate"
-                        placeholder="MM/YY"
-                        value={formData.expiryDate}
-                        onChange={(e) =>
-                          updateField("expiryDate", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="cvv">CVV</Label>
-                      <Input
-                        id="cvv"
-                        placeholder="CVV"
-                        value={formData.cvv}
-                        onChange={(e) => updateField("cvv", e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cardholderName">Cardholder Name</Label>
-                    <Input
-                      id="cardholderName"
-                      placeholder="Cardholder Name"
-                      value={formData.cardholderName}
-                      onChange={(e) =>
-                        updateField("cardholderName", e.target.value)
-                      }
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
-            {currentStep === 3 && (
+            {currentStep === 2 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Banking Details</CardTitle>
+                  <CardTitle>{steps[1].title}</CardTitle>
                   <CardDescription>
-                    Connect your bank account for seamless transactions
+                    {steps[1].subtitle}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -487,12 +428,12 @@ export default function ModernOnboardingFlow() {
               </Card>
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 3 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Clinic Profile</CardTitle>
+                  <CardTitle>{steps[2].title}</CardTitle>
                   <CardDescription>
-                    Tell us about your healthcare practice
+                    {steps[2].subtitle}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -588,7 +529,7 @@ export default function ModernOnboardingFlow() {
               ) : (
                 <>
                   <span>
-                    {currentStep === 4 ? "Complete Setup" : "Continue"}
+                    {currentStep === 3 ? "Complete Setup" : "Continue"}
                   </span>
                   {currentStep < 4 && <ArrowRight className="w-6 h-6 ml-2" />}
                   {currentStep === 4 && <Sparkles className="w-6 h-6 ml-2" />}
