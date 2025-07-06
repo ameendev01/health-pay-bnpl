@@ -61,7 +61,7 @@ interface FormData {
 const steps = [
   {
     id: 1,
-    title: "Footprint",
+    title: "Choose Your Practise Type",
     subtitle: "How are you joining us today?",
     icon: Heart,
   },
@@ -215,11 +215,7 @@ export default function ModernOnboardingFlow() {
           {/* Step Header */}
           <div className="text-center space-y-4">
             <div
-              className={`w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 ${
-                currentStep === 1
-                  ? "animate-pulse"
-                  : "hover:scale-105 transition-transform duration-300"
-              } rounded-2xl flex items-center justify-center mx-auto shadow-lg`}
+              className={`w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg`}
             >
               {React.createElement(steps[currentStep - 1].icon, {
                 className: "w-8 h-8 text-white",
@@ -361,7 +357,7 @@ export default function ModernOnboardingFlow() {
                         <div className="grid grid-cols-2 gap-2 mb-4">
                           <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
                             <Building2 className="w-4 h-4 text-emerald-600  flex-shrink-0" />
-                            <span className="text-xs font-medium text-slate-700 ">
+                            <span className="text-xs font-medium text-slate-700 whitespace-nowrap">
                               Multi-Location
                             </span>
                           </div>
@@ -373,8 +369,8 @@ export default function ModernOnboardingFlow() {
                           </div>
                           <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
                             <BarChart3 className="w-4 h-4 text-emerald-600  flex-shrink-0" />
-                            <span className="text-xs font-medium text-slate-700">
-                              Advanced Analytics
+                            <span className="text-xs font-medium text-slate-700 whitespace-nowrap">
+                              Analytics
                             </span>
                           </div>
                           <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
