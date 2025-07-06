@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+// import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CreditCard, 
   Building2, 
@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { completeOnboarding } from '@/app/(auth)/onboarding/_actions';
 import { useUser } from '@clerk/nextjs';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface FormData {
   // Payment Information
@@ -189,7 +190,7 @@ export default function ModernOnboardingFlow() {
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center p-4 text-black">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
