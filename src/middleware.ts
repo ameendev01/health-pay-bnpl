@@ -26,8 +26,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (!userId && !isPublicRoute(req))
     return NextResponse.redirect(new URL("/login", req.url));
 
-  if (userId && !sessionClaims?.metadata?.onboardingComplete && req.nextUrl.pathname !== "/onboarding/createClinic"){
-    const onboardingUrl = new URL("/onboarding/createClinic", req.url);
+  if (userId && !sessionClaims?.metadata?.onboardingComplete && req.nextUrl.pathname !== "/onboarding"){
+    const onboardingUrl = new URL("/onboarding", req.url);
     return NextResponse.redirect(onboardingUrl);
   }
 
