@@ -603,11 +603,10 @@ export default function ModernOnboardingFlow() {
           </div>
 
           {/* Action Button */}
-          <div className="pt-8">
+          <div className="pt-8 flex justify-center">
             <Button
               onClick={handleNext}
-              disabled={isSubmitting}
-              className="w-full"
+              disabled={isSubmitting || (currentStep === 1 && !selectedOption)}
             >
               {isSubmitting ? (
                 <>
