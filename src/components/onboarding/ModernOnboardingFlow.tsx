@@ -8,6 +8,10 @@ import {
   ArrowRight,
   Sparkles,
   Heart,
+  Settings,
+  BarChart3,
+  Users,
+  Calendar,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
@@ -94,6 +98,7 @@ const clinicTypes = [
 ];
 
 export default function ModernOnboardingFlow() {
+  const [selectedOption, setSelectedOption] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     footprint: "single",
@@ -234,36 +239,163 @@ export default function ModernOnboardingFlow() {
           {/* Form Content */}
           <div className="space-y-6">
             {currentStep === 1 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Footprint Selector</CardTitle>
-                  <CardDescription>
-                    Choose the option that best describes your organization.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RadioGroup
-                    defaultValue="single"
-                    onValueChange={(value) =>
-                      updateField(
-                        "footprint",
-                        value as "single" | "multiple"
-                      )
-                    }
+              <RadioGroup
+                value={selectedOption}
+                onValueChange={setSelectedOption}
+                className="grid md:grid-cols-2 gap-6 mb-8 max-w-4xl mx-auto"
+              >
+                <div className="relative group">
+                  <RadioGroupItem
+                    value="single-clinic"
+                    id="single-clinic"
+                    className="peer sr-only"
+                  />
+                  <Label
+                    htmlFor="single-clinic"
+                    className="cursor-pointer block"
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="single" id="r1" />
-                      <Label htmlFor="r1">I'm onboarding one clinic</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="multiple" id="r2" />
-                      <Label htmlFor="r2">
-                        I manage a brand with multiple clinics
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </CardContent>
-              </Card>
+                    <Card
+                      className={`h-full transition-all duration-500 ease-out relative overflow-hidden ${
+                        selectedOption === "single-clinic"
+                          ? "ring-4 ring-blue-500/30 shadow-xl border-blue-700 border-4 bg-blue-50/50 scale-[1.02]"
+                          : "border-2 border-slate-300 shadow-md"
+                      }`}
+                    >
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br from-blue-500/8 to-blue-600/4 transition-all duration-500 ease-out ${
+                          selectedOption === "single-clinic"
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      />
+
+                      <CardHeader className="text-center pb-4 pt-6 relative z-10">
+                        <div className="mx-auto mb-4 w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center shadow-md">
+                          <Stethoscope className="w-7 h-7 text-blue-600 " />
+                        </div>
+                        <CardTitle className="text-xl font-bold text-slate-900 mb-1">
+                          Single Clinic
+                        </CardTitle>
+                        <CardDescription className="text-sm text-slate-600">
+                          Perfect for independent practitioners
+                        </CardDescription>
+                      </CardHeader>
+
+                      <CardContent className="relative z-10 px-6 pb-6">
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <Calendar className="w-4 h-4 text-blue-600  flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700 ">
+                              Scheduling
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <Users className="w-4 h-4 text-blue-600  flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700 ">
+                              Patients
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <BarChart3 className="w-4 h-4 text-blue-600  flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700 ">
+                              Analytics
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <Settings className="w-4 h-4 text-blue-600 d flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700 ">
+                              Setup
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-slate-600  text-center pt-3 border-t border-slate-200 ">
+                          <span className="font-semibold text-slate-900 ">
+                            Ideal for:
+                          </span>{" "}
+                          Solo practitioners, small clinics
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Label>
+                </div>
+
+                <div className="relative group">
+                  <RadioGroupItem
+                    value="multiple-clinics"
+                    id="multiple-clinics"
+                    className="peer sr-only"
+                  />
+                  <Label
+                    htmlFor="multiple-clinics"
+                    className="cursor-pointer block"
+                  >
+                    <Card
+                      className={`h-full transition-all duration-500 ease-out relative overflow-hidden ${
+                        selectedOption === "multiple-clinics"
+                          ? "ring-4 ring-emerald-500/30 shadow-xl border-emerald-700 border-4 bg-emerald-50/50  scale-[1.02]"
+                          : "border-2 border-slate-300 shadow-md"
+                      }`}
+                    >
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br from-emerald-500/8 to-emerald-600/4 transition-all duration-500 ease-out ${
+                          selectedOption === "multiple-clinics"
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      />
+
+                      <CardHeader className="text-center pb-4 pt-6 relative z-10">
+                        <div className="mx-auto mb-4 w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-200  rounded-xl flex items-center justify-center shadow-md">
+                          <Building2 className="w-7 h-7 text-emerald-600 " />
+                        </div>
+                        <CardTitle className="text-xl font-bold text-slate-900  mb-1">
+                          Multiple Clinics
+                        </CardTitle>
+                        <CardDescription className="text-sm text-slate-600 ">
+                          Built for healthcare brands
+                        </CardDescription>
+                      </CardHeader>
+
+                      <CardContent className="relative z-10 px-6 pb-6">
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <Building2 className="w-4 h-4 text-emerald-600  flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700 ">
+                              Multi-Location
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <Users className="w-4 h-4 text-emerald-600  flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700 ">
+                              Team Mgmt
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <BarChart3 className="w-4 h-4 text-emerald-600  flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700">
+                              Advanced Analytics
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 bg-white/50  rounded-md">
+                            <Settings className="w-4 h-4 text-emerald-600  flex-shrink-0" />
+                            <span className="text-xs font-medium text-slate-700">
+                              Permissions
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-slate-600 text-center pt-3 border-t border-slate-200">
+                          <span className="font-semibold text-slate-900">
+                            Ideal for:
+                          </span>{" "}
+                          Healthcare chains, enterprises
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Label>
+                </div>
+              </RadioGroup>
             )}
             {currentStep === 2 && (
               <Card>
