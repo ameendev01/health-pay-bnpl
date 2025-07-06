@@ -185,29 +185,7 @@ export default function ModernOnboardingFlow() {
   }
 
   return (
-    <div className="text-black h-full">
-      {/* Header */}
-      <div className="relative z-10 bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <Heart className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">HealthPay</h1>
-                <p className="text-sm text-gray-600">Setup your account</p>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">
-                Step {currentStep} of 4
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="text-black h-full flex justify-center items-center">
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-6 py-12">
