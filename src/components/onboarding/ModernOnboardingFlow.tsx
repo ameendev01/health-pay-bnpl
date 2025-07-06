@@ -177,7 +177,6 @@ export default function ModernOnboardingFlow() {
 
   return (
     <div className="text-black h-full flex justify-center items-center">
-
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="space-y-8">
