@@ -1,31 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import {
-  Building2,
-  Stethoscope,
-  CheckCircle,
-  ArrowRight,
-  Sparkles,
-  Heart,
-  Settings,
-  BarChart3,
-  Users,
-  Calendar,
-  CreditCard,
-  Shield,
-  Upload,
-  FileText,
-  Bank,
-  User,
-  MapPin,
-  Phone,
-  Mail,
-  Hash,
-  DollarSign,
-  Calendar as CalendarIcon,
-  Lock,
-  AlertCircle,
-} from "lucide-react";
+import { Building2, Stethoscope, CheckCircle, ArrowRight, Sparkles, Heart, Settings, BarChart3, Users, Calendar, CreditCard, Shield, Upload, FileText, Ban as Bank, User, MapPin, Phone, Mail, Hash, DollarSign, Calendar as CalendarIcon, Lock, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
 import { useUser } from "@clerk/nextjs";
