@@ -266,7 +266,7 @@ export default function ModernOnboardingFlow() {
               <h2 className="text-2xl font-bold">Legal Identity</h2>
               <p className="text-muted-foreground">Required for FinCEN "Know Your Business" compliance</p>
             </div>
-            <div className="grid gap-4">
+            <div className="grid grid-cols-2 grid-rows-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="legalBusinessName">Legal Business Name *</Label>
                 <Input
@@ -285,7 +285,7 @@ export default function ModernOnboardingFlow() {
                   placeholder="Enter DBA if different from legal name"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <Label htmlFor="ein">EIN / Tax-ID *</Label>
                 <Input
                   id="ein"
@@ -294,7 +294,7 @@ export default function ModernOnboardingFlow() {
                   placeholder="XX-XXXXXXX"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 row-start-3">
                 <Label htmlFor="entityType">Entity Type *</Label>
                 <Select value={formData.entityType} onValueChange={(value) => updateFormData("entityType", value)}>
                   <SelectTrigger>
@@ -322,14 +322,14 @@ export default function ModernOnboardingFlow() {
                 Required to verify your clinic is authorized to provide healthcare
               </p>
             </div>
-            <div className="grid gap-4">
+            <div className="grid grid-cols-2 grid-rows-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="medicalLicenseNumber">State Medical License # *</Label>
                 <Input
                   id="medicalLicenseNumber"
                   value={formData.medicalLicenseNumber}
                   onChange={(e) => updateFormData("medicalLicenseNumber", e.target.value)}
-                  placeholder="Enter license number"
+                  placeholder="e.g., FL AHCA 9233 | TX 007971 | CA 20-016-057"
                 />
                 <p className="text-xs text-muted-foreground">Or facility license # for dental/vision</p>
               </div>
@@ -342,7 +342,15 @@ export default function ModernOnboardingFlow() {
                   placeholder="10-digit NPI number"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="expiryDate">Expiry Date *</Label>
+                  <Input
+                    id="expiryDate"
+                    type="date"
+                    value={formData.expiryDate}
+                    onChange={(e) => updateFormData("expiryDate", e.target.value)}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="stateOfIssuance">State of Issuance *</Label>
                   <Select
@@ -361,17 +369,7 @@ export default function ModernOnboardingFlow() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expiryDate">Expiry Date *</Label>
-                  <Input
-                    id="expiryDate"
-                    type="date"
-                    value={formData.expiryDate}
-                    onChange={(e) => updateFormData("expiryDate", e.target.value)}
-                  />
-                </div>
               </div>
-            </div>
           </div>
         )
 
