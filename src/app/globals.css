@@ -21,6 +21,8 @@
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
+
+  --progress-diluted: #5f8ae6;
 }
 
 @theme inline {
@@ -46,9 +48,11 @@
   --color-popover-foreground: var(--popover-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-progress-diluted: var(--progress-diluted);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
@@ -68,7 +72,7 @@
     --popover: #0f172a;
     --popover-foreground: #f8fafc;
   }
-}
+} */
 
 body {
   background: var(--background);
