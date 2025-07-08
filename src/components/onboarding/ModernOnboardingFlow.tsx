@@ -7,9 +7,148 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
 import { Building2, CreditCard, FileText, MapPin, Stethoscope, User, Users, CheckCircle } from "lucide-react"
+
+// Compact Progress Card Component
+function ProgressCard({ currentStep }: { currentStep: number }) {
+  const steps = [
+    {
+      id: 1,
+      title: "Practice type",
+      range: [1], // Step 1
+    },
+    {
+      id: 2,
+      title: "Clinic Info",
+      range: [2, 3, 4, 5, 6, 7], // Steps 2-7
+    },
+    {
+      id: 3,
+      title: "Banking Details",
+      range: [8, 9, 10], // Steps 8-10
+    },
+  ]
+
+  const getGroupProgress = (stepGroup: any) => {
+    const totalSteps = stepGroup.range.length
+    const completedSteps = stepGroup.range.filter((step: number) => currentStep > step).length
+    const currentStepInGroup = stepGroup.range.includes(currentStep)
+
+    if (completedSteps === totalSteps) return 100
+    if (currentStepInGroup) return Math.round(((completedSteps + 0.5) / totalSteps) * 100)
+    return Math.round((completedSteps / totalSteps) * 100)
+  }
+
+  const getStepStatus = (stepGroup: any) => {
+    const progress = getGroupProgress(stepGroup)
+    if (progress === 100) return "completed"
+    if (progress > 0) return "current"
+    return "pending"
+  }
+
+  // Compact Segmented Progress Bar
+  const CompactProgressBar = ({ progress, segments = 45 }: { progress: number; segments?: number }) => {
+    const filledSegments = Math.round((progress / 100) * segments)
+
+    return (
+      <div className="flex gap-0.5 w-full">
+        {Array.from({ length: segments }, (_, index) => (
+          <div
+            key={index}
+            className={`h-6 flex-1 rounded-full transition-all duration-300 ${
+              index < filledSegments ? "bg-gradient-to-r from-orange-400 to-yellow-400" : "bg-gray-200"
+            }`}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  const overallProgress = Math.round((currentStep / 10) * 100)
+
+  return (
+    <div className="fixed right-8 bottom-8 z-50">
+      <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-3 w-64">
+        {/* Compact Header */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <CheckCircle className="w-3.5 h-3.5 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-gray-900 truncate">Onboarding Progress</h3>
+            <p className="text-xs text-gray-500">{overallProgress}% complete</p>
+          </div>
+        </div>
+
+        {/* Overall Progress Bar */}
+        <div className="mb-3">
+          <CompactProgressBar progress={overallProgress} segments={45} />
+        </div>
+
+        {/* Compact Steps */}
+        <div className="space-y-2">
+          {steps.map((step) => {
+            const progress = getGroupProgress(step)
+            const status = getStepStatus(step)
+
+            return (
+              <div key={step.id} className="flex items-center gap-2">
+                {/* Compact Checkmark */}
+                <div
+                  className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
+                    status === "completed"
+                      ? "bg-green-500 text-white"
+                      : status === "current"
+                        ? "bg-blue-100 text-gray-400 ring-1 ring-blue-200"
+                        : "bg-gray-100 text-gray-300"
+                  }`}
+                >
+                  <CheckCircle
+                    className={`w-3 h-3 transition-all duration-300 ${
+                      status === "completed" ? "text-white" : "text-gray-300"
+                    }`}
+                  />
+                </div>
+
+                {/* Step Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`text-xs font-medium truncate ${
+                        status === "completed"
+                          ? "text-green-700"
+                          : status === "current"
+                            ? "text-blue-700"
+                            : "text-gray-600"
+                      }`}
+                    >
+                      {step.title}
+                    </span>
+                    {status === "current" && (
+                      <span className="text-xs text-blue-600 font-medium ml-1">{progress}%</span>
+                    )}
+                    {status === "completed" && <CheckCircle className="w-3 h-3 text-green-500 ml-1 flex-shrink-0" />}
+                  </div>
+
+                  {/* Mini Progress Bar for Current Step */}
+                  
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Compact Footer */}
+        <div className="mt-3 pt-2 border-t border-gray-100">
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Step {currentStep}/10</span>
+            <span>{10 - currentStep} left</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const STEPS = [
   { id: 1, title: "Business Type", icon: Building2 },
@@ -24,7 +163,7 @@ const STEPS = [
   { id: 10, title: "Agreements", icon: FileText },
 ]
 
-export default function ModernOnboardingFlow() {
+export default function OnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
     businessType: "",
@@ -75,16 +214,14 @@ export default function ModernOnboardingFlow() {
     }
   }
 
-  const progress = (currentStep / STEPS.length) * 100
-
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
           <div className="space-y-8">
-            <div className="text-center space-y-3">
-              <h2 className="text-3xl font-bold text-gray-900">Choose Your Setup</h2>
-              <p className="text-lg text-gray-600">Select the option that best describes your practice</p>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Choose Your Setup</h2>
+              <p className="text-muted-foreground">Select the option that best describes your practice</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -266,7 +403,7 @@ export default function ModernOnboardingFlow() {
               <h2 className="text-2xl font-bold">Legal Identity</h2>
               <p className="text-muted-foreground">Required for FinCEN "Know Your Business" compliance</p>
             </div>
-            <div className="grid grid-cols-2 grid-rows-3 gap-4">
+            <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="legalBusinessName">Legal Business Name *</Label>
                 <Input
@@ -285,7 +422,7 @@ export default function ModernOnboardingFlow() {
                   placeholder="Enter DBA if different from legal name"
                 />
               </div>
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2">
                 <Label htmlFor="ein">EIN / Tax-ID *</Label>
                 <Input
                   id="ein"
@@ -294,7 +431,7 @@ export default function ModernOnboardingFlow() {
                   placeholder="XX-XXXXXXX"
                 />
               </div>
-              <div className="space-y-2 row-start-3">
+              <div className="space-y-2">
                 <Label htmlFor="entityType">Entity Type *</Label>
                 <Select value={formData.entityType} onValueChange={(value) => updateFormData("entityType", value)}>
                   <SelectTrigger>
@@ -322,14 +459,14 @@ export default function ModernOnboardingFlow() {
                 Required to verify your clinic is authorized to provide healthcare
               </p>
             </div>
-            <div className="grid grid-cols-2 grid-rows-2 gap-4">
+            <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="medicalLicenseNumber">State Medical License # *</Label>
                 <Input
                   id="medicalLicenseNumber"
                   value={formData.medicalLicenseNumber}
                   onChange={(e) => updateFormData("medicalLicenseNumber", e.target.value)}
-                  placeholder="e.g., FL AHCA 9233 | TX 007971 | CA 20-016-057"
+                  placeholder="Enter license number"
                 />
                 <p className="text-xs text-muted-foreground">Or facility license # for dental/vision</p>
               </div>
@@ -342,15 +479,7 @@ export default function ModernOnboardingFlow() {
                   placeholder="10-digit NPI number"
                 />
               </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expiryDate">Expiry Date *</Label>
-                  <Input
-                    id="expiryDate"
-                    type="date"
-                    value={formData.expiryDate}
-                    onChange={(e) => updateFormData("expiryDate", e.target.value)}
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="stateOfIssuance">State of Issuance *</Label>
                   <Select
@@ -369,7 +498,17 @@ export default function ModernOnboardingFlow() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="expiryDate">Expiry Date *</Label>
+                  <Input
+                    id="expiryDate"
+                    type="date"
+                    value={formData.expiryDate}
+                    onChange={(e) => updateFormData("expiryDate", e.target.value)}
+                  />
+                </div>
               </div>
+            </div>
           </div>
         )
 
@@ -794,53 +933,14 @@ export default function ModernOnboardingFlow() {
   }
 
   return (
-    <div className=" py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="">
+      <div className="max-w-xl mx-auto px-4">
+        {/* Existing content remains the same */}
         {/* Progress Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-black">Clinic Onboarding</h1>
-            <Badge variant="secondary" className=" text-white bg-[var(--primary)]">
-              Step {currentStep} of {STEPS.length}
-            </Badge>
-          </div>
-          <Progress value={progress} className="h-2" />
-
-          {/* Step Indicators */}
-          <div className="flex justify-between mt-4 overflow-x-auto">
-            {STEPS.map((step) => {
-              const Icon = step.icon
-              const isActive = step.id === currentStep
-              const isCompleted = step.id < currentStep
-
-              return (
-                <div
-                  key={step.id}
-                  className={`flex flex-col items-center min-w-0 flex-1 ${
-                    isActive ? "text-blue-600" : isCompleted ? "text-green-600" : "text-gray-400"
-                  }`}
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
-                      isActive
-                        ? "bg-blue-100 border-2 border-blue-600"
-                        : isCompleted
-                          ? "bg-green-100 border-2 border-green-600"
-                          : "bg-gray-100 border-2 border-gray-300"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <span className="text-xs text-center px-1">{step.title}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
 
         {/* Main Content */}
-        <div className="mb-8">
-          <div className="p-8">{renderStepContent()}</div>
+        <div className=" mb-14">
+          <div className="">{renderStepContent()}</div>
         </div>
 
         {/* Navigation */}
@@ -853,6 +953,9 @@ export default function ModernOnboardingFlow() {
           </Button>
         </div>
       </div>
+
+      {/* Add the Compact Progress Card */}
+      <ProgressCard currentStep={currentStep} />
     </div>
   )
 }
