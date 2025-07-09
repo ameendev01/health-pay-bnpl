@@ -684,10 +684,25 @@ export default function ModernOnboardingFlow() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ein">EIN / Tax-ID *</Label>
-                <Input
-                  id="ein"
-                  {...register("ein")}
-                  placeholder="XX-XXXXXXX"
+                <Controller
+                  name="ein"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      id="ein"
+                      placeholder="XX-XXXXXXX"
+                      maxLength={10}
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        let formattedValue = value;
+                        if (value.length > 2) {
+                          formattedValue = `${value.slice(0, 2)}-${value.slice(2, 9)}`;
+                        }
+                        field.onChange(formattedValue);
+                      }}
+                    />
+                  )}
                 />
                 {errors.ein && <p className="text-red-500 text-sm">{errors.ein.message}</p>}
               </div>
