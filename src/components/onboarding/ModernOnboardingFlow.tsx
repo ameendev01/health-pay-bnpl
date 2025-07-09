@@ -22,10 +22,14 @@ import {
   User,
   Users,
   CircleCheck,
+  ChevronDown,
 } from "lucide-react";
 
 // Compact Progress Card Component
-function ProgressCard({ currentStep }: { currentStep: number }) {
+function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   const steps = [
     {
       id: 1,
@@ -90,143 +94,266 @@ function ProgressCard({ currentStep }: { currentStep: number }) {
     );
   };
 
-  // const confettiTriggered = useRef(new Set())
-  // const checkRefs = useRef<{ [key: number]: HTMLDivElement | null }>({})
-  // const handleConfetti = (stepId: number) => {
-  //   const checkElement = checkRefs.current[stepId]
-  //   if (!checkElement) return
+  // Enhanced Circular Progress Component
+  const CircularProgress = ({
+    progress,
+    size = 72,
+  }: {
+    progress: number;
+    size?: number;
+  }) => {
+    const radius = (size - 12) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const strokeDasharray = circumference;
+    const strokeDashoffset = circumference - (progress / 100) * circumference;
 
-  //   // Get the position of the check element
-  //   const rect = checkElement.getBoundingClientRect()
-  //   const x = (rect.left + rect.width / 2) / window.innerWidth
-  //   const y = (rect.top + rect.height / 2) / window.innerHeight
-
-  //   console.log('Confetti origin:', { x, y })
-
-  //   const end = Date.now() + 1 * 1000; // 3 seconds
-  //   const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
-
-  //   const frame = () => {
-  //     if (Date.now() > end) return;
-
-  //     confetti({
-  //       particleCount: 4,
-  //       angle: 70,  // right
-  //       spread: 90, // Much smaller spread
-  //       startVelocity: 30,
-  //       origin: { x, y }, // Use calculated position
-  //       colors: colors,
-  //       scalar: 0.8, // Smaller particles
-  //       drift: 0.2
-  //     });
-  //     confetti({
-  //       particleCount: 4,
-  //       angle: 110, //left
-  //       spread: 90, // Much smaller spread
-  //       startVelocity: 30,
-  //       origin: { x, y }, // Use calculated position
-  //       colors: colors,
-  //       scalar: 0.8, // Smaller particles
-  //       drift: -0.2
-  //     });
-
-  //     requestAnimationFrame(frame);
-  //   };
-
-  //   frame();
-  // };
+    return (
+      <div
+        className="relative flex items-center justify-center"
+        style={{ width: size, height: size }}
+      >
+        <svg
+          className="transform -rotate-90 absolute"
+          width={size}
+          height={size}
+        >
+          {/* Background circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="rgb(229, 231, 235)"
+            strokeWidth="4"
+            fill="transparent"
+          />
+          {/* Progress circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="url(#progressGradient)"
+            strokeWidth="4"
+            fill="transparent"
+            strokeDasharray={strokeDasharray}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            className="transition-all duration-700 ease-out"
+          />
+          {/* Gradient definition */}
+          <defs>
+            <linearGradient
+              id="progressGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop offset="0%" stopColor="rgb(251, 146, 60)" />
+              <stop offset="100%" stopColor="rgb(250, 204, 21)" />
+            </linearGradient>
+          </defs>
+        </svg>
+        {/* Center content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-sm font-bold text-gray-900">{progress}%</span>
+          <span className="text-xs text-gray-500 mt-0.5">complete</span>
+        </div>
+      </div>
+    );
+  };
 
   const overallProgress = Math.round((currentStep / 10) * 100);
 
+  const toggleCollapse = () => {
+    if (isTransitioning) return;
+
+    setIsTransitioning(true);
+    setIsCollapsed(!isCollapsed);
+
+    // Reset transition state after animation completes
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 800);
+  };
+
   return (
     <div className="fixed right-8 bottom-8 z-50">
-      <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-3 w-64">
-        {/* Compact Header */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 truncate">
-              Onboarding Progress
-            </h3>
-            <p className="text-xs text-gray-500">{overallProgress}% complete</p>
-          </div>
+      {/* Container with fixed positioning for both states */}
+      <div className="relative">
+        {/* Collapsed State - Always rendered with opacity control */}
+        <div
+          className={`
+            absolute bottom-0 right-0 bg-white shadow-xl border border-gray-200 cursor-pointer
+            w-24 h-24 rounded-full flex items-center justify-center
+            transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]
+            hover:shadow-2xl hover:scale-105
+            ${
+              isCollapsed
+                ? "opacity-100 scale-100 pointer-events-auto"
+                : "opacity-0 scale-75 pointer-events-none"
+            }
+            ${isTransitioning ? "pointer-events-none" : ""}
+          `}
+          onClick={isCollapsed ? toggleCollapse : undefined}
+          style={{
+            transform: isCollapsed ? "scale(1)" : "scale(0.75)",
+            transformOrigin: "center",
+            zIndex: isCollapsed ? 10 : 5,
+          }}
+        >
+          <CircularProgress progress={overallProgress} size={72} />
         </div>
 
-        {/* Overall Progress Bar */}
-        <div className="mb-3">
-          <CompactProgressBar progress={overallProgress} segments={45} />
-        </div>
-
-        {/* Compact Steps */}
-        <div className="space-y-2">
-          {steps.map((step) => {
-            const progress = getGroupProgress(step);
-            const status = getStepStatus(step);
-
-            // if (
-            //   status === "completed" &&
-            //   !confettiTriggered.current.has(step.id)
-            // ) {
-            //   console.log('here')
-            //   confettiTriggered.current.add(step.id);
-            //   setTimeout(() => handleConfetti(step.id), 0); // Defer to avoid render issues
-            // }
-
-            return (
-              <div key={step.id} className="flex items-center gap-2">
-                {/* Compact Checkmark */}
-                {/* replace CircleCheck with this div if confetti is to be used */}
-                {/* <div
-                  ref={(el) => {
-                    checkRefs.current[step.id] = el;
-                  }}
-                  className="flex items-center justify-center"
-                >
-                  <CircleCheck
-                    className={`w-4 h-4 transition-all duration-300 ${
-                      status === "completed"
-                        ? " text-green-600"
-                        : "text-gray-300"
-                    }`}
-                  />
-                </div> */}
-
-                <CircleCheck
-                  className={`w-4 h-4 transition-all duration-300 ${
-                    status === "completed" ? " text-green-600" : "text-gray-300"
-                  }`}
+        {/* Expanded State - Always rendered with opacity control */}
+        <div
+          className={`
+            bg-white shadow-xl border border-gray-200 rounded-xl w-64
+            transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]
+            hover:shadow-lg
+            ${
+              isCollapsed
+                ? "opacity-0 scale-95 pointer-events-none"
+                : "opacity-100 scale-100 pointer-events-auto"
+            }
+            ${isTransitioning ? "pointer-events-none" : ""}
+          `}
+          style={{
+            transform: isCollapsed
+              ? "scale(0.95) translateY(8px)"
+              : "scale(1) translateY(0px)",
+            transformOrigin: "bottom right",
+            zIndex: isCollapsed ? 5 : 10,
+          }}
+        >
+          <div className="p-3">
+            {/* Compact Header */}
+            <div className="flex items-center gap-2 mb-3">
+              {/* <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <CircleCheck className="w-3.5 h-3.5 text-white" />
+              </div> */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-gray-900 truncate">
+                  Onboarding Progress
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {overallProgress}% complete
+                </p>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleCollapse();
+                }}
+                className={`
+                  p-1 hover:bg-gray-100 rounded-md transition-all duration-300 flex-shrink-0
+                  ${isTransitioning ? "pointer-events-none" : ""}
+                `}
+                disabled={isTransitioning}
+              >
+                <ChevronDown
+                  className={`
+                    w-4 h-4 text-gray-500 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]
+                    ${isCollapsed ? "rotate-180" : "rotate-0"}
+                  `}
                 />
+              </button>
+            </div>
 
-                {/* Step Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-xs font-medium truncate ${
+            {/* Overall Progress Bar */}
+            <div className="mb-3">
+              <CompactProgressBar progress={overallProgress} segments={45} />
+            </div>
+
+            {/* Compact Steps */}
+            <div className="space-y-2">
+              {steps.map((step, index) => {
+                const progress = getGroupProgress(step);
+                const status = getStepStatus(step);
+
+                return (
+                  <div
+                    key={step.id}
+                    className={`
+                      flex items-center gap-2 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+                      ${
+                        isCollapsed
+                          ? "opacity-0 transform translate-x-4"
+                          : "opacity-100 transform translate-x-0"
+                      }
+                    `}
+                    style={{
+                      transitionDelay: isCollapsed
+                        ? "0ms"
+                        : `${200 + index * 100}ms`,
+                    }}
+                  >
+                    {/* Compact Checkmark */}
+                    <div
+                      className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
                         status === "completed"
-                          ? "text-green-700"
+                          ? "bg-green-500 text-white"
                           : status === "current"
-                          ? "text-blue-700"
-                          : "text-gray-600"
+                          ? "bg-blue-100 text-gray-400 ring-1 ring-blue-200"
+                          : "bg-gray-100 text-gray-300"
                       }`}
                     >
-                      {step.title}
-                    </span>
-                    {status === "current" && (
-                      <span className="text-xs text-blue-600 font-medium ml-1">
-                        {progress}%
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                      <CircleCheck
+                        className={`w-3 h-3 transition-all duration-300 ${
+                          status === "completed"
+                            ? "text-white"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    </div>
 
-        {/* Compact Footer */}
-        <div className="mt-3 pt-2 border-t border-gray-100">
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>Step {currentStep}/10</span>
-            <span>{10 - currentStep} left</span>
+                    {/* Step Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs font-medium truncate ${
+                            status === "completed"
+                              ? "text-green-700"
+                              : status === "current"
+                              ? "text-blue-700"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          {step.title}
+                        </span>
+                        {status === "current" && (
+                          <span className="text-xs text-blue-600 font-medium ml-1">
+                            {progress}%
+                          </span>
+                        )}
+                        {/* {status === "completed" && (
+                          <CircleCheck className="w-3 h-3 text-green-500 ml-1 flex-shrink-0" />
+                        )} */}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Compact Footer */}
+            <div
+              className={`
+                mt-3 pt-2 border-t border-gray-100 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+                ${
+                  isCollapsed
+                    ? "opacity-0 transform translate-y-2"
+                    : "opacity-100 transform translate-y-0"
+                }
+              `}
+              style={{
+                transitionDelay: isCollapsed ? "0ms" : "400ms",
+              }}
+            >
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Step {currentStep}/10</span>
+                <span>{10 - currentStep} left</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
