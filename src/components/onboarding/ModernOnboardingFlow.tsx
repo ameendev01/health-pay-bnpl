@@ -247,7 +247,7 @@ const STEPS = [
   { id: 10, title: "Agreements", icon: FileText },
 ];
 
-export default function OnboardingFlow() {
+export default function ModernOnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     businessType: "",
