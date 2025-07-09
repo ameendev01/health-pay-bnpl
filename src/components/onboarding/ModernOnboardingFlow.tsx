@@ -430,10 +430,10 @@ export default function ModernOnboardingFlow() {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold">
                 Choose Your Setup
               </h2>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Select the option that best describes your practice
               </p>
             </div>
