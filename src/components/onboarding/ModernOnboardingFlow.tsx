@@ -1279,10 +1279,15 @@ export default function ModernOnboardingFlow() {
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1}
+            className={currentStep !== 1 ? "cursor-pointer" : ""}
           >
             Previous
           </Button>
-          <Button onClick={nextStep} disabled={currentStep === STEPS.length}>
+          <Button
+            onClick={nextStep}
+            disabled={currentStep === STEPS.length || (currentStep === 1 && !formData.businessType)}
+            className={!(currentStep === STEPS.length || (currentStep === 1 && !formData.businessType)) ? "cursor-pointer" : ""}
+          >
             {currentStep === STEPS.length ? "Complete" : "Next"}
           </Button>
         </div>
