@@ -156,7 +156,6 @@ function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-sm font-bold text-gray-900">{progress}%</span>
-          <span className="text-xs text-gray-500 mt-0.5">complete</span>
         </div>
       </div>
     );
@@ -184,7 +183,7 @@ function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
         <div
           className={`
             absolute bottom-0 right-0 bg-white shadow-xl border border-gray-200 cursor-pointer
-            w-24 h-24 rounded-full flex items-center justify-center
+            w-16 h-16 rounded-full flex items-center justify-center
             transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]
             hover:shadow-2xl hover:scale-105
             ${
