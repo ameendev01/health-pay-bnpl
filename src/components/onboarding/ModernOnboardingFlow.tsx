@@ -1,13 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Building2, CreditCard, FileText, MapPin, Stethoscope, User, Users, CheckCircle } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Building2,
+  CreditCard,
+  FileText,
+  MapPin,
+  Stethoscope,
+  User,
+  Users,
+  CircleCheck,
+} from "lucide-react";
 
 // Compact Progress Card Component
 function ProgressCard({ currentStep }: { currentStep: number }) {
@@ -27,28 +42,37 @@ function ProgressCard({ currentStep }: { currentStep: number }) {
       title: "Banking Details",
       range: [8, 9, 10], // Steps 8-10
     },
-  ]
+  ];
 
   const getGroupProgress = (stepGroup: any) => {
-    const totalSteps = stepGroup.range.length
-    const completedSteps = stepGroup.range.filter((step: number) => currentStep > step).length
-    const currentStepInGroup = stepGroup.range.includes(currentStep)
+    const totalSteps = stepGroup.range.length;
+    const completedSteps = stepGroup.range.filter(
+      (step: number) => currentStep > step
+    ).length;
+    const currentStepInGroup = stepGroup.range.includes(currentStep);
 
-    if (completedSteps === totalSteps) return 100
-    if (currentStepInGroup) return Math.round(((completedSteps + 0.5) / totalSteps) * 100)
-    return Math.round((completedSteps / totalSteps) * 100)
-  }
+    if (completedSteps === totalSteps) return 100;
+    if (currentStepInGroup)
+      return Math.round(((completedSteps + 0.5) / totalSteps) * 100);
+    return Math.round((completedSteps / totalSteps) * 100);
+  };
 
   const getStepStatus = (stepGroup: any) => {
-    const progress = getGroupProgress(stepGroup)
-    if (progress === 100) return "completed"
-    if (progress > 0) return "current"
-    return "pending"
-  }
+    const progress = getGroupProgress(stepGroup);
+    if (progress === 100) return "completed";
+    if (progress > 0) return "current";
+    return "pending";
+  };
 
   // Compact Segmented Progress Bar
-  const CompactProgressBar = ({ progress, segments = 45 }: { progress: number; segments?: number }) => {
-    const filledSegments = Math.round((progress / 100) * segments)
+  const CompactProgressBar = ({
+    progress,
+    segments = 45,
+  }: {
+    progress: number;
+    segments?: number;
+  }) => {
+    const filledSegments = Math.round((progress / 100) * segments);
 
     return (
       <div className="flex gap-0.5 w-full">
@@ -56,26 +80,73 @@ function ProgressCard({ currentStep }: { currentStep: number }) {
           <div
             key={index}
             className={`h-6 flex-1 rounded-full transition-all duration-300 ${
-              index < filledSegments ? "bg-gradient-to-r from-orange-400 to-yellow-400" : "bg-gray-200"
+              index < filledSegments
+                ? "bg-gradient-to-r from-orange-400 to-yellow-400"
+                : "bg-gray-200"
             }`}
           />
         ))}
       </div>
-    )
-  }
+    );
+  };
 
-  const overallProgress = Math.round((currentStep / 10) * 100)
+  // const confettiTriggered = useRef(new Set())
+  // const checkRefs = useRef<{ [key: number]: HTMLDivElement | null }>({})
+  // const handleConfetti = (stepId: number) => {
+  //   const checkElement = checkRefs.current[stepId]
+  //   if (!checkElement) return
+
+  //   // Get the position of the check element
+  //   const rect = checkElement.getBoundingClientRect()
+  //   const x = (rect.left + rect.width / 2) / window.innerWidth
+  //   const y = (rect.top + rect.height / 2) / window.innerHeight
+
+  //   console.log('Confetti origin:', { x, y })
+
+  //   const end = Date.now() + 1 * 1000; // 3 seconds
+  //   const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
+
+  //   const frame = () => {
+  //     if (Date.now() > end) return;
+
+  //     confetti({
+  //       particleCount: 4,
+  //       angle: 70,  // right
+  //       spread: 90, // Much smaller spread
+  //       startVelocity: 30,
+  //       origin: { x, y }, // Use calculated position
+  //       colors: colors,
+  //       scalar: 0.8, // Smaller particles
+  //       drift: 0.2
+  //     });
+  //     confetti({
+  //       particleCount: 4,
+  //       angle: 110, //left
+  //       spread: 90, // Much smaller spread
+  //       startVelocity: 30,
+  //       origin: { x, y }, // Use calculated position
+  //       colors: colors,
+  //       scalar: 0.8, // Smaller particles
+  //       drift: -0.2
+  //     });
+
+  //     requestAnimationFrame(frame);
+  //   };
+
+  //   frame();
+  // };
+
+  const overallProgress = Math.round((currentStep / 10) * 100);
 
   return (
     <div className="fixed right-8 bottom-8 z-50">
       <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-3 w-64">
         {/* Compact Header */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <CheckCircle className="w-3.5 h-3.5 text-white" />
-          </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 truncate">Onboarding Progress</h3>
+            <h3 className="text-sm font-semibold text-gray-900 truncate">
+              Onboarding Progress
+            </h3>
             <p className="text-xs text-gray-500">{overallProgress}% complete</p>
           </div>
         </div>
@@ -88,27 +159,42 @@ function ProgressCard({ currentStep }: { currentStep: number }) {
         {/* Compact Steps */}
         <div className="space-y-2">
           {steps.map((step) => {
-            const progress = getGroupProgress(step)
-            const status = getStepStatus(step)
+            const progress = getGroupProgress(step);
+            const status = getStepStatus(step);
+
+            // if (
+            //   status === "completed" &&
+            //   !confettiTriggered.current.has(step.id)
+            // ) {
+            //   console.log('here')
+            //   confettiTriggered.current.add(step.id);
+            //   setTimeout(() => handleConfetti(step.id), 0); // Defer to avoid render issues
+            // }
 
             return (
               <div key={step.id} className="flex items-center gap-2">
                 {/* Compact Checkmark */}
-                <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                    status === "completed"
-                      ? "bg-green-500 text-white"
-                      : status === "current"
-                        ? "bg-blue-100 text-gray-400 ring-1 ring-blue-200"
-                        : "bg-gray-100 text-gray-300"
-                  }`}
+                {/* replace CircleCheck with this div if confetti is to be used */}
+                {/* <div
+                  ref={(el) => {
+                    checkRefs.current[step.id] = el;
+                  }}
+                  className="flex items-center justify-center"
                 >
-                  <CheckCircle
-                    className={`w-3 h-3 transition-all duration-300 ${
-                      status === "completed" ? "text-white" : "text-gray-300"
+                  <CircleCheck
+                    className={`w-4 h-4 transition-all duration-300 ${
+                      status === "completed"
+                        ? " text-green-600"
+                        : "text-gray-300"
                     }`}
                   />
-                </div>
+                </div> */}
+
+                <CircleCheck
+                  className={`w-4 h-4 transition-all duration-300 ${
+                    status === "completed" ? " text-green-600" : "text-gray-300"
+                  }`}
+                />
 
                 {/* Step Info */}
                 <div className="flex-1 min-w-0">
@@ -118,23 +204,21 @@ function ProgressCard({ currentStep }: { currentStep: number }) {
                         status === "completed"
                           ? "text-green-700"
                           : status === "current"
-                            ? "text-blue-700"
-                            : "text-gray-600"
+                          ? "text-blue-700"
+                          : "text-gray-600"
                       }`}
                     >
                       {step.title}
                     </span>
                     {status === "current" && (
-                      <span className="text-xs text-blue-600 font-medium ml-1">{progress}%</span>
+                      <span className="text-xs text-blue-600 font-medium ml-1">
+                        {progress}%
+                      </span>
                     )}
-                    {status === "completed" && <CheckCircle className="w-3 h-3 text-green-500 ml-1 flex-shrink-0" />}
                   </div>
-
-                  {/* Mini Progress Bar for Current Step */}
-                  
                 </div>
               </div>
-            )
+            );
           })}
         </div>
 
@@ -147,7 +231,7 @@ function ProgressCard({ currentStep }: { currentStep: number }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 const STEPS = [
@@ -161,10 +245,10 @@ const STEPS = [
   { id: 8, title: "Banking Setup", icon: CreditCard },
   { id: 9, title: "Identity Verification", icon: User },
   { id: 10, title: "Agreements", icon: FileText },
-]
+];
 
 export default function OnboardingFlow() {
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     businessType: "",
     legalBusinessName: "",
@@ -196,23 +280,23 @@ export default function OnboardingFlow() {
     ssnLast4: "",
     homeAddress: "",
     ownershipPercent: "",
-  })
+  });
 
   const updateFormData = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const nextStep = () => {
     if (currentStep < STEPS.length) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(currentStep + 1);
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -220,8 +304,12 @@ export default function OnboardingFlow() {
         return (
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-900">Choose Your Setup</h2>
-              <p className="text-gray-600">Select the option that best describes your practice</p>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Choose Your Setup
+              </h2>
+              <p className="text-gray-600">
+                Select the option that best describes your practice
+              </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
@@ -236,9 +324,7 @@ export default function OnboardingFlow() {
               >
                 {/* Selection indicator */}
                 {formData.businessType === "single" && (
-                  <div className="absolute top-3 right-3 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-3 h-3 text-white" />
-                  </div>
+                  <CircleCheck className="absolute top-3 right-3 w-5 h-5 text-blue-500" />
                 )}
 
                 {/* Header */}
@@ -247,15 +333,23 @@ export default function OnboardingFlow() {
                     <Stethoscope className="w-5 h-5 text-blue-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Single Clinic</h3>
-                    <p className="text-sm text-gray-600">Independent practice solution</p>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      Single Clinic
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Independent practice solution
+                    </p>
                   </div>
                 </div>
 
                 {/* Features */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-blue-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -265,33 +359,52 @@ export default function OnboardingFlow() {
                     <span className="text-gray-700">Quick 5-minute setup</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-blue-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                     </svg>
-                    <span className="text-gray-700">Simple patient management</span>
+                    <span className="text-gray-700">
+                      Simple patient management
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-blue-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                     </svg>
-                    <span className="text-gray-700">Basic reporting & analytics</span>
+                    <span className="text-gray-700">
+                      Basic reporting & analytics
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-blue-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span className="text-gray-700">Cost-effective pricing</span>
+                    <span className="text-gray-700">
+                      Cost-effective pricing
+                    </span>
                   </div>
                 </div>
 
                 {/* Footer */}
                 <div className="pt-3 border-t border-gray-100">
                   <p className="text-xs text-gray-600">
-                    <span className="font-medium text-gray-800">Best for:</span> Solo practitioners, small clinics
+                    <span className="font-medium text-gray-800">Best for:</span>{" "}
+                    Solo practitioners, small clinics
                   </p>
                 </div>
               </div>
@@ -307,9 +420,7 @@ export default function OnboardingFlow() {
               >
                 {/* Selection indicator */}
                 {formData.businessType === "brand" && (
-                  <div className="absolute top-3 right-3 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-3 h-3 text-white" />
-                  </div>
+                  <CircleCheck className="absolute top-3 right-3 w-5 h-5 text-emerald-500" />
                 )}
 
                 {/* Header */}
@@ -318,64 +429,95 @@ export default function OnboardingFlow() {
                     <Building2 className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Multiple Clinics</h3>
-                    <p className="text-sm text-gray-600">Enterprise healthcare solution</p>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      Multiple Clinics
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Enterprise healthcare solution
+                    </p>
                   </div>
                 </div>
 
                 {/* Features */}
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-emerald-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2v1h12V6H4zm0 3v5h12v-5H4z"
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span className="text-gray-700">Multi-location management</span>
+                    <span className="text-gray-700">
+                      Multi-location management
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-emerald-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
                     </svg>
-                    <span className="text-gray-700">Advanced team controls</span>
+                    <span className="text-gray-700">
+                      Advanced team controls
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-emerald-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                     </svg>
-                    <span className="text-gray-700">Comprehensive analytics</span>
+                    <span className="text-gray-700">
+                      Comprehensive analytics
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <svg
+                      className="w-4 h-4 text-emerald-500 flex-shrink-0"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z"
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span className="text-gray-700">Role-based permissions</span>
+                    <span className="text-gray-700">
+                      Role-based permissions
+                    </span>
                   </div>
                 </div>
 
                 {/* Footer */}
                 <div className="pt-3 border-t border-gray-100">
                   <p className="text-xs text-gray-600">
-                    <span className="font-medium text-gray-800">Best for:</span> Healthcare chains, medical groups
+                    <span className="font-medium text-gray-800">Best for:</span>{" "}
+                    Healthcare chains, medical groups
                   </p>
                 </div>
               </div>
             </div>
           </div>
-        )
+        );
 
       case 2:
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Legal Identity</h2>
-              <p className="text-muted-foreground">Required for FinCEN "Know Your Business" compliance</p>
+              <p className="text-muted-foreground">
+                Required for FinCEN "Know Your Business" compliance
+              </p>
             </div>
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -383,7 +525,9 @@ export default function OnboardingFlow() {
                 <Input
                   id="legalBusinessName"
                   value={formData.legalBusinessName}
-                  onChange={(e) => updateFormData("legalBusinessName", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("legalBusinessName", e.target.value)
+                  }
                   placeholder="Enter your legal business name"
                 />
               </div>
@@ -407,7 +551,10 @@ export default function OnboardingFlow() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="entityType">Entity Type *</Label>
-                <Select value={formData.entityType} onValueChange={(value) => updateFormData("entityType", value)}>
+                <Select
+                  value={formData.entityType}
+                  onValueChange={(value) => updateFormData("entityType", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select entity type" />
                   </SelectTrigger>
@@ -415,14 +562,16 @@ export default function OnboardingFlow() {
                     <SelectItem value="llc">LLC</SelectItem>
                     <SelectItem value="s-corp">S-Corporation</SelectItem>
                     <SelectItem value="c-corp">C-Corporation</SelectItem>
-                    <SelectItem value="sole-prop">Sole Proprietorship</SelectItem>
+                    <SelectItem value="sole-prop">
+                      Sole Proprietorship
+                    </SelectItem>
                     <SelectItem value="partnership">Partnership</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </div>
-        )
+        );
 
       case 3:
         return (
@@ -430,19 +579,26 @@ export default function OnboardingFlow() {
             <div>
               <h2 className="text-2xl font-bold">Clinic Credentials</h2>
               <p className="text-muted-foreground">
-                Required to verify your clinic is authorized to provide healthcare
+                Required to verify your clinic is authorized to provide
+                healthcare
               </p>
             </div>
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="medicalLicenseNumber">State Medical License # *</Label>
+                <Label htmlFor="medicalLicenseNumber">
+                  State Medical License # *
+                </Label>
                 <Input
                   id="medicalLicenseNumber"
                   value={formData.medicalLicenseNumber}
-                  onChange={(e) => updateFormData("medicalLicenseNumber", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("medicalLicenseNumber", e.target.value)
+                  }
                   placeholder="Enter license number"
                 />
-                <p className="text-xs text-muted-foreground">Or facility license # for dental/vision</p>
+                <p className="text-xs text-muted-foreground">
+                  Or facility license # for dental/vision
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="npi">NPI of Supervising Physician *</Label>
@@ -460,14 +616,18 @@ export default function OnboardingFlow() {
                     id="expiryDate"
                     type="date"
                     value={formData.expiryDate}
-                    onChange={(e) => updateFormData("expiryDate", e.target.value)}
+                    onChange={(e) =>
+                      updateFormData("expiryDate", e.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="stateOfIssuance">State of Issuance *</Label>
                   <Select
                     value={formData.stateOfIssuance}
-                    onValueChange={(value) => updateFormData("stateOfIssuance", value)}
+                    onValueChange={(value) =>
+                      updateFormData("stateOfIssuance", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select state" />
@@ -484,14 +644,16 @@ export default function OnboardingFlow() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case 4:
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Primary Location</h2>
-              <p className="text-muted-foreground">Required for state-law compliance and fraud prevention</p>
+              <p className="text-muted-foreground">
+                Required for state-law compliance and fraud prevention
+              </p>
             </div>
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -499,7 +661,9 @@ export default function OnboardingFlow() {
                 <Input
                   id="streetAddress"
                   value={formData.streetAddress}
-                  onChange={(e) => updateFormData("streetAddress", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("streetAddress", e.target.value)
+                  }
                   placeholder="Enter street address"
                 />
               </div>
@@ -534,7 +698,10 @@ export default function OnboardingFlow() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="timeZone">Time Zone *</Label>
-                <Select value={formData.timeZone} onValueChange={(value) => updateFormData("timeZone", value)}>
+                <Select
+                  value={formData.timeZone}
+                  onValueChange={(value) => updateFormData("timeZone", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select time zone" />
                   </SelectTrigger>
@@ -548,21 +715,25 @@ export default function OnboardingFlow() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case 5:
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Operating Profile</h2>
-              <p className="text-muted-foreground">Helps us understand your practice for underwriting</p>
+              <p className="text-muted-foreground">
+                Helps us understand your practice for underwriting
+              </p>
             </div>
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="medicalSpecialty">Medical Specialty *</Label>
                 <Select
                   value={formData.medicalSpecialty}
-                  onValueChange={(value) => updateFormData("medicalSpecialty", value)}
+                  onValueChange={(value) =>
+                    updateFormData("medicalSpecialty", value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select your specialty" />
@@ -580,8 +751,13 @@ export default function OnboardingFlow() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="priceRange">Typical Procedure Price Range *</Label>
-                <Select value={formData.priceRange} onValueChange={(value) => updateFormData("priceRange", value)}>
+                <Label htmlFor="priceRange">
+                  Typical Procedure Price Range *
+                </Label>
+                <Select
+                  value={formData.priceRange}
+                  onValueChange={(value) => updateFormData("priceRange", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select price range" />
                   </SelectTrigger>
@@ -596,10 +772,14 @@ export default function OnboardingFlow() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="monthlyVolume">Average Monthly Patient Volume *</Label>
+                <Label htmlFor="monthlyVolume">
+                  Average Monthly Patient Volume *
+                </Label>
                 <Select
                   value={formData.monthlyVolume}
-                  onValueChange={(value) => updateFormData("monthlyVolume", value)}
+                  onValueChange={(value) =>
+                    updateFormData("monthlyVolume", value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select patient volume" />
@@ -615,19 +795,24 @@ export default function OnboardingFlow() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case 6:
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">EHR/PMS Stack</h2>
-              <p className="text-muted-foreground">Helps us understand integration complexity</p>
+              <p className="text-muted-foreground">
+                Helps us understand integration complexity
+              </p>
             </div>
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="ehrVendor">EHR Vendor *</Label>
-                <Select value={formData.ehrVendor} onValueChange={(value) => updateFormData("ehrVendor", value)}>
+                <Select
+                  value={formData.ehrVendor}
+                  onValueChange={(value) => updateFormData("ehrVendor", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select your EHR system" />
                   </SelectTrigger>
@@ -637,7 +822,9 @@ export default function OnboardingFlow() {
                     <SelectItem value="drchrono">DrChrono</SelectItem>
                     <SelectItem value="nextgen">NextGen</SelectItem>
                     <SelectItem value="allscripts">Allscripts</SelectItem>
-                    <SelectItem value="practice-fusion">Practice Fusion</SelectItem>
+                    <SelectItem value="practice-fusion">
+                      Practice Fusion
+                    </SelectItem>
                     <SelectItem value="kareo">Kareo</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                     <SelectItem value="none">No EHR System</SelectItem>
@@ -646,20 +833,27 @@ export default function OnboardingFlow() {
               </div>
               {formData.ehrVendor === "other" && (
                 <div className="space-y-2">
-                  <Label htmlFor="otherEhr">Please specify your EHR system</Label>
-                  <Input id="otherEhr" placeholder="Enter your EHR system name" />
+                  <Label htmlFor="otherEhr">
+                    Please specify your EHR system
+                  </Label>
+                  <Input
+                    id="otherEhr"
+                    placeholder="Enter your EHR system name"
+                  />
                 </div>
               )}
             </div>
           </div>
-        )
+        );
 
       case 7:
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Point of Contact</h2>
-              <p className="text-muted-foreground">Required for contractual communications and notices</p>
+              <p className="text-muted-foreground">
+                Required for contractual communications and notices
+              </p>
             </div>
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -692,26 +886,32 @@ export default function OnboardingFlow() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case 8:
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Banking Setup</h2>
-              <p className="text-muted-foreground">Connect your payout account for receiving funds</p>
+              <p className="text-muted-foreground">
+                Connect your payout account for receiving funds
+              </p>
             </div>
             <div className="space-y-4">
               <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
                 <div className="flex items-center gap-2 mb-2">
                   <CreditCard className="h-5 w-5 text-blue-600" />
-                  <span className="font-medium text-blue-900">Secure Bank Connection</span>
+                  <span className="font-medium text-blue-900">
+                    Secure Bank Connection
+                  </span>
                 </div>
                 <p className="text-sm text-blue-700 mb-3">
-                  We'll use Plaid to securely connect your bank account. If that doesn't work, we'll collect your
-                  details manually.
+                  We'll use Plaid to securely connect your bank account. If that
+                  doesn't work, we'll collect your details manually.
                 </p>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">Connect with Plaid</Button>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  Connect with Plaid
+                </Button>
               </div>
 
               <div className="relative">
@@ -719,7 +919,9 @@ export default function OnboardingFlow() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or enter manually</span>
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or enter manually
+                  </span>
                 </div>
               </div>
 
@@ -729,7 +931,9 @@ export default function OnboardingFlow() {
                   <Input
                     id="routingNumber"
                     value={formData.routingNumber}
-                    onChange={(e) => updateFormData("routingNumber", e.target.value)}
+                    onChange={(e) =>
+                      updateFormData("routingNumber", e.target.value)
+                    }
                     placeholder="9-digit routing number"
                   />
                 </div>
@@ -738,13 +942,20 @@ export default function OnboardingFlow() {
                   <Input
                     id="accountNumber"
                     value={formData.accountNumber}
-                    onChange={(e) => updateFormData("accountNumber", e.target.value)}
+                    onChange={(e) =>
+                      updateFormData("accountNumber", e.target.value)
+                    }
                     placeholder="Account number"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="accountType">Account Type *</Label>
-                  <Select value={formData.accountType} onValueChange={(value) => updateFormData("accountType", value)}>
+                  <Select
+                    value={formData.accountType}
+                    onValueChange={(value) =>
+                      updateFormData("accountType", value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select account type" />
                     </SelectTrigger>
@@ -767,7 +978,7 @@ export default function OnboardingFlow() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case 9:
         return (
@@ -775,7 +986,8 @@ export default function OnboardingFlow() {
             <div>
               <h2 className="text-2xl font-bold">Identity Verification</h2>
               <p className="text-muted-foreground">
-                Required for authorized signer and UBO (Ultimate Beneficial Owner) verification
+                Required for authorized signer and UBO (Ultimate Beneficial
+                Owner) verification
               </p>
             </div>
             <div className="grid gap-4">
@@ -814,7 +1026,9 @@ export default function OnboardingFlow() {
                 <Textarea
                   id="homeAddress"
                   value={formData.homeAddress}
-                  onChange={(e) => updateFormData("homeAddress", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("homeAddress", e.target.value)
+                  }
                   placeholder="Enter complete home address"
                 />
               </div>
@@ -823,14 +1037,19 @@ export default function OnboardingFlow() {
                 <Input
                   id="ownershipPercent"
                   value={formData.ownershipPercent}
-                  onChange={(e) => updateFormData("ownershipPercent", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("ownershipPercent", e.target.value)
+                  }
                   placeholder="Enter if ≥ 25%"
                 />
-                <p className="text-xs text-muted-foreground">Only required if you own 25% or more of the business</p>
+                <p className="text-xs text-muted-foreground">
+                  Only required if you own 25% or more of the business
+                </p>
               </div>
               <div className="p-4 border rounded-lg bg-amber-50 border-amber-200">
                 <p className="text-sm text-amber-800 mb-3">
-                  Please upload a photo of your driver's license or passport for identity verification.
+                  Please upload a photo of your driver's license or passport for
+                  identity verification.
                 </p>
                 <Button variant="outline" className="w-full bg-transparent">
                   Upload ID Document
@@ -838,29 +1057,33 @@ export default function OnboardingFlow() {
               </div>
             </div>
           </div>
-        )
+        );
 
       case 10:
         return (
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold">Final Step: Agreements</h2>
-              <p className="text-muted-foreground">Review and sign the required agreements to complete setup</p>
+              <p className="text-muted-foreground">
+                Review and sign the required agreements to complete setup
+              </p>
             </div>
             <div className="space-y-4">
               <div className="p-6 border rounded-lg">
-                <h3 className="font-semibold mb-2">Documents to Review & Sign:</h3>
+                <h3 className="font-semibold mb-2">
+                  Documents to Review & Sign:
+                </h3>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <CircleCheck className="h-4 w-4 text-green-600" />
                     ACH Debit Authorization Agreement
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <CircleCheck className="h-4 w-4 text-green-600" />
                     BNPL Provider Service Agreement
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <CircleCheck className="h-4 w-4 text-green-600" />
                     Privacy Policy & Terms of Service
                   </li>
                 </ul>
@@ -870,7 +1093,8 @@ export default function OnboardingFlow() {
                 <div className="flex items-center space-x-2">
                   <Checkbox id="terms" />
                   <Label htmlFor="terms" className="text-sm">
-                    I have read and agree to the Terms of Service and Privacy Policy
+                    I have read and agree to the Terms of Service and Privacy
+                    Policy
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -882,32 +1106,38 @@ export default function OnboardingFlow() {
                 <div className="flex items-center space-x-2">
                   <Checkbox id="accuracy" />
                   <Label htmlFor="accuracy" className="text-sm">
-                    I certify that all information provided is accurate and complete
+                    I certify that all information provided is accurate and
+                    complete
                   </Label>
                 </div>
               </div>
 
               <div className="p-4 border rounded-lg bg-green-50 border-green-200">
                 <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="font-medium text-green-900">Ready to Complete Setup</span>
+                  <CircleCheck className="h-5 w-5 text-green-600" />
+                  <span className="font-medium text-green-900">
+                    Ready to Complete Setup
+                  </span>
                 </div>
                 <p className="text-sm text-green-700 mb-3">
-                  Click below to electronically sign all agreements and complete your onboarding.
+                  Click below to electronically sign all agreements and complete
+                  your onboarding.
                 </p>
-                <Button className="w-full bg-green-600 hover:bg-green-700">Sign & Finish Setup</Button>
+                <Button className="w-full bg-green-600 hover:bg-green-700">
+                  Sign & Finish Setup
+                </Button>
               </div>
             </div>
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
-    <div className="" style={{zoom: 1.2}}>
+    <div className="" style={{ zoom: 1.14 }}>
       <div className="max-w-xl mx-auto px-4">
         {/* Existing content remains the same */}
         {/* Progress Header */}
@@ -919,7 +1149,11 @@ export default function OnboardingFlow() {
 
         {/* Navigation */}
         <div className="flex justify-between">
-          <Button variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+          <Button
+            variant="outline"
+            onClick={prevStep}
+            disabled={currentStep === 1}
+          >
             Previous
           </Button>
           <Button onClick={nextStep} disabled={currentStep === STEPS.length}>
@@ -931,5 +1165,5 @@ export default function OnboardingFlow() {
       {/* Add the Compact Progress Card */}
       <ProgressCard currentStep={currentStep} />
     </div>
-  )
+  );
 }
