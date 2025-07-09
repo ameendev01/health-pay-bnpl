@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, DivideIcon as LucideIcon } from 'lucide-react';
+import { CheckCircle, type LucideIcon } from 'lucide-react';
 
 interface Step {
   id: number;

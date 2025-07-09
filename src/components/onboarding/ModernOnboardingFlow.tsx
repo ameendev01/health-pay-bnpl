@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +26,8 @@ import {
   CircleCheck,
   ChevronDown,
 } from "lucide-react";
+import { onboardingSchema, step1Schema, step2Schema, step3Schema, step4Schema, step5Schema, step6Schema, step7Schema, step8Schema, step9Schema, step10Schema } from "./schemas";
+import { useState } from "react";
 
 // Compact Progress Card Component
 function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
@@ -361,59 +365,75 @@ function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
 }
 
 const STEPS = [
-  { id: 1, title: "Business Type", icon: Building2 },
-  { id: 2, title: "Legal Identity", icon: FileText },
-  { id: 3, title: "Clinic Credentials", icon: Stethoscope },
-  { id: 4, title: "Primary Location", icon: MapPin },
-  { id: 5, title: "Operating Profile", icon: Users },
-  { id: 6, title: "EHR/PMS Stack", icon: FileText },
-  { id: 7, title: "Point of Contact", icon: User },
-  { id: 8, title: "Banking Setup", icon: CreditCard },
-  { id: 9, title: "Identity Verification", icon: User },
-  { id: 10, title: "Agreements", icon: FileText },
+  { id: 1, title: "Business Type", icon: Building2, schema: step1Schema },
+  { id: 2, title: "Legal Identity", icon: FileText, schema: step2Schema },
+  { id: 3, title: "Clinic Credentials", icon: Stethoscope, schema: step3Schema },
+  { id: 4, title: "Primary Location", icon: MapPin, schema: step4Schema },
+  { id: 5, title: "Operating Profile", icon: Users, schema: step5Schema },
+  { id: 6, title: "EHR/PMS Stack", icon: FileText, schema: step6Schema },
+  { id: 7, title: "Point of Contact", icon: User, schema: step7Schema },
+  { id: 8, title: "Banking Setup", icon: CreditCard, schema: step8Schema },
+  { id: 9, title: "Identity Verification", icon: User, schema: step9Schema },
+  { id: 10, title: "Agreements", icon: FileText, schema: step10Schema },
 ];
+
+type OnboardingData = z.infer<typeof onboardingSchema>;
 
 export default function ModernOnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    businessType: "",
-    legalBusinessName: "",
-    dba: "",
-    ein: "",
-    entityType: "",
-    medicalLicenseNumber: "",
-    npi: "",
-    stateOfIssuance: "",
-    expiryDate: "",
-    streetAddress: "",
-    suite: "",
-    zipCode: "",
-    phone: "",
-    timeZone: "",
-    medicalSpecialty: "",
-    priceRange: "",
-    monthlyVolume: "",
-    ehrVendor: "",
-    ownerName: "",
-    workEmail: "",
-    mobile: "",
-    routingNumber: "",
-    accountNumber: "",
-    accountType: "",
-    bankName: "",
-    signerName: "",
-    dob: "",
-    ssnLast4: "",
-    homeAddress: "",
-    ownershipPercent: "",
+  
+  const form = useForm<OnboardingData>({
+    resolver: zodResolver(onboardingSchema),
+    defaultValues: {
+      businessType: undefined,
+      legalBusinessName: "",
+      dba: "",
+      ein: "",
+      entityType: "",
+      medicalLicenseNumber: "",
+      npi: "",
+      stateOfIssuance: "",
+      expiryDate: "",
+      streetAddress: "",
+      suite: "",
+      zipCode: "",
+      phone: "",
+      timeZone: "",
+      medicalSpecialty: "",
+      priceRange: "",
+      monthlyVolume: "",
+      ehrVendor: "",
+      otherEhr: "",
+      ownerName: "",
+      workEmail: "",
+      mobile: "",
+      routingNumber: "",
+      accountNumber: "",
+      accountType: "",
+      bankName: "",
+      signerName: "",
+      dob: "",
+      ssnLast4: "",
+      homeAddress: "",
+      ownershipPercent: "",
+      terms: false,
+      ach: false,
+      accuracy: false,
+    },
   });
 
-  const updateFormData = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const { register, control, handleSubmit, formState: { errors }, watch, trigger, setValue } = form;
+  const businessType = watch("businessType");
+  const ehrVendor = watch("ehrVendor");
 
-  const nextStep = () => {
-    if (currentStep < STEPS.length) {
+  const nextStep = async () => {
+    const currentSchema = STEPS[currentStep - 1].schema;
+    const fields = Object.keys(
+      "innerType" in currentSchema ? currentSchema.innerType().shape : currentSchema.shape
+    );
+    const result = await trigger(fields as any);
+
+    if (result && currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -422,6 +442,11 @@ export default function ModernOnboardingFlow() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const onSubmit = (data: OnboardingData) => {
+    console.log("Onboarding data:", data);
+    // Handle final submission
   };
 
   const renderStepContent = () => {
@@ -442,18 +467,15 @@ export default function ModernOnboardingFlow() {
               {/* Single Clinic Card */}
               <div
                 className={`relative p-5 bg-white rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  formData.businessType === "single"
+                  businessType === "single"
                     ? "border-blue-500 shadow-md ring-2 ring-blue-100"
                     : "border-gray-200 hover:border-blue-300"
                 }`}
-                onClick={() => updateFormData("businessType", "single")}
+                onClick={() => setValue("businessType", "single", { shouldValidate: true })}
               >
-                {/* Selection indicator */}
-                {formData.businessType === "single" && (
+                {businessType === "single" && (
                   <CircleCheck className="absolute top-3 right-3 w-5 h-5 text-blue-500" />
                 )}
-
-                {/* Header */}
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Stethoscope className="w-5 h-5 text-blue-600" />
@@ -538,18 +560,15 @@ export default function ModernOnboardingFlow() {
               {/* Multiple Clinics Card */}
               <div
                 className={`relative p-5 bg-white rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  formData.businessType === "brand"
+                  businessType === "brand"
                     ? "border-emerald-500 shadow-md ring-2 ring-emerald-100"
                     : "border-gray-200 hover:border-emerald-300"
                 }`}
-                onClick={() => updateFormData("businessType", "brand")}
+                onClick={() => setValue("businessType", "brand", { shouldValidate: true })}
               >
-                {/* Selection indicator */}
-                {formData.businessType === "brand" && (
+                {businessType === "brand" && (
                   <CircleCheck className="absolute top-3 right-3 w-5 h-5 text-emerald-500" />
                 )}
-
-                {/* Header */}
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Building2 className="w-5 h-5 text-emerald-600" />
@@ -650,19 +669,16 @@ export default function ModernOnboardingFlow() {
                 <Label htmlFor="legalBusinessName">Legal Business Name *</Label>
                 <Input
                   id="legalBusinessName"
-                  value={formData.legalBusinessName}
-                  onChange={(e) =>
-                    updateFormData("legalBusinessName", e.target.value)
-                  }
+                  {...register("legalBusinessName")}
                   placeholder="Enter your legal business name"
                 />
+                {errors.legalBusinessName && <p className="text-red-500 text-sm">{errors.legalBusinessName.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dba">DBA (Doing Business As)</Label>
                 <Input
                   id="dba"
-                  value={formData.dba}
-                  onChange={(e) => updateFormData("dba", e.target.value)}
+                  {...register("dba")}
                   placeholder="Enter DBA if different from legal name"
                 />
               </div>
@@ -670,30 +686,34 @@ export default function ModernOnboardingFlow() {
                 <Label htmlFor="ein">EIN / Tax-ID *</Label>
                 <Input
                   id="ein"
-                  value={formData.ein}
-                  onChange={(e) => updateFormData("ein", e.target.value)}
+                  {...register("ein")}
                   placeholder="XX-XXXXXXX"
                 />
+                {errors.ein && <p className="text-red-500 text-sm">{errors.ein.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="entityType">Entity Type *</Label>
-                <Select
-                  value={formData.entityType}
-                  onValueChange={(value) => updateFormData("entityType", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select entity type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="llc">LLC</SelectItem>
-                    <SelectItem value="s-corp">S-Corporation</SelectItem>
-                    <SelectItem value="c-corp">C-Corporation</SelectItem>
-                    <SelectItem value="sole-prop">
-                      Sole Proprietorship
-                    </SelectItem>
-                    <SelectItem value="partnership">Partnership</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="entityType"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select entity type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="llc">LLC</SelectItem>
+                        <SelectItem value="s-corp">S-Corporation</SelectItem>
+                        <SelectItem value="c-corp">C-Corporation</SelectItem>
+                        <SelectItem value="sole-prop">
+                          Sole Proprietorship
+                        </SelectItem>
+                        <SelectItem value="partnership">Partnership</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.entityType && <p className="text-red-500 text-sm">{errors.entityType.message}</p>}
               </div>
             </div>
           </div>
@@ -716,12 +736,10 @@ export default function ModernOnboardingFlow() {
                 </Label>
                 <Input
                   id="medicalLicenseNumber"
-                  value={formData.medicalLicenseNumber}
-                  onChange={(e) =>
-                    updateFormData("medicalLicenseNumber", e.target.value)
-                  }
+                  {...register("medicalLicenseNumber")}
                   placeholder="Enter license number"
                 />
+                {errors.medicalLicenseNumber && <p className="text-red-500 text-sm">{errors.medicalLicenseNumber.message}</p>}
                 <p className="text-xs text-muted-foreground">
                   Or facility license # for dental/vision
                 </p>
@@ -730,10 +748,10 @@ export default function ModernOnboardingFlow() {
                 <Label htmlFor="npi">NPI of Supervising Physician *</Label>
                 <Input
                   id="npi"
-                  value={formData.npi}
-                  onChange={(e) => updateFormData("npi", e.target.value)}
+                  {...register("npi")}
                   placeholder="10-digit NPI number"
                 />
+                {errors.npi && <p className="text-red-500 text-sm">{errors.npi.message}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -741,31 +759,31 @@ export default function ModernOnboardingFlow() {
                   <Input
                     id="expiryDate"
                     type="date"
-                    value={formData.expiryDate}
-                    onChange={(e) =>
-                      updateFormData("expiryDate", e.target.value)
-                    }
+                    {...register("expiryDate")}
                   />
+                  {errors.expiryDate && <p className="text-red-500 text-sm">{errors.expiryDate.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="stateOfIssuance">State of Issuance *</Label>
-                  <Select
-                    value={formData.stateOfIssuance}
-                    onValueChange={(value) =>
-                      updateFormData("stateOfIssuance", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="CA">California</SelectItem>
-                      <SelectItem value="NY">New York</SelectItem>
-                      <SelectItem value="TX">Texas</SelectItem>
-                      <SelectItem value="FL">Florida</SelectItem>
-                      {/* Add more states as needed */}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="stateOfIssuance"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="CA">California</SelectItem>
+                          <SelectItem value="NY">New York</SelectItem>
+                          <SelectItem value="TX">Texas</SelectItem>
+                          <SelectItem value="FL">Florida</SelectItem>
+                          {/* Add more states as needed */}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.stateOfIssuance && <p className="text-red-500 text-sm">{errors.stateOfIssuance.message}</p>}
                 </div>
               </div>
             </div>
@@ -786,19 +804,16 @@ export default function ModernOnboardingFlow() {
                 <Label htmlFor="streetAddress">Street Address *</Label>
                 <Input
                   id="streetAddress"
-                  value={formData.streetAddress}
-                  onChange={(e) =>
-                    updateFormData("streetAddress", e.target.value)
-                  }
+                  {...register("streetAddress")}
                   placeholder="Enter street address"
                 />
+                {errors.streetAddress && <p className="text-red-500 text-sm">{errors.streetAddress.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="suite">Suite/Unit</Label>
                 <Input
                   id="suite"
-                  value={formData.suite}
-                  onChange={(e) => updateFormData("suite", e.target.value)}
+                  {...register("suite")}
                   placeholder="Suite, unit, or floor"
                 />
               </div>
@@ -807,37 +822,41 @@ export default function ModernOnboardingFlow() {
                   <Label htmlFor="zipCode">ZIP Code *</Label>
                   <Input
                     id="zipCode"
-                    value={formData.zipCode}
-                    onChange={(e) => updateFormData("zipCode", e.target.value)}
+                    {...register("zipCode")}
                     placeholder="12345"
                   />
+                  {errors.zipCode && <p className="text-red-500 text-sm">{errors.zipCode.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number *</Label>
                   <Input
                     id="phone"
-                    value={formData.phone}
-                    onChange={(e) => updateFormData("phone", e.target.value)}
+                    {...register("phone")}
                     placeholder="(555) 123-4567"
                   />
+                  {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="timeZone">Time Zone *</Label>
-                <Select
-                  value={formData.timeZone}
-                  onValueChange={(value) => updateFormData("timeZone", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select time zone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PST">Pacific (PST)</SelectItem>
-                    <SelectItem value="MST">Mountain (MST)</SelectItem>
-                    <SelectItem value="CST">Central (CST)</SelectItem>
-                    <SelectItem value="EST">Eastern (EST)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="timeZone"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select time zone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PST">Pacific (PST)</SelectItem>
+                        <SelectItem value="MST">Mountain (MST)</SelectItem>
+                        <SelectItem value="CST">Central (CST)</SelectItem>
+                        <SelectItem value="EST">Eastern (EST)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.timeZone && <p className="text-red-500 text-sm">{errors.timeZone.message}</p>}
               </div>
             </div>
           </div>
@@ -855,69 +874,77 @@ export default function ModernOnboardingFlow() {
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="medicalSpecialty">Medical Specialty *</Label>
-                <Select
-                  value={formData.medicalSpecialty}
-                  onValueChange={(value) =>
-                    updateFormData("medicalSpecialty", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your specialty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="general">General Practice</SelectItem>
-                    <SelectItem value="dental">Dental</SelectItem>
-                    <SelectItem value="vision">Vision/Optometry</SelectItem>
-                    <SelectItem value="cosmetic">Cosmetic Surgery</SelectItem>
-                    <SelectItem value="dermatology">Dermatology</SelectItem>
-                    <SelectItem value="orthopedic">Orthopedic</SelectItem>
-                    <SelectItem value="cardiology">Cardiology</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="medicalSpecialty"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your specialty" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General Practice</SelectItem>
+                        <SelectItem value="dental">Dental</SelectItem>
+                        <SelectItem value="vision">Vision/Optometry</SelectItem>
+                        <SelectItem value="cosmetic">Cosmetic Surgery</SelectItem>
+                        <SelectItem value="dermatology">Dermatology</SelectItem>
+                        <SelectItem value="orthopedic">Orthopedic</SelectItem>
+                        <SelectItem value="cardiology">Cardiology</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.medicalSpecialty && <p className="text-red-500 text-sm">{errors.medicalSpecialty.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="priceRange">
                   Typical Procedure Price Range *
                 </Label>
-                <Select
-                  value={formData.priceRange}
-                  onValueChange={(value) => updateFormData("priceRange", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select price range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="under-500">Under $500</SelectItem>
-                    <SelectItem value="500-1000">$500 - $1,000</SelectItem>
-                    <SelectItem value="1000-2500">$1,000 - $2,500</SelectItem>
-                    <SelectItem value="2500-5000">$2,500 - $5,000</SelectItem>
-                    <SelectItem value="5000-10000">$5,000 - $10,000</SelectItem>
-                    <SelectItem value="over-10000">Over $10,000</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="priceRange"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select price range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="under-500">Under $500</SelectItem>
+                        <SelectItem value="500-1000">$500 - $1,000</SelectItem>
+                        <SelectItem value="1000-2500">$1,000 - $2,500</SelectItem>
+                        <SelectItem value="2500-5000">$2,500 - $5,000</SelectItem>
+                        <SelectItem value="5000-10000">$5,000 - $10,000</SelectItem>
+                        <SelectItem value="over-10000">Over $10,000</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.priceRange && <p className="text-red-500 text-sm">{errors.priceRange.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="monthlyVolume">
                   Average Monthly Patient Volume *
                 </Label>
-                <Select
-                  value={formData.monthlyVolume}
-                  onValueChange={(value) =>
-                    updateFormData("monthlyVolume", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select patient volume" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="under-50">Under 50 patients</SelectItem>
-                    <SelectItem value="50-100">50-100 patients</SelectItem>
-                    <SelectItem value="100-250">100-250 patients</SelectItem>
-                    <SelectItem value="250-500">250-500 patients</SelectItem>
-                    <SelectItem value="over-500">Over 500 patients</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="monthlyVolume"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select patient volume" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="under-50">Under 50 patients</SelectItem>
+                        <SelectItem value="50-100">50-100 patients</SelectItem>
+                        <SelectItem value="100-250">100-250 patients</SelectItem>
+                        <SelectItem value="250-500">250-500 patients</SelectItem>
+                        <SelectItem value="over-500">Over 500 patients</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.monthlyVolume && <p className="text-red-500 text-sm">{errors.monthlyVolume.message}</p>}
               </div>
             </div>
           </div>
@@ -935,37 +962,43 @@ export default function ModernOnboardingFlow() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="ehrVendor">EHR Vendor *</Label>
-                <Select
-                  value={formData.ehrVendor}
-                  onValueChange={(value) => updateFormData("ehrVendor", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your EHR system" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="epic">Epic</SelectItem>
-                    <SelectItem value="athena">Athena Health</SelectItem>
-                    <SelectItem value="drchrono">DrChrono</SelectItem>
-                    <SelectItem value="nextgen">NextGen</SelectItem>
-                    <SelectItem value="allscripts">Allscripts</SelectItem>
-                    <SelectItem value="practice-fusion">
-                      Practice Fusion
-                    </SelectItem>
-                    <SelectItem value="kareo">Kareo</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                    <SelectItem value="none">No EHR System</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="ehrVendor"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your EHR system" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="epic">Epic</SelectItem>
+                        <SelectItem value="athena">Athena Health</SelectItem>
+                        <SelectItem value="drchrono">DrChrono</SelectItem>
+                        <SelectItem value="nextgen">NextGen</SelectItem>
+                        <SelectItem value="allscripts">Allscripts</SelectItem>
+                        <SelectItem value="practice-fusion">
+                          Practice Fusion
+                        </SelectItem>
+                        <SelectItem value="kareo">Kareo</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="none">No EHR System</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.ehrVendor && <p className="text-red-500 text-sm">{errors.ehrVendor.message}</p>}
               </div>
-              {formData.ehrVendor === "other" && (
+              {ehrVendor === "other" && (
                 <div className="space-y-2">
                   <Label htmlFor="otherEhr">
                     Please specify your EHR system
                   </Label>
                   <Input
                     id="otherEhr"
+                    {...register("otherEhr")}
                     placeholder="Enter your EHR system name"
                   />
+                  {errors.otherEhr && <p className="text-red-500 text-sm">{errors.otherEhr.message}</p>}
                 </div>
               )}
             </div>
@@ -986,29 +1019,29 @@ export default function ModernOnboardingFlow() {
                 <Label htmlFor="ownerName">Owner/Manager Name *</Label>
                 <Input
                   id="ownerName"
-                  value={formData.ownerName}
-                  onChange={(e) => updateFormData("ownerName", e.target.value)}
+                  {...register("ownerName")}
                   placeholder="Enter full name"
                 />
+                {errors.ownerName && <p className="text-red-500 text-sm">{errors.ownerName.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="workEmail">Work Email *</Label>
                 <Input
                   id="workEmail"
                   type="email"
-                  value={formData.workEmail}
-                  onChange={(e) => updateFormData("workEmail", e.target.value)}
+                  {...register("workEmail")}
                   placeholder="email@clinic.com"
                 />
+                {errors.workEmail && <p className="text-red-500 text-sm">{errors.workEmail.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="mobile">Mobile Number *</Label>
                 <Input
                   id="mobile"
-                  value={formData.mobile}
-                  onChange={(e) => updateFormData("mobile", e.target.value)}
+                  {...register("mobile")}
                   placeholder="(555) 123-4567"
                 />
+                {errors.mobile && <p className="text-red-500 text-sm">{errors.mobile.message}</p>}
               </div>
             </div>
           </div>
@@ -1056,47 +1089,44 @@ export default function ModernOnboardingFlow() {
                   <Label htmlFor="routingNumber">Routing Number (ABA) *</Label>
                   <Input
                     id="routingNumber"
-                    value={formData.routingNumber}
-                    onChange={(e) =>
-                      updateFormData("routingNumber", e.target.value)
-                    }
+                    {...register("routingNumber")}
                     placeholder="9-digit routing number"
                   />
+                  {errors.routingNumber && <p className="text-red-500 text-sm">{errors.routingNumber.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="accountNumber">Account Number *</Label>
                   <Input
                     id="accountNumber"
-                    value={formData.accountNumber}
-                    onChange={(e) =>
-                      updateFormData("accountNumber", e.target.value)
-                    }
+                    {...register("accountNumber")}
                     placeholder="Account number"
                   />
+                  {errors.accountNumber && <p className="text-red-500 text-sm">{errors.accountNumber.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="accountType">Account Type *</Label>
-                  <Select
-                    value={formData.accountType}
-                    onValueChange={(value) =>
-                      updateFormData("accountType", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select account type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="checking">Checking</SelectItem>
-                      <SelectItem value="savings">Savings</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="accountType"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select account type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="checking">Checking</SelectItem>
+                          <SelectItem value="savings">Savings</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.accountType && <p className="text-red-500 text-sm">{errors.accountType.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bankName">Bank Name</Label>
                   <Input
                     id="bankName"
-                    value={formData.bankName}
-                    onChange={(e) => updateFormData("bankName", e.target.value)}
+                    {...register("bankName")}
                     placeholder="Will auto-fill from routing number"
                     disabled
                   />
@@ -1121,10 +1151,10 @@ export default function ModernOnboardingFlow() {
                 <Label htmlFor="signerName">Full Legal Name *</Label>
                 <Input
                   id="signerName"
-                  value={formData.signerName}
-                  onChange={(e) => updateFormData("signerName", e.target.value)}
+                  {...register("signerName")}
                   placeholder="Enter full legal name"
                 />
+                {errors.signerName && <p className="text-red-500 text-sm">{errors.signerName.message}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -1132,40 +1162,35 @@ export default function ModernOnboardingFlow() {
                   <Input
                     id="dob"
                     type="date"
-                    value={formData.dob}
-                    onChange={(e) => updateFormData("dob", e.target.value)}
+                    {...register("dob")}
                   />
+                  {errors.dob && <p className="text-red-500 text-sm">{errors.dob.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ssnLast4">SSN Last 4 Digits *</Label>
                   <Input
                     id="ssnLast4"
-                    value={formData.ssnLast4}
-                    onChange={(e) => updateFormData("ssnLast4", e.target.value)}
+                    {...register("ssnLast4")}
                     placeholder="1234"
                     maxLength={4}
                   />
+                  {errors.ssnLast4 && <p className="text-red-500 text-sm">{errors.ssnLast4.message}</p>}
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="homeAddress">Home Address *</Label>
                 <Textarea
                   id="homeAddress"
-                  value={formData.homeAddress}
-                  onChange={(e) =>
-                    updateFormData("homeAddress", e.target.value)
-                  }
+                  {...register("homeAddress")}
                   placeholder="Enter complete home address"
                 />
+                {errors.homeAddress && <p className="text-red-500 text-sm">{errors.homeAddress.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ownershipPercent">Ownership Percentage</Label>
                 <Input
                   id="ownershipPercent"
-                  value={formData.ownershipPercent}
-                  onChange={(e) =>
-                    updateFormData("ownershipPercent", e.target.value)
-                  }
+                  {...register("ownershipPercent")}
                   placeholder="Enter if ≥ 25%"
                 />
                 <p className="text-xs text-muted-foreground">
@@ -1217,25 +1242,58 @@ export default function ModernOnboardingFlow() {
 
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="terms" />
+                  <Controller
+                    name="terms"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="terms"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
                   <Label htmlFor="terms" className="text-sm">
                     I have read and agree to the Terms of Service and Privacy
                     Policy
                   </Label>
                 </div>
+                {errors.terms && <p className="text-red-500 text-sm">{errors.terms.message}</p>}
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="ach" />
+                  <Controller
+                    name="ach"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="ach"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
                   <Label htmlFor="ach" className="text-sm">
                     I authorize ACH debits from the connected bank account
                   </Label>
                 </div>
+                {errors.ach && <p className="text-red-500 text-sm">{errors.ach.message}</p>}
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="accuracy" />
+                  <Controller
+                    name="accuracy"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        id="accuracy"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
                   <Label htmlFor="accuracy" className="text-sm">
                     I certify that all information provided is accurate and
                     complete
                   </Label>
                 </div>
+                {errors.accuracy && <p className="text-red-500 text-sm">{errors.accuracy.message}</p>}
               </div>
 
               <div className="p-4 border rounded-lg bg-green-50 border-green-200">
@@ -1249,7 +1307,7 @@ export default function ModernOnboardingFlow() {
                   Click below to electronically sign all agreements and complete
                   your onboarding.
                 </p>
-                <Button className="w-full bg-green-600 hover:bg-green-700">
+                <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
                   Sign & Finish Setup
                 </Button>
               </div>
@@ -1264,18 +1322,14 @@ export default function ModernOnboardingFlow() {
 
   return (
     <div className="" style={{ zoom: 1.14 }}>
-      <div className="max-w-xl mx-auto px-4">
-        {/* Existing content remains the same */}
-        {/* Progress Header */}
-
-        {/* Main Content */}
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-xl mx-auto px-4">
         <div className=" mb-14">
           <div className="">{renderStepContent()}</div>
         </div>
 
-        {/* Navigation */}
         <div className="flex justify-between">
           <Button
+            type="button"
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1}
@@ -1283,17 +1337,26 @@ export default function ModernOnboardingFlow() {
           >
             Previous
           </Button>
-          <Button
-            onClick={nextStep}
-            disabled={currentStep === STEPS.length || (currentStep === 1 && !formData.businessType)}
-            className={!(currentStep === STEPS.length || (currentStep === 1 && !formData.businessType)) ? "cursor-pointer" : ""}
-          >
-            {currentStep === STEPS.length ? "Complete" : "Next"}
-          </Button>
+          {currentStep < STEPS.length ? (
+            <Button
+              type="button"
+              onClick={nextStep}
+              disabled={currentStep === 1 && !businessType}
+              className={!(currentStep === 1 && !businessType) ? "cursor-pointer" : ""}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              disabled={!form.formState.isValid}
+            >
+              Complete
+            </Button>
+          )}
         </div>
-      </div>
+      </form>
 
-      {/* Add the Compact Progress Card */}
       <ProgressCard currentStep={currentStep} />
     </div>
   );

@@ -1,17 +1,86 @@
-
 import { z } from "zod";
 
-export const addPaymentPlanSchema = z.object({
-  planName: z.string().min(1, "Plan name is required"),
-  amount: z.number().min(0, "Amount must be a positive number"),
+export const step1Schema = z.object({
+  businessType: z.enum(["single", "brand"], {
+    required_error: "Please select a business type.",
+  }),
 });
 
-export const createClinicSchema = z.object({
-  clinicName: z.string().min(1, "Clinic name is required"),
-  address: z.string().min(1, "Address is required"),
+export const step2Schema = z.object({
+  legalBusinessName: z.string().min(1, "Legal business name is required."),
+  dba: z.string().optional(),
+  ein: z.string().min(1, "EIN/Tax-ID is required."),
+  entityType: z.string().min(1, "Entity type is required."),
 });
 
-export const setUpBankSchema = z.object({
-  bankName: z.string().min(1, "Bank name is required"),
-  accountNumber: z.string().min(1, "Account number is required"),
+export const step3Schema = z.object({
+  medicalLicenseNumber: z.string().min(1, "Medical license number is required."),
+  npi: z.string().min(1, "NPI is required."),
+  stateOfIssuance: z.string().min(1, "State of issuance is required."),
+  expiryDate: z.string().min(1, "Expiry date is required."),
 });
+
+export const step4Schema = z.object({
+    streetAddress: z.string().min(1, "Street address is required."),
+    suite: z.string().optional(),
+    zipCode: z.string().min(1, "ZIP code is required."),
+    phone: z.string().min(1, "Phone number is required."),
+    timeZone: z.string().min(1, "Time zone is required."),
+});
+
+export const step5Schema = z.object({
+    medicalSpecialty: z.string().min(1, "Medical specialty is required."),
+    priceRange: z.string().min(1, "Price range is required."),
+    monthlyVolume: z.string().min(1, "Monthly patient volume is required."),
+});
+
+export const step6Schema = z.object({
+    ehrVendor: z.string().min(1, "EHR vendor is required."),
+    otherEhr: z.string().optional(),
+}).refine(data => {
+    if (data.ehrVendor === 'other') {
+        return data.otherEhr && data.otherEhr.length > 0;
+    }
+    return true;
+}, {
+    message: "Please specify your EHR system",
+    path: ["otherEhr"],
+});
+
+export const step7Schema = z.object({
+    ownerName: z.string().min(1, "Owner/Manager name is required."),
+    workEmail: z.string().email("Invalid email address."),
+    mobile: z.string().min(1, "Mobile number is required."),
+});
+
+export const step8Schema = z.object({
+    routingNumber: z.string().min(1, "Routing number is required."),
+    accountNumber: z.string().min(1, "Account number is required."),
+    accountType: z.string().min(1, "Account type is required."),
+    bankName: z.string().optional(),
+});
+
+export const step9Schema = z.object({
+    signerName: z.string().min(1, "Full legal name is required."),
+    dob: z.string().min(1, "Date of birth is required."),
+    ssnLast4: z.string().length(4, "SSN last 4 digits must be 4 digits."),
+    homeAddress: z.string().min(1, "Home address is required."),
+    ownershipPercent: z.string().optional(),
+});
+
+export const step10Schema = z.object({
+    terms: z.boolean().refine(val => val === true, { message: "You must agree to the terms." }),
+    ach: z.boolean().refine(val => val === true, { message: "You must authorize ACH debits." }),
+    accuracy: z.boolean().refine(val => val === true, { message: "You must certify the accuracy of the information." }),
+});
+
+export const onboardingSchema = step1Schema
+  .and(step2Schema)
+  .and(step3Schema)
+  .and(step4Schema)
+  .and(step5Schema)
+  .and(step6Schema)
+  .and(step7Schema)
+  .and(step8Schema)
+  .and(step9Schema)
+  .and(step10Schema);
