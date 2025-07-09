@@ -1,5 +1,25 @@
 import { z } from "zod";
 
+ const luhnCheck = (value: string): boolean => {
+     if (!/^\d+$/.test(value)) {
+         return false;
+     }
+     const digits = value.split('').map(Number);
+     const len = digits.length;
+     let sum = 0;
+     let isSecond = false;
+     for (let i = len - 1; i >= 0; i--) {
+         let d = digits[i];
+         if (isSecond) {
+             d = d * 2;
+         }
+         sum += Math.floor(d / 10);
+         sum += d % 10;
+         isSecond = !isSecond;
+     }
+     return sum % 10 === 0;
+ };
+
 export const step1Schema = z.object({
   businessType: z.enum(["single", "brand"], {
     required_error: "Please select a business type.",
@@ -29,7 +49,14 @@ export const step3Schema = z.object({
   medicalLicenseNumber: z
     .string()
     .min(1, "Medical license number is required."),
-  npi: z.string().min(1, "NPI is required."),
+  npi: z
+    .string()
+    .regex(/^\d{10}$/, "NPI must be a 10-digit number with no punctuation.")
+    .refine((npi) => {
+      /* strip any hidden white-space before validating */
+      const clean = npi.trim();
+      return luhnCheck("80840" + clean);
+    }, "Invalid NPI number (Luhn check failed)."),
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
   expiryDate: z.string().min(1, "Expiry date is required."),
 });
@@ -91,16 +118,12 @@ export const step10Schema = z.object({
   terms: z
     .boolean()
     .refine((val) => val === true, { message: "You must agree to the terms." }),
-  ach: z
-    .boolean()
-    .refine((val) => val === true, {
-      message: "You must authorize ACH debits.",
-    }),
-  accuracy: z
-    .boolean()
-    .refine((val) => val === true, {
-      message: "You must certify the accuracy of the information.",
-    }),
+  ach: z.boolean().refine((val) => val === true, {
+    message: "You must authorize ACH debits.",
+  }),
+  accuracy: z.boolean().refine((val) => val === true, {
+    message: "You must certify the accuracy of the information.",
+  }),
 });
 
 export const onboardingSchema = step1Schema
