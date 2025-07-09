@@ -2,7 +2,7 @@
 
 :root {
   --background: #fefcf5;
-  --foreground: #171717;
+  --foreground: #171717c3;
   --primary: #2563eb;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
@@ -10,7 +10,7 @@
   --accent: #2563eb;
   --accent-foreground: #ffffff;
   --muted: #f8fafc;
-  --muted-foreground: #b4b4b4;
+  --muted-foreground: #908e8e;
   --border: #e2e8f0;
   --input: #cbcbcb;
   --ring: #b4b4b4;
@@ -23,6 +23,7 @@
   --popover-foreground: #0f172a;
 
   --progress-diluted: #5f8ae6;
+  --background-soft-strong: #e7e4db;
 }
 
 @theme inline {
@@ -50,6 +51,7 @@
   --font-mono: var(--font-geist-mono);
 
   --color-progress-diluted: var(--progress-diluted);
+  --color-background-soft-strong: var(--background-soft-strong);
 }
 
 /* @media (prefers-color-scheme: dark) {

@@ -218,177 +218,151 @@ export default function OnboardingFlow() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-8">
-            <div>
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-gray-900">Choose Your Setup</h2>
-              <p className="text-muted-foreground">Select the option that best describes your practice</p>
+              <p className="text-gray-600">Select the option that best describes your practice</p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
               {/* Single Clinic Card */}
               <div
-                className={`relative p-8 bg-white rounded-2xl border-2 cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                className={`relative p-5 bg-white rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
                   formData.businessType === "single"
-                    ? "border-blue-500 shadow-lg ring-2 ring-blue-100"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-blue-500 shadow-md ring-2 ring-blue-100"
+                    : "border-gray-200 hover:border-blue-300"
                 }`}
                 onClick={() => updateFormData("businessType", "single")}
               >
                 {/* Selection indicator */}
                 {formData.businessType === "single" && (
-                  <div className="absolute top-4 right-4 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-white" />
+                  <div className="absolute top-3 right-3 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-3 h-3 text-white" />
                   </div>
                 )}
 
-                {/* Icon */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center">
-                    <Stethoscope className="w-8 h-8 text-blue-600" />
+                {/* Header */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Stethoscope className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Single Clinic</h3>
+                    <p className="text-sm text-gray-600">Independent practice solution</p>
                   </div>
                 </div>
 
-                {/* Title and subtitle */}
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Single Clinic</h3>
-                  <p className="text-gray-600">Perfect for independent practitioners</p>
-                </div>
-
-                {/* Features grid */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-blue-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                          fillRule="evenodd"
-                          d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Scheduling</span>
+                {/* Features */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-gray-700">Quick 5-minute setup</span>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-blue-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Patients</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                    </svg>
+                    <span className="text-gray-700">Simple patient management</span>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-blue-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Analytics</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                    </svg>
+                    <span className="text-gray-700">Basic reporting & analytics</span>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-blue-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                          fillRule="evenodd"
-                          d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Setup</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-gray-700">Cost-effective pricing</span>
                   </div>
                 </div>
 
-                {/* Ideal for text */}
-                <div className="text-center pt-4 border-t border-gray-100">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-semibold text-gray-900">Ideal for:</span> Solo practitioners, small clinics
+                {/* Footer */}
+                <div className="pt-3 border-t border-gray-100">
+                  <p className="text-xs text-gray-600">
+                    <span className="font-medium text-gray-800">Best for:</span> Solo practitioners, small clinics
                   </p>
                 </div>
               </div>
 
               {/* Multiple Clinics Card */}
               <div
-                className={`relative p-8 bg-white rounded-2xl border-2 cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                className={`relative p-5 bg-white rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
                   formData.businessType === "brand"
-                    ? "border-emerald-500 shadow-lg ring-2 ring-emerald-100"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-emerald-500 shadow-md ring-2 ring-emerald-100"
+                    : "border-gray-200 hover:border-emerald-300"
                 }`}
                 onClick={() => updateFormData("businessType", "brand")}
               >
                 {/* Selection indicator */}
                 {formData.businessType === "brand" && (
-                  <div className="absolute top-4 right-4 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-4 h-4 text-white" />
+                  <div className="absolute top-3 right-3 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-3 h-3 text-white" />
                   </div>
                 )}
 
-                {/* Icon */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                    <Building2 className="w-8 h-8 text-emerald-600" />
+                {/* Header */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Multiple Clinics</h3>
+                    <p className="text-sm text-gray-600">Enterprise healthcare solution</p>
                   </div>
                 </div>
 
-                {/* Title and subtitle */}
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Multiple Clinics</h3>
-                  <p className="text-gray-600">Built for healthcare brands</p>
-                </div>
-
-                {/* Features grid */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-emerald-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                          fillRule="evenodd"
-                          d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2v1h12V6H4zm0 3v5h12v-5H4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Multi-Location</span>
+                {/* Features */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2v1h12V6H4zm0 3v5h12v-5H4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-gray-700">Multi-location management</span>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-emerald-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Team Mgmt</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                    </svg>
+                    <span className="text-gray-700">Advanced team controls</span>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-emerald-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Analytics</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                    </svg>
+                    <span className="text-gray-700">Comprehensive analytics</span>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 text-emerald-600">
-                      <svg viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                          fillRule="evenodd"
-                          d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">Permissions</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-gray-700">Role-based permissions</span>
                   </div>
                 </div>
 
-                {/* Ideal for text */}
-                <div className="text-center pt-4 border-t border-gray-100">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-semibold text-gray-900">Ideal for:</span> Healthcare chains, enterprises
+                {/* Footer */}
+                <div className="pt-3 border-t border-gray-100">
+                  <p className="text-xs text-gray-600">
+                    <span className="font-medium text-gray-800">Best for:</span> Healthcare chains, medical groups
                   </p>
                 </div>
               </div>
@@ -481,6 +455,15 @@ export default function OnboardingFlow() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="expiryDate">Expiry Date *</Label>
+                  <Input
+                    id="expiryDate"
+                    type="date"
+                    value={formData.expiryDate}
+                    onChange={(e) => updateFormData("expiryDate", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="stateOfIssuance">State of Issuance *</Label>
                   <Select
                     value={formData.stateOfIssuance}
@@ -497,15 +480,6 @@ export default function OnboardingFlow() {
                       {/* Add more states as needed */}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expiryDate">Expiry Date *</Label>
-                  <Input
-                    id="expiryDate"
-                    type="date"
-                    value={formData.expiryDate}
-                    onChange={(e) => updateFormData("expiryDate", e.target.value)}
-                  />
                 </div>
               </div>
             </div>
@@ -933,7 +907,7 @@ export default function OnboardingFlow() {
   }
 
   return (
-    <div className="">
+    <div className="" style={{zoom: 1.2}}>
       <div className="max-w-xl mx-auto px-4">
         {/* Existing content remains the same */}
         {/* Progress Header */}
