@@ -1,24 +1,24 @@
 import { z } from "zod";
 
- const luhnCheck = (value: string): boolean => {
-     if (!/^\d+$/.test(value)) {
-         return false;
-     }
-     const digits = value.split('').map(Number);
-     const len = digits.length;
-     let sum = 0;
-     let isSecond = false;
-     for (let i = len - 1; i >= 0; i--) {
-         let d = digits[i];
-         if (isSecond) {
-             d = d * 2;
-         }
-         sum += Math.floor(d / 10);
-         sum += d % 10;
-         isSecond = !isSecond;
-     }
-     return sum % 10 === 0;
- };
+const luhnCheck = (value: string): boolean => {
+  if (!/^\d+$/.test(value)) {
+    return false;
+  }
+  const digits = value.split("").map(Number);
+  const len = digits.length;
+  let sum = 0;
+  let isSecond = false;
+  for (let i = len - 1; i >= 0; i--) {
+    let d = digits[i];
+    if (isSecond) {
+      d = d * 2;
+    }
+    sum += Math.floor(d / 10);
+    sum += d % 10;
+    isSecond = !isSecond;
+  }
+  return sum % 10 === 0;
+};
 
 export const step1Schema = z.object({
   businessType: z.enum(["single", "brand"], {
@@ -58,7 +58,12 @@ export const step3Schema = z.object({
       return luhnCheck("80840" + clean);
     }, "Invalid NPI number (Luhn check failed)."),
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
-  expiryDate: z.string().min(1, "Expiry date is required."),
+  expiryDate: z
+    .string()
+    .regex(/^\d{4}\/\d{2}\/\d{2}$/, "Date must be in YYYY/MM/DD format")
+    .refine((date) => new Date(date) > new Date(), {
+      message: "Expiry date must be in the future.",
+    }),
 });
 
 export const step4Schema = z.object({
