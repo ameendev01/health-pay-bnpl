@@ -28,6 +28,7 @@ export default function DashboardPage() {
     error: errorTransactions,
   } = useRecentTransactions();
   const { user } = useUser();
+  console.log('user', user)
 
   if (isLoadingTransactions) {
     return (
