@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -1452,7 +1452,7 @@ export default function ModernOnboardingFlow() {
       medicalLicenseNumber: "",
       npi: "",
       stateOfIssuance: "",
-      expiryDate: "",
+      expiryDate: undefined,
       streetAddress: "",
       suite: "",
       zipCode: "",
@@ -1471,7 +1471,7 @@ export default function ModernOnboardingFlow() {
       accountType: "",
       bankName: "",
       signerName: "",
-      dob: "",
+      dob: undefined,
       ssnLast4: "",
       homeAddress: "",
       ownershipPercent: "",
@@ -1509,7 +1509,7 @@ export default function ModernOnboardingFlow() {
     }
   };
 
-  const onSubmit = (data: OnboardingData) => {
+  const onSubmit: SubmitHandler<OnboardingData> = (data) => {
     console.log("Onboarding data:", data);
     // Handle final submission
   };
