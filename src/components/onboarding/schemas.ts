@@ -58,10 +58,15 @@ export const step3Schema = z.object({
       return luhnCheck("80840" + clean);
     }, "Invalid NPI number (Luhn check failed)."),
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
-  expiryDate: z
-    .string()
-    .regex(/^\d{4}\/\d{2}\/\d{2}$/, "Date must be in YYYY/MM/DD format")
-    .refine((date) => new Date(date) > new Date(), {
+  // 📄 schema.ts
+  expiryDate: z// 1️⃣  Turn the ISO string into a Date object.
+  //     z.coerce.date() understands "YYYY-MM-DD".
+  .coerce
+    .date({
+      errorMap: () => ({ message: "Please pick a date." }),
+    })
+    // 2️⃣  Make sure it’s in the future.
+    .refine((d) => d > new Date(), {
       message: "Expiry date must be in the future.",
     }),
 });
