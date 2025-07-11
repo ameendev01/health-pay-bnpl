@@ -890,10 +890,30 @@ const Step4 = ({ form }: StepProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number *</Label>
-            <Input
-              id="phone"
-              {...register("phone")}
-              placeholder="(555) 123-4567"
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="phone"
+                  placeholder="(555) 123-4567"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    let formattedValue = "";
+                    if (value.length > 0) {
+                      formattedValue = "(" + value.substring(0, 3);
+                    }
+                    if (value.length > 3) {
+                      formattedValue += ") " + value.substring(3, 6);
+                    }
+                    if (value.length > 6) {
+                      formattedValue += "-" + value.substring(6, 10);
+                    }
+                    field.onChange(formattedValue);
+                  }}
+                />
+              )}
             />
             {errors.phone && (
               <p className="text-red-500 text-sm">
@@ -1108,6 +1128,7 @@ const Step7 = ({ form }: StepProps) => {
   const {
     register,
     formState: { errors },
+    control,
   } = form;
   return (
     <div className="space-y-6">
@@ -1147,11 +1168,31 @@ const Step7 = ({ form }: StepProps) => {
         </div>
         <div className="space-y-2">
           <Label htmlFor="mobile">Mobile Number *</Label>
-          <Input
-            id="mobile"
-            {...register("mobile")}
-            placeholder="(555) 123-4567"
-          />
+          <Controller
+              name="mobile"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="mobile"
+                  placeholder="(555) 123-4567"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    let formattedValue = "";
+                    if (value.length > 0) {
+                      formattedValue = "(" + value.substring(0, 3);
+                    }
+                    if (value.length > 3) {
+                      formattedValue += ") " + value.substring(3, 6);
+                    }
+                    if (value.length > 6) {
+                      formattedValue += "-" + value.substring(6, 10);
+                    }
+                    field.onChange(formattedValue);
+                  }}
+                />
+              )}
+            />
           {errors.mobile && (
             <p className="text-red-500 text-sm">
               {(errors.mobile as any).message}
