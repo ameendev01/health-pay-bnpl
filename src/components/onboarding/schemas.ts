@@ -60,24 +60,13 @@ export const step3Schema = z.object({
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
   // 📄 schema.ts
   expiryDate: z
-    .string({ required_error: "Please pick an expiry date." })
-    // 1️⃣ ISO-8601 from <input type="date">
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use browser date picker")
-    // 2️⃣ Turn YYYY-MM-DD ➔ real Date @-UTC-midnight
-    .transform((s) => {
-      const [yyyy, mm, dd] = s.split("-").map(Number);
-      return new Date(Date.UTC(yyyy, mm - 1, dd));
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: "Please pick a valid date.",
     })
-    // 3️⃣ Structural + business checks
-    .refine((d) => !isNaN(d.getTime()), { message: "Date is invalid." })
-    .refine(
-      (d) => {
-        const today = new Date(); // today @ UTC-00:00
-        today.setUTCHours(0, 0, 0, 0);
-        return d > today;
-      },
-      { message: "Expiry date must be in the future." }
-    ),
+    .refine((val) => new Date(val) > new Date(), {
+      message: "Expiry date must be in the future.",
+    }),
 });
 
 export const step4Schema = z.object({
