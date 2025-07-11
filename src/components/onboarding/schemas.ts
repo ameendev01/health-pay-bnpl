@@ -37,7 +37,7 @@ export const step2Schema = z.object({
     ),
   dba: z
     .string()
-    .regex(/^[A-Za-z0-9 ,.'&-]{2,100}$/)
+    .regex(/(^$)|(^[A-Za-z0-9 ,.'&-]{2,100}$)/)
     .optional(),
   ein: z
     .string()
