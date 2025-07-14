@@ -178,6 +178,7 @@ export const step9Schema = z.object({
   ssnLast4: z.string().length(4, "SSN last 4 digits must be 4 digits."),
   homeAddress: z.string().min(1, "Home address is required."),
   ownershipPercent: z.string().optional(),
+  idDocument: z.any().optional(),
 });
 
 export const step10Schema = z.object({
