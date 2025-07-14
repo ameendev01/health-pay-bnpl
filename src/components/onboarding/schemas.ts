@@ -20,6 +20,18 @@ const luhnCheck = (value: string): boolean => {
   return sum % 10 === 0;
 };
 
+/* ── 2. Helper: ABA checksum (3-7-1 weighting) ───────────────────────────── */
+const abaChecksumPass = (raw: string): boolean => {
+  if (!/^\d{9}$/.test(raw)) return false;
+  const d = raw.split("").map(Number);
+  const checksum =
+    (3 * (d[0] + d[3] + d[6]) +
+      7 * (d[1] + d[4] + d[7]) +
+      1 * (d[2] + d[5] + d[8])) %
+    10;
+  return checksum === 0;
+};
+
 export const step1Schema = z.object({
   businessType: z.enum(["single", "brand"], {
     required_error: "Please select a business type.",
@@ -37,7 +49,7 @@ export const step2Schema = z.object({
     ),
   dba: z
     .string()
-    .regex(/^[A-Za-z0-9 ,.'&-]{2,100}$/)
+    .regex(/(^$)|(^[A-Za-z0-9 ,.'&-]{2,100}$)/)
     .optional(),
   ein: z
     .string()
@@ -58,15 +70,12 @@ export const step3Schema = z.object({
       return luhnCheck("80840" + clean);
     }, "Invalid NPI number (Luhn check failed)."),
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
-  // 📄 schema.ts
-  expiryDate: z// 1️⃣  Turn the ISO string into a Date object.
-  //     z.coerce.date() understands "YYYY-MM-DD".
-  .coerce
-    .date({
-      errorMap: () => ({ message: "Please pick a date." }),
+  expiryDate: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: "Please pick a valid date.",
     })
-    // 2️⃣  Make sure it’s in the future.
-    .refine((d) => d > new Date(), {
+    .refine((val) => new Date(val) > new Date(), {
       message: "Expiry date must be in the future.",
     }),
 });
@@ -109,12 +118,59 @@ export const step7Schema = z.object({
   mobile: z.string().min(1, "Mobile number is required."),
 });
 
-export const step8Schema = z.object({
-  routingNumber: z.string().min(1, "Routing number is required."),
-  accountNumber: z.string().min(1, "Account number is required."),
-  accountType: z.string().min(1, "Account type is required."),
-  bankName: z.string().optional(),
+/* ── 2. Manual-entry subtree (for non-Plaid fallback) ────────────────────── */
+const manualBankSchema = z.object({
+  routingNumber: z
+    .string({ required_error: "Routing number is required." })
+    .trim()
+    .regex(/^\d{9}$/, "Routing number must be exactly 9 digits.")
+    .refine(abaChecksumPass, { message: "Invalid routing number (checksum)." }),
+
+  accountNumber: z
+    .string({ required_error: "Account number is required." })
+    .trim()
+    .regex(/^\d{4,17}$/, "Account number must be 4–17 digits.")
+    .refine((s) => !/^0+$/.test(s), {
+      message: "Account number cannot be all zeros.",
+    })
+    .refine((s) => !/(.)\1{3,}/.test(s), {
+      message: "Account number looks suspicious (repeating digits).",
+    }),
+
+  accountType: z.enum(["checking", "savings"], {
+    required_error: "Select checking or savings.",
+  }),
+
+  /* auto-filled after routing lookup; optional while typing */
+  bankName: z
+    .string()
+    .trim()
+    .regex(
+      /(^$)|(^[A-Za-z0-9 .'&amp;-]{2,100}$)/,
+      "Bank name must be 2-100 characters if provided."
+    )
+    .optional(),
 });
+
+/* ── 3. Plaid subtree (if user clicks “Connect with Plaid”) ──────────────── */
+// const plaidBankSchema = z.object({
+//   plaidPublicToken: z.string({
+//     required_error: "Missing Plaid public token.",
+//   }),
+//   plaidAccountId: z.string({
+//     required_error: "Missing Plaid account id.",
+//   }),
+//   /* You can still store ACH numbers returned by /auth/get, but
+//      those are optional here because Plaid already verified them. */
+//   routingNumber: z.string().optional(),
+//   accountNumber: z.string().optional(),
+//   accountType: z.enum(["checking", "savings"]).optional(),
+//   bankName: z.string().optional(),
+// });
+
+/* ── 4. Final discriminated-union schema ─────────────────────────────────── */
+// export const step8Schema = z.union([plaidBankSchema, manualBankSchema]);
+export const step8Schema = manualBankSchema;
 
 export const step9Schema = z.object({
   signerName: z.string().min(1, "Full legal name is required."),
@@ -122,6 +178,7 @@ export const step9Schema = z.object({
   ssnLast4: z.string().length(4, "SSN last 4 digits must be 4 digits."),
   homeAddress: z.string().min(1, "Home address is required."),
   ownershipPercent: z.string().optional(),
+  idDocument: z.any().optional(),
 });
 
 export const step10Schema = z.object({

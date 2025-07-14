@@ -776,11 +776,56 @@ const Step3 = ({ form }: StepProps) => {
                     <SelectValue placeholder="Select state" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="AL">Alabama</SelectItem>
+                    <SelectItem value="AK">Alaska</SelectItem>
+                    <SelectItem value="AZ">Arizona</SelectItem>
+                    <SelectItem value="AR">Arkansas</SelectItem>
                     <SelectItem value="CA">California</SelectItem>
-                    <SelectItem value="NY">New York</SelectItem>
-                    <SelectItem value="TX">Texas</SelectItem>
+                    <SelectItem value="CO">Colorado</SelectItem>
+                    <SelectItem value="CT">Connecticut</SelectItem>
+                    <SelectItem value="DE">Delaware</SelectItem>
                     <SelectItem value="FL">Florida</SelectItem>
-                    {/* Add more states as needed */}
+                    <SelectItem value="GA">Georgia</SelectItem>
+                    <SelectItem value="HI">Hawaii</SelectItem>
+                    <SelectItem value="ID">Idaho</SelectItem>
+                    <SelectItem value="IL">Illinois</SelectItem>
+                    <SelectItem value="IN">Indiana</SelectItem>
+                    <SelectItem value="IA">Iowa</SelectItem>
+                    <SelectItem value="KS">Kansas</SelectItem>
+                    <SelectItem value="KY">Kentucky</SelectItem>
+                    <SelectItem value="LA">Louisiana</SelectItem>
+                    <SelectItem value="ME">Maine</SelectItem>
+                    <SelectItem value="MD">Maryland</SelectItem>
+                    <SelectItem value="MA">Massachusetts</SelectItem>
+                    <SelectItem value="MI">Michigan</SelectItem>
+                    <SelectItem value="MN">Minnesota</SelectItem>
+                    <SelectItem value="MS">Mississippi</SelectItem>
+                    <SelectItem value="MO">Missouri</SelectItem>
+                    <SelectItem value="MT">Montana</SelectItem>
+                    <SelectItem value="NE">Nebraska</SelectItem>
+                    <SelectItem value="NV">Nevada</SelectItem>
+                    <SelectItem value="NH">New Hampshire</SelectItem>
+                    <SelectItem value="NJ">New Jersey</SelectItem>
+                    <SelectItem value="NM">New Mexico</SelectItem>
+                    <SelectItem value="NY">New York</SelectItem>
+                    <SelectItem value="NC">North Carolina</SelectItem>
+                    <SelectItem value="ND">North Dakota</SelectItem>
+                    <SelectItem value="OH">Ohio</SelectItem>
+                    <SelectItem value="OK">Oklahoma</SelectItem>
+                    <SelectItem value="OR">Oregon</SelectItem>
+                    <SelectItem value="PA">Pennsylvania</SelectItem>
+                    <SelectItem value="RI">Rhode Island</SelectItem>
+                    <SelectItem value="SC">South Carolina</SelectItem>
+                    <SelectItem value="SD">South Dakota</SelectItem>
+                    <SelectItem value="TN">Tennessee</SelectItem>
+                    <SelectItem value="TX">Texas</SelectItem>
+                    <SelectItem value="UT">Utah</SelectItem>
+                    <SelectItem value="VT">Vermont</SelectItem>
+                    <SelectItem value="VA">Virginia</SelectItem>
+                    <SelectItem value="WA">Washington</SelectItem>
+                    <SelectItem value="WV">West Virginia</SelectItem>
+                    <SelectItem value="WI">Wisconsin</SelectItem>
+                    <SelectItem value="WY">Wyoming</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -845,10 +890,30 @@ const Step4 = ({ form }: StepProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number *</Label>
-            <Input
-              id="phone"
-              {...register("phone")}
-              placeholder="(555) 123-4567"
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="phone"
+                  placeholder="(555) 123-4567"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    let formattedValue = "";
+                    if (value.length > 0) {
+                      formattedValue = "(" + value.substring(0, 3);
+                    }
+                    if (value.length > 3) {
+                      formattedValue += ") " + value.substring(3, 6);
+                    }
+                    if (value.length > 6) {
+                      formattedValue += "-" + value.substring(6, 10);
+                    }
+                    field.onChange(formattedValue);
+                  }}
+                />
+              )}
             />
             {errors.phone && (
               <p className="text-red-500 text-sm">
@@ -1063,6 +1128,7 @@ const Step7 = ({ form }: StepProps) => {
   const {
     register,
     formState: { errors },
+    control,
   } = form;
   return (
     <div className="space-y-6">
@@ -1102,11 +1168,31 @@ const Step7 = ({ form }: StepProps) => {
         </div>
         <div className="space-y-2">
           <Label htmlFor="mobile">Mobile Number *</Label>
-          <Input
-            id="mobile"
-            {...register("mobile")}
-            placeholder="(555) 123-4567"
-          />
+          <Controller
+              name="mobile"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="mobile"
+                  placeholder="(555) 123-4567"
+                  {...field}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    let formattedValue = "";
+                    if (value.length > 0) {
+                      formattedValue = "(" + value.substring(0, 3);
+                    }
+                    if (value.length > 3) {
+                      formattedValue += ") " + value.substring(3, 6);
+                    }
+                    if (value.length > 6) {
+                      formattedValue += "-" + value.substring(6, 10);
+                    }
+                    field.onChange(formattedValue);
+                  }}
+                />
+              )}
+            />
           {errors.mobile && (
             <p className="text-red-500 text-sm">
               {(errors.mobile as any).message}
@@ -1452,7 +1538,7 @@ export default function ModernOnboardingFlow() {
       medicalLicenseNumber: "",
       npi: "",
       stateOfIssuance: "",
-      expiryDate: undefined,
+      expiryDate: "",
       streetAddress: "",
       suite: "",
       zipCode: "",
@@ -1468,7 +1554,7 @@ export default function ModernOnboardingFlow() {
       mobile: "",
       routingNumber: "",
       accountNumber: "",
-      accountType: "",
+      accountType: undefined,
       bankName: "",
       signerName: "",
       dob: undefined,
