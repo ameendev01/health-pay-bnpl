@@ -20,6 +20,18 @@ const luhnCheck = (value: string): boolean => {
   return sum % 10 === 0;
 };
 
+/* ── 2. Helper: ABA checksum (3-7-1 weighting) ───────────────────────────── */
+const abaChecksumPass = (raw: string): boolean => {
+  if (!/^\d{9}$/.test(raw)) return false;
+  const d = raw.split("").map(Number);
+  const checksum =
+    (3 * (d[0] + d[3] + d[6]) +
+      7 * (d[1] + d[4] + d[7]) +
+      1 * (d[2] + d[5] + d[8])) %
+    10;
+  return checksum === 0;
+};
+
 export const step1Schema = z.object({
   businessType: z.enum(["single", "brand"], {
     required_error: "Please select a business type.",
@@ -58,7 +70,6 @@ export const step3Schema = z.object({
       return luhnCheck("80840" + clean);
     }, "Invalid NPI number (Luhn check failed)."),
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
-  // 📄 schema.ts
   expiryDate: z
     .string()
     .refine((val) => !isNaN(Date.parse(val)), {
@@ -107,12 +118,58 @@ export const step7Schema = z.object({
   mobile: z.string().min(1, "Mobile number is required."),
 });
 
-export const step8Schema = z.object({
-  routingNumber: z.string().min(1, "Routing number is required."),
-  accountNumber: z.string().min(1, "Account number is required."),
-  accountType: z.string().min(1, "Account type is required."),
-  bankName: z.string().optional(),
+/* ── 2. Manual-entry subtree (for non-Plaid fallback) ────────────────────── */
+const manualBankSchema = z.object({
+  routingNumber: z
+    .string({ required_error: "Routing number is required." })
+    .trim()
+    .regex(/^\d{9}$/, "Routing number must be exactly 9 digits.")
+    .refine(abaChecksumPass, { message: "Invalid routing number (checksum)." }),
+
+  accountNumber: z
+    .string({ required_error: "Account number is required." })
+    .trim()
+    .regex(/^\d{4,17}$/, "Account number must be 4–17 digits.")
+    .refine((s) => !/^0+$/.test(s), {
+      message: "Account number cannot be all zeros.",
+    })
+    .refine((s) => !/(.)\1{3,}/.test(s), {
+      message: "Account number looks suspicious (repeating digits).",
+    }),
+
+  accountType: z.enum(["checking", "savings"], {
+    required_error: "Select checking or savings.",
+  }),
+
+  /* auto-filled after routing lookup; optional while typing */
+  bankName: z
+    .string()
+    .trim()
+    .min(2, "Bank name must be at least 2 characters.")
+    .max(100, "Bank name too long.")
+    .regex(/^[A-Za-z0-9 .'&-]*$/, "Bank name contains invalid characters.")
+    .optional(),
 });
+
+/* ── 3. Plaid subtree (if user clicks “Connect with Plaid”) ──────────────── */
+// const plaidBankSchema = z.object({
+//   plaidPublicToken: z.string({
+//     required_error: "Missing Plaid public token.",
+//   }),
+//   plaidAccountId: z.string({
+//     required_error: "Missing Plaid account id.",
+//   }),
+//   /* You can still store ACH numbers returned by /auth/get, but
+//      those are optional here because Plaid already verified them. */
+//   routingNumber: z.string().optional(),
+//   accountNumber: z.string().optional(),
+//   accountType: z.enum(["checking", "savings"]).optional(),
+//   bankName: z.string().optional(),
+// });
+
+/* ── 4. Final discriminated-union schema ─────────────────────────────────── */
+// export const step8Schema = z.union([plaidBankSchema, manualBankSchema]);
+export const step8Schema = manualBankSchema;
 
 export const step9Schema = z.object({
   signerName: z.string().min(1, "Full legal name is required."),

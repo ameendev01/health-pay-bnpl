@@ -1554,7 +1554,7 @@ export default function ModernOnboardingFlow() {
       mobile: "",
       routingNumber: "",
       accountNumber: "",
-      accountType: "",
+      accountType: undefined,
       bankName: "",
       signerName: "",
       dob: undefined,
