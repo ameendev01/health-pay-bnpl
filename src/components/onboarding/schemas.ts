@@ -145,9 +145,10 @@ const manualBankSchema = z.object({
   bankName: z
     .string()
     .trim()
-    .min(2, "Bank name must be at least 2 characters.")
-    .max(100, "Bank name too long.")
-    .regex(/^[A-Za-z0-9 .'&-]*$/, "Bank name contains invalid characters.")
+    .regex(
+      /(^$)|(^[A-Za-z0-9 .'&amp;-]{2,100}$)/,
+      "Bank name must be 2-100 characters if provided."
+    )
     .optional(),
 });
 
