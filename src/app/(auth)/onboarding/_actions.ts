@@ -2,12 +2,8 @@
 
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
-export const completeOnboarding = async (status: boolean) => {
+export const completeOnboarding = async (formData: FormData) => {
   const { userId } = await auth()
-
-	if(status === false) {
-	return { message: 'Onboarding not completed' }
-	}
 
   if (!userId) {
     return { message: 'No Logged In User' }
@@ -19,8 +15,8 @@ export const completeOnboarding = async (status: boolean) => {
     const res = await client.users.updateUser(userId, {
       publicMetadata: {
         onboardingComplete: true,
-        // applicationName: formData.get('applicationName'),
-        // applicationType: formData.get('applicationType'),
+        applicationName: formData.get('applicationName'),
+        applicationType: formData.get('applicationType'),
       },
     })
     return { message: res.publicMetadata }
