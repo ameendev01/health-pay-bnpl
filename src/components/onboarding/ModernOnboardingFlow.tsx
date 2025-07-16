@@ -40,6 +40,9 @@ import {
   step10Schema,
 } from "./schemas";
 import { useState } from "react";
+import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
+import { useUser } from "@clerk/nextjs";
+// import { useRouter } from "next/router";1234567812345678
 
 // Compact Progress Card Component
 function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
@@ -1169,30 +1172,30 @@ const Step7 = ({ form }: StepProps) => {
         <div className="space-y-2">
           <Label htmlFor="mobile">Mobile Number *</Label>
           <Controller
-              name="mobile"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="mobile"
-                  placeholder="(555) 123-4567"
-                  {...field}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    let formattedValue = "";
-                    if (value.length > 0) {
-                      formattedValue = "(" + value.substring(0, 3);
-                    }
-                    if (value.length > 3) {
-                      formattedValue += ") " + value.substring(3, 6);
-                    }
-                    if (value.length > 6) {
-                      formattedValue += "-" + value.substring(6, 10);
-                    }
-                    field.onChange(formattedValue);
-                  }}
-                />
-              )}
-            />
+            name="mobile"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="mobile"
+                placeholder="(555) 123-4567"
+                {...field}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  let formattedValue = "";
+                  if (value.length > 0) {
+                    formattedValue = "(" + value.substring(0, 3);
+                  }
+                  if (value.length > 3) {
+                    formattedValue += ") " + value.substring(3, 6);
+                  }
+                  if (value.length > 6) {
+                    formattedValue += "-" + value.substring(6, 10);
+                  }
+                  field.onChange(formattedValue);
+                }}
+              />
+            )}
+          />
           {errors.mobile && (
             <p className="text-red-500 text-sm">
               {(errors.mobile as any).message}
@@ -1525,6 +1528,8 @@ const Step10 = ({ form }: StepProps) => {
 
 export default function ModernOnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(1);
+  const { user } = useUser()
+  // const router = useRouter()
 
   const form = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
@@ -1595,9 +1600,29 @@ export default function ModernOnboardingFlow() {
     }
   };
 
-  const onSubmit: SubmitHandler<OnboardingData> = (data) => {
+  const onSubmit: SubmitHandler<OnboardingData> = async (data) => {
     console.log("Onboarding data:", data);
     // Handle final submission
+
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+
+    const res = await completeOnboarding();
+    console.log("res", res);
+    if (res?.message) {
+      // Reloads the user's data from the Clerk API
+      await user?.reload();
+      // supabase calls here
+
+      // router.push("/dashboard");
+      console.log('user', user)
+    }
+    if (res?.error) {
+      console.log(res?.error);
+    }
+
   };
 
   return (
