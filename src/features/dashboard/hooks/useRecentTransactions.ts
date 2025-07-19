@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useSupabaseClient } from '../../../../utils/supabase/client';
+import { useSupabaseClient } from '../../../../supabase/client';
 
 dayjs.extend(relativeTime);
 

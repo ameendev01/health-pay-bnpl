@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useSupabaseClient } from '../../../../utils/supabase/client';
+import { useSupabaseClient } from '../../../../supabase/client';
 import { DollarSign, Building2, Users, Clock } from 'lucide-react';
 
 // Types

@@ -25,6 +25,7 @@ import {
   Users,
   CircleCheck,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import {
   onboardingSchema,
@@ -40,6 +41,9 @@ import {
   step10Schema,
 } from "./schemas";
 import { useState } from "react";
+import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 // Compact Progress Card Component
 function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
@@ -394,7 +398,7 @@ const STEPS = [
   { id: 10, title: "Agreements", icon: FileText, schema: step10Schema },
 ];
 
-type OnboardingData = z.infer<typeof onboardingSchema>;
+export type OnboardingData = z.infer<typeof onboardingSchema>;
 
 type StepProps = {
   form: any;
@@ -1169,30 +1173,30 @@ const Step7 = ({ form }: StepProps) => {
         <div className="space-y-2">
           <Label htmlFor="mobile">Mobile Number *</Label>
           <Controller
-              name="mobile"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="mobile"
-                  placeholder="(555) 123-4567"
-                  {...field}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
-                    let formattedValue = "";
-                    if (value.length > 0) {
-                      formattedValue = "(" + value.substring(0, 3);
-                    }
-                    if (value.length > 3) {
-                      formattedValue += ") " + value.substring(3, 6);
-                    }
-                    if (value.length > 6) {
-                      formattedValue += "-" + value.substring(6, 10);
-                    }
-                    field.onChange(formattedValue);
-                  }}
-                />
-              )}
-            />
+            name="mobile"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="mobile"
+                placeholder="(555) 123-4567"
+                {...field}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  let formattedValue = "";
+                  if (value.length > 0) {
+                    formattedValue = "(" + value.substring(0, 3);
+                  }
+                  if (value.length > 3) {
+                    formattedValue += ") " + value.substring(3, 6);
+                  }
+                  if (value.length > 6) {
+                    formattedValue += "-" + value.substring(6, 10);
+                  }
+                  field.onChange(formattedValue);
+                }}
+              />
+            )}
+          />
           {errors.mobile && (
             <p className="text-red-500 text-sm">
               {(errors.mobile as any).message}
@@ -1405,7 +1409,7 @@ const Step9 = ({ form }: StepProps) => {
 const Step10 = ({ form }: StepProps) => {
   const {
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = form;
   return (
     <div className="space-y-6">
@@ -1514,8 +1518,15 @@ const Step10 = ({ form }: StepProps) => {
           <Button
             type="submit"
             className="w-full bg-green-600 hover:bg-green-700"
+            disabled={isSubmitting}
           >
-            Sign & Finish Setup
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please Wait
+              </>
+            ) : (
+              "Sign & Finish Setup"
+            )}
           </Button>
         </div>
       </div>
@@ -1525,6 +1536,10 @@ const Step10 = ({ form }: StepProps) => {
 
 export default function ModernOnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(1);
+  const { user } = useUser();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
@@ -1595,9 +1610,25 @@ export default function ModernOnboardingFlow() {
     }
   };
 
-  const onSubmit: SubmitHandler<OnboardingData> = (data) => {
-    console.log("Onboarding data:", data);
-    // Handle final submission
+  const onSubmit: SubmitHandler<OnboardingData> = async (data) => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const result = await completeOnboarding(data);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      // The server action was successful, now handle the client-side effects
+      await user?.reload(); // Reloads the user's data to get the new metadata
+      router.push("/dashboard");
+    } catch (e: any) {
+      setError(e.message || "An unexpected error occurred.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -1615,6 +1646,13 @@ export default function ModernOnboardingFlow() {
           {currentStep === 9 && <Step9 form={form} />}
           {currentStep === 10 && <Step10 form={form} />}
         </div>
+
+        {error && (
+          <div className="text-red-500 text-sm font-medium p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+            <p className="font-bold">An Error Occurred</p>
+            <p>{error}</p>
+          </div>
+        )}
 
         <div className="flex justify-between">
           <Button
@@ -1638,8 +1676,18 @@ export default function ModernOnboardingFlow() {
               Next
             </Button>
           ) : (
-            <Button type="submit" disabled={!form.formState.isValid}>
-              Complete
+            <Button
+              type="submit"
+              disabled={!form.formState.isValid || isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                  Completing...
+                </>
+              ) : (
+                "Complete"
+              )}
             </Button>
           )}
         </div>
