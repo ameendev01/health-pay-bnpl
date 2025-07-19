@@ -1,24 +1,48 @@
 import { z } from "zod";
 
-const luhnCheck = (value: string): boolean => {
-  if (!/^\d+$/.test(value)) {
-    return false;
-  }
-  const digits = value.split("").map(Number);
-  const len = digits.length;
+// const luhnCheck = (value: string): boolean => {
+//   if (!/^\d+$/.test(value)) {
+//     return false;
+//   }
+//   const digits = value.split("").map(Number);
+//   const len = digits.length;
+//   let sum = 0;
+//   let isSecond = false;
+//   for (let i = len - 1; i >= 0; i--) {
+//     let d = digits[i];
+//     if (isSecond) {
+//       d = d * 2;
+//     }
+//     sum += Math.floor(d / 10);
+//     sum += d % 10;
+//     isSecond = !isSecond;
+//   }
+//   return sum % 10 === 0;
+// };
+
+const npiCheck = (npi: string): boolean => {
+  if (!/^\d{10}$/.test(npi)) return false;
+
+  const base9 = npi.slice(0, 9);
+  const claimedCheck = Number(npi[9]);
+
+  const payload = "80840" + base9; // 14 digits
+
+  // Compute Luhn sum over payload
   let sum = 0;
-  let isSecond = false;
-  for (let i = len - 1; i >= 0; i--) {
-    let d = digits[i];
-    if (isSecond) {
-      d = d * 2;
-    }
-    sum += Math.floor(d / 10);
-    sum += d % 10;
-    isSecond = !isSecond;
+  let double = false; // because we start from rightmost of payload; choose parity carefully
+  // Easier: implement Luhn exactly as you already did but on payload only, then derive check digit.
+  for (let i = payload.length - 1; i >= 0; i--) {
+    let d = Number(payload[i]);
+    if (double) d *= 2;
+    sum += Math.floor(d / 10) + (d % 10);
+    double = !double;
   }
-  return sum % 10 === 0;
+
+  const expectedCheck = (10 - (sum % 10)) % 10;
+  return expectedCheck === claimedCheck;
 };
+
 
 /* ── 2. Helper: ABA checksum (3-7-1 weighting) ───────────────────────────── */
 const abaChecksumPass = (raw: string): boolean => {
@@ -64,11 +88,13 @@ export const step3Schema = z.object({
   npi: z
     .string()
     .regex(/^\d{10}$/, "NPI must be a 10-digit number with no punctuation.")
-    .refine((npi) => {
-      /* strip any hidden white-space before validating */
-      const clean = npi.trim();
-      return luhnCheck("80840" + clean);
-    }, "Invalid NPI number (Luhn check failed)."),
+    // .refine((npi) => {
+    //   /* strip any hidden white-space before validating */
+    //   const clean = npi.trim();
+    //   return luhnCheck("80840" + clean);
+    // }, "Invalid NPI number (Luhn check failed)."),
+    .refine((npi) => npiCheck(npi), "Invalid NPI number (Luhn check failed)."),
+
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
   expiryDate: z
     .string()
