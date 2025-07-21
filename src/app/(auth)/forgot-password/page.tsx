@@ -6,25 +6,37 @@ import Link from "next/link";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+
+type Stage = "enter-email" | "enter-otp" | "reset-password";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
 });
 
-const passwordSchema = z.object({
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long." }),
-  code: z
-    .string()
-    .min(6, { message: "Verification code must be 6 characters long." }),
-});
+const passwordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long." }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long." }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
 
 export default function ForgotPasswordPage() {
   const { isLoaded, signIn, setActive } = useSignIn();
-  const [successfulCreation, setSuccessfulCreation] = useState(false);
-  const [secondFactor, setSecondFactor] = useState(false);
+  const [stage, setStage] = useState<Stage>("enter-email");
   const [error, setError] = useState("");
+  const [otp, setOtp] = useState("");
   const router = useRouter();
 
   const emailForm = useForm({
@@ -35,7 +47,7 @@ export default function ForgotPasswordPage() {
     resolver: zodResolver(passwordSchema),
   });
 
-  async function createForgotPassword(data: z.infer<typeof emailSchema>) {
+  async function handleEmailSubmit(data: z.infer<typeof emailSchema>) {
     if (!isLoaded) return;
 
     const { email } = data;
@@ -46,7 +58,7 @@ export default function ForgotPasswordPage() {
         identifier: email,
       })
       .then(() => {
-        setSuccessfulCreation(true);
+        setStage("enter-otp");
         setError("");
       })
       .catch((err) => {
@@ -55,33 +67,33 @@ export default function ForgotPasswordPage() {
       });
   }
 
-  async function resetPassword(data: z.infer<typeof passwordSchema>) {
-    // 1) Don’t even start if the form/auth isn’t ready
+  async function handleOtpSubmit() {
+    if (otp.length !== 6) {
+      setError("Please enter the 6-digit code.");
+      return;
+    }
+    setStage("reset-password");
+    setError("");
+  }
+
+  async function handlePasswordReset(data: z.infer<typeof passwordSchema>) {
     if (!isLoaded) return;
 
-    // 2) Pull out what we need
-    const { password, code } = data;
+    const { password } = data;
 
-    // 3) Try the reset; any thrown error lands below
     const result = await signIn.attemptFirstFactor({
       strategy: "reset_password_email_code",
-      code,
+      code: otp,
       password,
     });
 
-    // 4) Branch on what the server tells us
-    if (result.status === "needs_second_factor") {
-      // show the 2FA step in our UI
-      setSecondFactor(true);
-      setError("");
-    } else if (result.status === "complete") {
-      // they reset successfully – bind session + redirect
+    if (result.status === "complete") {
       await setActive({ session: result.createdSessionId });
       router.push("/dashboard");
       setError("");
     } else {
-      // any weird “not recognized” status
       console.log("Unexpected status:", result);
+      setError("An unexpected error occurred. Please try again.");
     }
   }
 
@@ -93,15 +105,23 @@ export default function ForgotPasswordPage() {
             Forgot Your Password?
           </h2>
           <p className="text-[14px] text-[#6b7280]">
-            {!successfulCreation
-              ? "Enter your email to receive a password reset link."
-              : "A reset token has been sent to your email. Enter it below to reset your password."}
+            {stage === "enter-email" &&
+              "Enter your email to receive a password reset link."}
+            {stage === "enter-otp" &&
+              "A reset token has been sent to your email."}
+            {stage === "reset-password" && "Enter your new password."}
           </p>
         </div>
 
-        {!successfulCreation && (
+        <div
+          className={`transition-all duration-500 ease-in-out overflow-hidden ${
+            stage === "enter-email"
+              ? "max-h-screen opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
+        >
           <form
-            onSubmit={emailForm.handleSubmit(createForgotPassword)}
+            onSubmit={emailForm.handleSubmit(handleEmailSubmit)}
             className="space-y-6"
           >
             <div>
@@ -127,7 +147,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={emailForm.formState.isSubmitting}
-              className="w-full h-[44px] bg-[#84cc16] text-white text-[14px] font-medium rounded-lg hover:bg-[#65a30d] disabled:opacity-50 transition-all duration-200 shadow-sm"
+              className="w-full h-[44px] bg-[#84cc16] text-white text-[14px] font-medium rounded-lg hover:bg-[#65a30d] disabled:opacity-50 disabled:cursor-none cursor-pointer transition-all duration-200 shadow-sm"
             >
               {emailForm.formState.isSubmitting ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -136,34 +156,47 @@ export default function ForgotPasswordPage() {
               )}
             </button>
           </form>
-        )}
+        </div>
 
-        {successfulCreation && !secondFactor && (
+        <div
+          className={`transition-all duration-500 ease-in-out overflow-hidden ${
+            stage === "enter-otp"
+              ? "max-h-screen opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="space-y-6">
+            <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+            <button
+              onClick={handleOtpSubmit}
+              className="w-full h-[44px] bg-[#84cc16] text-white text-[14px] font-medium rounded-lg hover:bg-[#65a30d] disabled:opacity-50 disabled:cursor-none cursor-pointer transition-all duration-200 shadow-sm"
+            >
+              Confirm OTP
+            </button>
+          </div>
+        </div>
+
+        <div
+          className={`transition-all duration-500 ease-in-out overflow-hidden ${
+            stage === "reset-password"
+              ? "max-h-screen opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
+        >
           <form
-            onSubmit={passwordForm.handleSubmit(resetPassword)}
+            onSubmit={passwordForm.handleSubmit(handlePasswordReset)}
             className="space-y-6"
           >
             <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="code"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Verification Code
-                </label>
-                <input
-                  id="code"
-                  type="text"
-                  placeholder="Enter your code"
-                  {...passwordForm.register("code")}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                />
-                {passwordForm.formState.errors.code && (
-                  <p className="mt-2 text-sm text-red-600">
-                    {passwordForm.formState.errors.code.message}
-                  </p>
-                )}
-              </div>
               <div>
                 <label
                   htmlFor="password"
@@ -184,11 +217,31 @@ export default function ForgotPasswordPage() {
                   </p>
                 )}
               </div>
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Confirm New Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  {...passwordForm.register("confirmPassword")}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                />
+                {passwordForm.formState.errors.confirmPassword && (
+                  <p className="mt-2 text-sm text-red-600">
+                    {passwordForm.formState.errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
             </div>
             <button
               type="submit"
               disabled={passwordForm.formState.isSubmitting}
-              className="w-full h-[44px] bg-[#84cc16] text-white text-[14px] font-medium rounded-lg hover:bg-[#65a30d] disabled:opacity-50 transition-all duration-200 shadow-sm"
+              className="w-full h-[44px] bg-[#84cc16] text-white text-[14px] font-medium rounded-lg hover:bg-[#65a30d] disabled:opacity-50 disabled:cursor-none cursor-pointer transition-all duration-200 shadow-sm"
             >
               {passwordForm.formState.isSubmitting ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -197,16 +250,7 @@ export default function ForgotPasswordPage() {
               )}
             </button>
           </form>
-        )}
-
-        {secondFactor && (
-          <div className="text-center p-4 bg-yellow-100 border border-yellow-300 rounded-md">
-            <p className="text-sm text-yellow-800">
-              Two-factor authentication is required. This UI does not yet handle
-              that flow.
-            </p>
-          </div>
-        )}
+        </div>
 
         {error && (
           <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
