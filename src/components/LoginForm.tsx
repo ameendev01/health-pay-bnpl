@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { FormInput } from './FormInput';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -19,6 +20,7 @@ export const LoginForm = ({
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
   });
+  const router = useRouter();
 
   return (
     <div className="flex-1 flex items-center justify-center p-28 lg:p-12 bg-[#fefcf5] mt-5 mr-5 mb-5 rounded-2xl">
@@ -41,6 +43,15 @@ export const LoginForm = ({
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <FormInput id="email" name="Email" type="email" placeholder="email@example.com" register={register} error={errors.email} />
           <FormInput id="password" name="Password" type="password" placeholder="••••••••" register={register} error={errors.password} isPassword />
+
+          <div className="text-right">
+            <div
+              onClick={() => router.push('./forgot-password')}
+              className="text-sm text-[#3b82f6] hover:text-[#2563eb] font-medium transition-colors duration-200 cursor-pointer"
+            >
+              Forgot Password?
+            </div>
+          </div>
 
           {/* Submit Button */}
           <button
