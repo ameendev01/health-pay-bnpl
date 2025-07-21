@@ -47,7 +47,7 @@ export const LoginForm = ({
           <div className="text-right">
             <div
               onClick={() => router.push('./forgot-password')}
-              className="text-sm text-blue-600 hover:underline cursor-pointer"
+              className="text-sm text-[#3b82f6] hover:text-[#2563eb] font-medium transition-colors duration-200 cursor-pointer"
             >
               Forgot Password?
             </div>
