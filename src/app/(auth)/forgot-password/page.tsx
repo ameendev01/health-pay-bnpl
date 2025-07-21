@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -35,8 +35,10 @@ const passwordSchema = z
 export default function ForgotPasswordPage() {
   const { isLoaded, signIn, setActive } = useSignIn();
   const [stage, setStage] = useState<Stage>("enter-email");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [otp, setOtp] = useState("");
+  const [counter, setCounter] = useState(0);
   const router = useRouter();
 
   const emailForm = useForm({
@@ -51,6 +53,7 @@ export default function ForgotPasswordPage() {
     if (!isLoaded) return;
 
     const { email } = data;
+    setEmail(email);
 
     await signIn
       .create({
@@ -97,6 +100,40 @@ export default function ForgotPasswordPage() {
     }
   }
 
+  useEffect(() => {
+    if (counter === 0) return;
+
+    const timerId = setInterval(() => {
+      setCounter((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerId);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Cleanup: clear the interval if the component unmounts or counter resets
+    return () => clearInterval(timerId);
+  }, [counter]);
+
+  // 2) Handler that sends the OTP and kicks off the timer
+  const handleOtpResend = async () => {
+    if (!isLoaded || counter > 0) return;
+
+    try {
+      await signIn.create({
+        strategy: "reset_password_email_code",
+        identifier: email,
+      });
+      // start 20s cool‑down
+      setCounter(30);
+    } catch (err) {
+      console.error("Failed to resend OTP", err);
+      // you may want to show a toast or error state here
+    }
+  };
+
   return (
     <div className="flex-1 flex items-center justify-center p-28 lg:p-12 bg-[#fefcf5] mt-5 mr-5 mb-5 rounded-2xl">
       <div className="w-full max-w-[400px]">
@@ -106,10 +143,10 @@ export default function ForgotPasswordPage() {
           </h2>
           <p className="text-[14px] text-[#6b7280]">
             {stage === "enter-email" &&
-              "Enter your email to receive a password reset link."}
+              "Enter your email to receive a password reset link"}
             {stage === "enter-otp" &&
-              "A reset token has been sent to your email."}
-            {stage === "reset-password" && "Enter your new password."}
+              "We've sent a verification code to your email"}
+            {stage === "reset-password" && "Enter your new password"}
           </p>
         </div>
 
@@ -176,12 +213,29 @@ export default function ForgotPasswordPage() {
                 <InputOTPSlot index={5} />
               </InputOTPGroup>
             </InputOTP>
-            <button
-              onClick={handleOtpSubmit}
-              className="w-full h-[44px] bg-[#84cc16] text-white text-[14px] font-medium rounded-lg hover:bg-[#65a30d] disabled:opacity-50 disabled:cursor-none cursor-pointer transition-all duration-200 shadow-sm"
-            >
-              Confirm OTP
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={handleOtpResend}
+                disabled={counter > 0}
+                className={` cursor-pointer
+        w-full h-[44px] border-2 rounded-lg
+        ${
+          counter > 0
+            ? "border-gray-400 text-gray-400 cursor-not-allowed"
+            : "border-[#84cc16] text-[#84cc16] hover:border-[#65a30d]"
+        }
+        text-[14px] font-medium transition-all duration-200 shadow-sm
+      `}
+              >
+                {counter > 0 ? `Resend OTP in ${counter}s` : "Resend OTP"}
+              </button>
+              <button
+                onClick={handleOtpSubmit}
+                className="w-full h-[44px] bg-[#84cc16] text-white text-[14px] font-medium rounded-lg hover:bg-[#65a30d] disabled:opacity-50 disabled:cursor-none cursor-pointer transition-all duration-200 shadow-sm"
+              >
+                Confirm OTP
+              </button>
+            </div>
           </div>
         </div>
 
