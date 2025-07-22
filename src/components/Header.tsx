@@ -260,7 +260,7 @@ export default function Header({ setSidebarOpen, sidebarCollapsed, setSidebarCol
                 onChange={handleSearchChange}
                 onFocus={() => setIsSearchFocused(true)}
                 onKeyDown={handleKeyDown}
-                className="block w-full rounded-xl border-[#e7e4db] pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 focus:border-[#1557f6] focus:ring-[#1557f6] transition-all duration-200 bg-[#e9f9fb] focus:bg-white"
+                className="block w-full rounded-xl pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 focus:ring-[#1557f6] transition-all duration-200 bg-white border-[#d7d4ca] border-2 focus:bg-white"
               />
               
               {/* Search Results Dropdown */}
