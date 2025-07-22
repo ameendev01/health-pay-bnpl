@@ -14,7 +14,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import AddClinicModal from "@/components/AddClinicModal";
-import POSWizard from "@/components/POSWizard";
+import CreatePaymentPlanDialog from "@/components/CreatePaymentPlanDialog";
 import PageHeader from "@/components/shared/PageHeader";
 import KPISummaryCards from "@/components/dashboard/KPISummaryCards";
 import FinancingTrendChart from "@/components/dashboard/FinancingTrendChart";
@@ -28,7 +28,6 @@ import { useUser } from "@clerk/nextjs";
 
 export default function DashboardPage() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
-  const [isPOSWizardOpen, setIsPOSWizardOpen] = useState(false);
   const {
     transactions,
     isLoading: isLoadingTransactions,
@@ -61,14 +60,9 @@ export default function DashboardPage() {
     alert(`Clinic "${clinicData.name}" has been added successfully!`);
   };
 
-  const handlePOSComplete = (planData: { id: string; patientName: string }) => {
-    console.log("New payment plan created:", planData);
-    setTimeout(() => {
-      setIsPOSWizardOpen(false);
-      alert(
-        `Payment plan ${planData.id} has been created successfully for ${planData.patientName}!`
-      );
-    }, 1000);
+  const handlePaymentPlanSuccess = (data: any) => {
+    console.log("New payment plan created:", data);
+    alert(`Payment plan has been created successfully for ${data.patientName}!`);
   };
 
   return (
@@ -91,13 +85,15 @@ export default function DashboardPage() {
               <Building2 className="w-5 h-5 mr-2" />
               Add Clinic
             </button>
-            <button
-              onClick={() => setIsPOSWizardOpen(true)}
-              className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <CreditCard className="w-5 h-5 mr-2" />
-              Create Payment Plan
-            </button>
+            <CreatePaymentPlanDialog 
+              onSuccess={handlePaymentPlanSuccess}
+              trigger={
+                <button className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                  <CreditCard className="w-5 h-5 mr-2" />
+                  Create Payment Plan
+                </button>
+              }
+            />
           </PageHeader>
 
           {/* KPI Summary Cards */}
@@ -173,13 +169,6 @@ export default function DashboardPage() {
         isOpen={isAddClinicModalOpen}
         onClose={() => setIsAddClinicModalOpen(false)}
         onSubmit={handleAddClinic}
-      />
-
-      {/* POS Wizard */}
-      <POSWizard
-        isOpen={isPOSWizardOpen}
-        onClose={() => setIsPOSWizardOpen(false)}
-        onComplete={handlePOSComplete}
       />
     </main>
   );
