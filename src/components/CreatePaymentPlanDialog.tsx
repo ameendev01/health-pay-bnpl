@@ -89,30 +89,26 @@ const steps = [
   {
     id: 1,
     title: 'Patient Information',
-    description: 'Enter patient details and contact information',
+    description: 'Enter patient details',
     icon: User,
-    color: 'from-blue-500 to-blue-600'
   },
   {
     id: 2,
     title: 'Treatment Details',
-    description: 'Specify treatment type and cost information',
+    description: 'Treatment and cost info',
     icon: FileText,
-    color: 'from-green-500 to-green-600'
   },
   {
     id: 3,
     title: 'Payment Plan',
-    description: 'Configure payment schedule and terms',
+    description: 'Configure payment terms',
     icon: Calendar,
-    color: 'from-purple-500 to-purple-600'
   },
   {
     id: 4,
-    title: 'Review & Submit',
-    description: 'Review all details before creating the plan',
+    title: 'Review',
+    description: 'Review and submit',
     icon: CheckCircle,
-    color: 'from-teal-500 to-teal-600'
   }
 ];
 
@@ -151,6 +147,7 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
 
   const form = useForm<FormData>({
     resolver: zodResolver(fullFormSchema),
+    mode: 'onChange',
     defaultValues: {
       patientName: '',
       patientEmail: '',
@@ -184,22 +181,24 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
   };
 
   const validateCurrentStep = async () => {
-    const fields = getCurrentStepFields();
-    const result = await form.trigger(fields);
-    return result;
-  };
-
-  const getCurrentStepFields = (): (keyof FormData)[] => {
+    let fieldsToValidate: (keyof FormData)[] = [];
+    
     switch (currentStep) {
       case 1:
-        return ['patientName', 'patientEmail', 'patientPhone', 'patientAddress', 'dateOfBirth'];
+        fieldsToValidate = ['patientName', 'patientEmail', 'patientPhone', 'patientAddress', 'dateOfBirth'];
+        break;
       case 2:
-        return ['clinicId', 'treatmentType', 'totalAmount'];
+        fieldsToValidate = ['clinicId', 'treatmentType', 'totalAmount'];
+        break;
       case 3:
-        return ['planDuration', 'firstPaymentDate', 'paymentMethod'];
+        fieldsToValidate = ['planDuration', 'firstPaymentDate', 'paymentMethod'];
+        break;
       default:
-        return [];
+        return true;
     }
+    
+    const result = await form.trigger(fieldsToValidate);
+    return result;
   };
 
   const handleNext = async () => {
@@ -243,26 +242,16 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
     switch (currentStep) {
       case 1:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
+          <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="patientName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700 font-medium">Patient Name *</FormLabel>
+                    <FormLabel>Patient Name</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="John Smith" 
-                        {...field}
-                        className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]"
-                      />
+                      <Input placeholder="John Smith" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -274,13 +263,9 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                 name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700 font-medium">Date of Birth *</FormLabel>
+                    <FormLabel>Date of Birth</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="date" 
-                        {...field}
-                        className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]"
-                      />
+                      <Input type="date" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -293,17 +278,9 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
               name="patientEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Email Address *</FormLabel>
+                  <FormLabel>Email Address</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input 
-                        type="email"
-                        placeholder="john.smith@email.com" 
-                        {...field}
-                        className="pl-10 border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]"
-                      />
-                    </div>
+                    <Input type="email" placeholder="john.smith@email.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -315,17 +292,9 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
               name="patientPhone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Phone Number *</FormLabel>
+                  <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input 
-                        type="tel"
-                        placeholder="(555) 123-4567" 
-                        {...field}
-                        className="pl-10 border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]"
-                      />
-                    </div>
+                    <Input type="tel" placeholder="(555) 123-4567" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -337,46 +306,34 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
               name="patientAddress"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Address *</FormLabel>
+                  <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                      <Textarea 
-                        placeholder="123 Main St, Anytown, CA 12345" 
-                        {...field}
-                        className="pl-10 border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6] min-h-[80px]"
-                      />
-                    </div>
+                    <Textarea 
+                      placeholder="123 Main St, Anytown, CA 12345" 
+                      {...field}
+                      className="min-h-[60px]"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </motion.div>
+          </div>
         );
 
       case 2:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
+          <div className="space-y-4">
             <FormField
               control={form.control}
               name="clinicId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Select Clinic *</FormLabel>
+                  <FormLabel>Select Clinic</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]">
-                        <div className="flex items-center">
-                          <Building2 className="w-4 h-4 text-gray-400 mr-2" />
-                          <SelectValue placeholder="Choose a clinic" />
-                        </div>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a clinic" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -400,10 +357,10 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
               name="treatmentType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Treatment Type *</FormLabel>
+                  <FormLabel>Treatment Type</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select treatment type" />
                       </SelectTrigger>
                     </FormControl>
@@ -425,16 +382,16 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
               name="treatmentDescription"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Treatment Description</FormLabel>
+                  <FormLabel>Treatment Description</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Additional details about the treatment..." 
                       {...field}
-                      className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6] min-h-[80px]"
+                      className="min-h-[60px]"
                     />
                   </FormControl>
                   <FormDescription>
-                    Optional: Provide additional context about the treatment
+                    Optional: Provide additional context
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -447,18 +404,14 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                 name="totalAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700 font-medium">Total Amount *</FormLabel>
+                    <FormLabel>Total Amount</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input 
-                          type="number"
-                          placeholder="0.00"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                          className="pl-10 border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]"
-                        />
-                      </div>
+                      <Input 
+                        type="number"
+                        placeholder="0.00"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -470,18 +423,14 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                 name="downPayment"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700 font-medium">Down Payment</FormLabel>
+                    <FormLabel>Down Payment</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input 
-                          type="number"
-                          placeholder="0.00"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                          className="pl-10 border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]"
-                        />
-                      </div>
+                      <Input 
+                        type="number"
+                        placeholder="0.00"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      />
                     </FormControl>
                     <FormDescription>
                       Optional: Amount paid upfront
@@ -491,24 +440,18 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                 )}
               />
             </div>
-          </motion.div>
+          </div>
         );
 
       case 3:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
+          <div className="space-y-4">
             <FormField
               control={form.control}
               name="planDuration"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">Payment Plan Duration *</FormLabel>
+                  <FormLabel>Payment Plan Duration</FormLabel>
                   <Select 
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -520,7 +463,7 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]">
+                      <SelectTrigger>
                         <SelectValue placeholder="Choose payment duration" />
                       </SelectTrigger>
                     </FormControl>
@@ -548,13 +491,12 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                 name="firstPaymentDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700 font-medium">First Payment Date *</FormLabel>
+                    <FormLabel>First Payment Date</FormLabel>
                     <FormControl>
                       <Input 
                         type="date"
                         {...field}
                         min={new Date().toISOString().split('T')[0]}
-                        className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -567,10 +509,10 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                 name="paymentMethod"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-700 font-medium">Payment Method *</FormLabel>
+                    <FormLabel>Payment Method</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="border-gray-300 focus:border-[#1557f6] focus:ring-[#1557f6]">
+                        <SelectTrigger>
                           <SelectValue placeholder="Select payment method" />
                         </SelectTrigger>
                       </FormControl>
@@ -589,11 +531,7 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
 
             {/* Payment Calculation Preview */}
             {watchedValues.totalAmount > 0 && watchedValues.planDuration && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-[#e9f9fb] border border-[#1557f6]/20 rounded-lg p-4"
-              >
+              <div className="bg-[#e9f9fb] border border-[#1557f6]/20 rounded-lg p-4">
                 <div className="flex items-center space-x-2 mb-3">
                   <Calculator className="w-5 h-5 text-[#1557f6]" />
                   <h4 className="font-medium text-gray-900">Payment Calculation</h4>
@@ -620,20 +558,14 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
         );
 
       case 4:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
+          <div className="space-y-4">
             <div className="bg-[#fefcf5] border border-[#e7e4db] rounded-lg p-6">
               <h4 className="font-semibold text-gray-900 mb-4">Payment Plan Summary</h4>
               
@@ -687,7 +619,7 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
                 All information has been validated and the plan is ready to be created.
               </p>
             </div>
-          </motion.div>
+          </div>
         );
 
       default:
@@ -696,12 +628,7 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
   };
 
   const renderSuccessState = () => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="text-center py-8"
-    >
+    <div className="text-center py-8">
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
@@ -726,7 +653,7 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
           </p>
         </div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 
   return (
@@ -740,135 +667,126 @@ export default function CreatePaymentPlanDialog({ trigger, onSuccess }: CreatePa
         )}
       </DialogTrigger>
       
-      <DialogContent 
-        className="sm:max-w-[600px] lg:max-w-[800px] max-h-[90vh] overflow-y-auto bg-white border-0 shadow-2xl"
-        style={{
-          backdropFilter: 'blur(8px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.98)'
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          {!isSuccess ? (
-            <>
-              <DialogHeader className="pb-6">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="w-10 h-10 bg-gradient-to-r from-[#1557f6] to-[#84cc16] rounded-lg flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-2xl font-bold text-gray-900">
-                      Create Payment Plan
-                    </DialogTitle>
-                    <DialogDescription className="text-gray-600">
-                      Step {currentStep} of {steps.length}: {steps[currentStep - 1]?.description}
-                    </DialogDescription>
-                  </div>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        {!isSuccess ? (
+          <>
+            <DialogHeader className="pb-4">
+              <DialogTitle className="text-xl font-semibold text-gray-900">
+                Create Payment Plan
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Step {currentStep} of {steps.length}: {steps[currentStep - 1]?.description}
+              </DialogDescription>
+              
+              {/* Progress Bar */}
+              <div className="space-y-2 pt-2">
+                <Progress value={progress} className="h-2" />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Progress</span>
+                  <span>{Math.round(progress)}%</span>
                 </div>
-                
-                {/* Progress Bar */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Progress</span>
-                    <span>{Math.round(progress)}%</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                </div>
+              </div>
 
-                {/* Step Indicators */}
-                <div className="flex items-center justify-between mt-4">
-                  {steps.map((step, index) => {
-                    const Icon = step.icon;
-                    const isActive = currentStep === step.id;
-                    const isCompleted = currentStep > step.id;
-                    
-                    return (
-                      <div key={step.id} className="flex items-center">
-                        <div className={`
-                          w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
-                          ${isCompleted 
-                            ? 'bg-[#84cc16] text-white' 
-                            : isActive 
-                            ? 'bg-[#1557f6] text-white' 
-                            : 'bg-gray-200 text-gray-400'
-                          }
-                        `}>
-                          {isCompleted ? (
-                            <CheckCircle className="w-5 h-5" />
-                          ) : (
-                            <Icon className="w-5 h-5" />
-                          )}
-                        </div>
-                        {index < steps.length - 1 && (
-                          <div className={`
-                            w-12 sm:w-16 h-0.5 mx-2 transition-colors duration-300
-                            ${isCompleted ? 'bg-[#84cc16]' : 'bg-gray-200'}
-                          `} />
+              {/* Step Indicators */}
+              <div className="flex items-center justify-between pt-4">
+                {steps.map((step, index) => {
+                  const Icon = step.icon;
+                  const isActive = currentStep === step.id;
+                  const isCompleted = currentStep > step.id;
+                  
+                  return (
+                    <div key={step.id} className="flex items-center">
+                      <div className={`
+                        w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-300
+                        ${isCompleted 
+                          ? 'bg-[#84cc16] text-white' 
+                          : isActive 
+                          ? 'bg-[#1557f6] text-white' 
+                          : 'bg-gray-200 text-gray-400'
+                        }
+                      `}>
+                        {isCompleted ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          <Icon className="w-4 h-4" />
                         )}
                       </div>
-                    );
-                  })}
-                </div>
-              </DialogHeader>
+                      {index < steps.length - 1 && (
+                        <div className={`
+                          w-8 h-0.5 mx-1 transition-colors duration-300
+                          ${isCompleted ? 'bg-[#84cc16]' : 'bg-gray-200'}
+                        `} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </DialogHeader>
 
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                  <AnimatePresence mode="wait">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     {renderStepContent()}
-                  </AnimatePresence>
+                  </motion.div>
+                </AnimatePresence>
 
-                  {/* Navigation Buttons */}
-                  <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                {/* Navigation Buttons */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                    disabled={currentStep === 1}
+                    size="sm"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Previous
+                  </Button>
+
+                  {currentStep < steps.length ? (
                     <Button
                       type="button"
-                      variant="outline"
-                      onClick={handlePrevious}
-                      disabled={currentStep === 1}
-                      className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                      onClick={handleNext}
+                      className="bg-[#1557f6] hover:bg-[#1557f6]/90 text-white"
+                      size="sm"
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Previous
+                      Next
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
-
-                    {currentStep < steps.length ? (
-                      <Button
-                        type="button"
-                        onClick={handleNext}
-                        className="bg-[#1557f6] hover:bg-[#1557f6]/90 text-white"
-                      >
-                        Next
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="bg-[#84cc16] hover:bg-[#65a30d] text-white min-w-[120px]"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Creating...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Create Plan
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </Form>
-            </>
-          ) : (
-            renderSuccessState()
-          )}
-        </motion.div>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="bg-[#84cc16] hover:bg-[#65a30d] text-white"
+                      size="sm"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Create Plan
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Form>
+          </>
+        ) : (
+          renderSuccessState()
+        )}
       </DialogContent>
     </Dialog>
   );
