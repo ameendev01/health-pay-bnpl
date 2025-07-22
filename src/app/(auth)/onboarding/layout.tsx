@@ -1,4 +1,6 @@
 
+export const dynamic = 'force-dynamic';
+
 import { OnboardingNav } from '@/components/onboarding/OnboardingNav';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
