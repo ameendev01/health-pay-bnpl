@@ -83,7 +83,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
       {/* Sidebar */}
       <div className={`
-        fixed top-6 left-6 bottom-6 z-50 w-72 bg-[#fefcf5]/95 backdrop-blur-xl shadow-xl border border-[#e7e4db]/50 rounded-2xl transform transition-transform duration-300 ease-in-out lg:translate-x-0
+        fixed top-3 left-3 bottom-3 z-50 w-72 bg-[#fefcf5]/95 backdrop-blur-xl shadow-xl border border-[#e7e4db]/50 rounded-2xl transform transition-transform duration-300 ease-in-out lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex h-full flex-col">
