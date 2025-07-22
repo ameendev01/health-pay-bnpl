@@ -14,7 +14,11 @@ export default function ProtectedLayout({
 
   return (
     <div className="min-h-screen bg-[#d5f9fb] p-4">
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        setIsOpen={setSidebarOpen} 
+        dashboardExpanded={dashboardExpanded}
+      />
 
       <div className={`${
         dashboardExpanded ? 'ml-6' : 'ml-6 lg:ml-76'
