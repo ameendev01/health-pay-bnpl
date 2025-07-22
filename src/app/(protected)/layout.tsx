@@ -17,7 +17,7 @@ export default function ProtectedLayout({
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       <div className={`${
-        dashboardExpanded ? 'ml-0' : 'ml-0 lg:ml-72'
+        dashboardExpanded ? 'ml-6' : 'ml-6 lg:ml-80'
       } h-[calc(100vh-2rem)] rounded-2xl bg-[#fefcf5] overflow-y-auto flex flex-col transition-all duration-500 ease-in-out shadow-xl border border-[#e7e4db]/50`}>
         <div className="flex-shrink-0">
           <Header 
