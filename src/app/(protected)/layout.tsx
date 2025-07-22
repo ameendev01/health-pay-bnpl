@@ -12,7 +12,7 @@ export default function ProtectedLayout({
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#effafb]">
+    <div className="min-h-screen bg-[#fefcf5]">
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       <div className="pl-0 lg:pl-72 transition-all duration-300">

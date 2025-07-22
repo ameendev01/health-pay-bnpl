@@ -83,14 +83,14 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-72 bg-white/95 backdrop-blur-xl shadow-xl border-r border-gray-200/50 transform transition-transform duration-300 ease-in-out lg:translate-x-0
+        fixed inset-y-0 left-0 z-50 w-72 bg-[#fefcf5]/95 backdrop-blur-xl shadow-xl border-r border-[#e7e4db]/50 transform transition-transform duration-300 ease-in-out lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex h-full flex-col">
           {/* Logo & Header */}
-          <div className="flex h-20 shrink-0 items-center justify-between px-6 border-b border-gray-200/50">
+          <div className="flex h-20 shrink-0 items-center justify-between px-6 border-b border-[#e7e4db]/50">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-xl flex items-center justify-center shadow-lg">
                 <Heart className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -113,7 +113,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               <input
                 type="text"
                 placeholder="Quick search..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-[#e9f9fb] border border-[#e7e4db] rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1557f6] focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -136,17 +136,17 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     className={`
                       group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 relative overflow-hidden
                       ${isActive
-                        ? 'bg-blue-50 text-blue-700 shadow-sm'
+                        ? 'bg-[#e9f9fb] text-[#1557f6] shadow-sm'
                         : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
                     `}
                   >
                     {isActive && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full" />
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#1557f6] rounded-r-full" />
                     )}
                     <Icon
                       className={`
                         w-5 h-5 mr-3 transition-colors duration-200
-                        ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}
+                        ${isActive ? 'text-[#1557f6]' : 'text-gray-400 group-hover:text-gray-600'}
                       `}
                     />
                     <div className="flex-1">
@@ -186,9 +186,9 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </nav>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-gray-200/50">
-            <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-sm">
+          <div className="p-4 border-t border-[#e7e4db]/50">
+            <div className="flex items-center space-x-3 p-3 rounded-xl bg-[#e9f9fb] hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center shadow-sm">
                 <span className="text-sm font-semibold text-white">AD</span>
               </div>
               <div className="flex-1 min-w-0">

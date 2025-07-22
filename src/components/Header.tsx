@@ -233,7 +233,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
   };
 
   return (
-    <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-200/50">
+    <div className="sticky top-0 z-30 bg-[#fefcf5]/95 backdrop-blur-xl shadow-sm border-b border-[#e7e4db]/50">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
@@ -258,7 +258,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                 onChange={handleSearchChange}
                 onFocus={() => setIsSearchFocused(true)}
                 onKeyDown={handleKeyDown}
-                className="block w-full rounded-xl border-gray-300 pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+                className="block w-full rounded-xl border-[#e7e4db] pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 focus:border-[#1557f6] focus:ring-[#1557f6] transition-all duration-200 bg-[#e9f9fb] focus:bg-white"
               />
               
               {/* Search Results Dropdown */}
@@ -266,7 +266,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                 <div className="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
                   {searchResults.length > 0 ? (
                     <>
-                      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 rounded-t-xl">
+                      <div className="px-4 py-3 bg-[#fefcf5] border-b border-[#e7e4db] rounded-t-xl">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                           {searchResults.length} Result{searchResults.length !== 1 ? 's' : ''}
                         </p>
@@ -339,7 +339,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                 onClick={() => setShowProfile(!showProfile)}
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center">
                   <span className="text-xs font-semibold text-white">AD</span>
                 </div>
                 <div className="text-right hidden sm:block">
