@@ -23,8 +23,8 @@ export default function ProtectedLayout({
 
       <div className={`transition-all duration-500 ease-in-out ${
         sidebarCollapsed 
-          ? 'ml-0 lg:ml-20' // Collapsed: small margin for icon bar
-          : 'ml-0 lg:ml-80' // Expanded: full margin for full sidebar
+          ? 'ml-6 lg:ml-22' // Collapsed: sidebar width (16) + gap (6) = 22
+          : 'ml-6 lg:ml-78' // Expanded: sidebar width (72) + gap (6) = 78
       } h-[calc(100vh-3rem)] rounded-2xl bg-[#fefcf5] overflow-y-auto flex flex-col shadow-xl border border-[#e7e4db]/50`}>
         <div className="flex-shrink-0">
           <Header 
