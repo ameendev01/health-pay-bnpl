@@ -1,14 +1,13 @@
 'use client'
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { 
   DollarSign, 
   CreditCard, 
   CheckCircle, 
   Clock, 
   TrendingUp, 
-  TrendingDown,
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
@@ -19,7 +18,7 @@ interface KPIMetric {
   change: string;
   changeType: 'positive' | 'negative';
   icon: React.ElementType;
-  description: string;
+  context: string;
 }
 
 const kpiMetrics: KPIMetric[] = [
@@ -29,7 +28,7 @@ const kpiMetrics: KPIMetric[] = [
     change: "+15.2%",
     changeType: "positive",
     icon: DollarSign,
-    description: "Total financing volume this month"
+    context: "vs last month"
   },
   {
     title: "Active Payment Plans",
@@ -37,7 +36,7 @@ const kpiMetrics: KPIMetric[] = [
     change: "+23.1%",
     changeType: "positive",
     icon: CreditCard,
-    description: "Currently active financing plans"
+    context: "vs last month"
   },
   {
     title: "Approval Rate",
@@ -45,7 +44,7 @@ const kpiMetrics: KPIMetric[] = [
     change: "+2.1%",
     changeType: "positive",
     icon: CheckCircle,
-    description: "Patient financing approval rate"
+    context: "vs last month"
   },
   {
     title: "Insurance Collections",
@@ -53,7 +52,7 @@ const kpiMetrics: KPIMetric[] = [
     change: "+8.7%",
     changeType: "positive",
     icon: TrendingUp,
-    description: "Total insurance collections this month"
+    context: "vs last month"
   },
   {
     title: "A/R Days Outstanding",
@@ -61,7 +60,7 @@ const kpiMetrics: KPIMetric[] = [
     change: "-3.2",
     changeType: "positive",
     icon: Clock,
-    description: "Average days to collect payment"
+    context: "vs last month"
   },
   {
     title: "Revenue Conversion",
@@ -69,7 +68,7 @@ const kpiMetrics: KPIMetric[] = [
     change: "+5.4%",
     changeType: "positive",
     icon: TrendingUp,
-    description: "Treatment acceptance rate with financing"
+    context: "vs last month"
   }
 ];
 
@@ -79,35 +78,37 @@ export default function KPISummaryCards() {
       {kpiMetrics.map((metric, index) => {
         const Icon = metric.icon;
         return (
-          <Card key={index} className="bg-white border border-gray-200 hover:shadow-md transition-all duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 leading-tight">
-                {metric.title}
-              </CardTitle>
-              <div className="p-2 bg-[#e9f9fb] rounded-lg">
-                <Icon className="w-4 h-4 text-[#1557f6]" />
+          <Card key={index} className="bg-white border border-gray-200 hover:shadow-md transition-all duration-200 group">
+            <CardContent className="p-6">
+              {/* Header with title and icon */}
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-sm font-medium text-gray-600 leading-tight max-w-[calc(100%-32px)]">
+                  {metric.title}
+                </h3>
+                <Icon className="w-5 h-5 text-gray-400 flex-shrink-0" />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900 mb-1">
-                {metric.value}
+              
+              {/* Primary value - hero number */}
+              <div className="mb-3">
+                <div className="text-3xl font-bold text-gray-900 leading-none">
+                  {metric.value}
+                </div>
               </div>
-              <div className="flex items-center space-x-1">
+              
+              {/* Delta line - change indicator */}
+              <div className="flex items-center text-sm">
                 {metric.changeType === 'positive' ? (
-                  <ArrowUpRight className="w-3 h-3 text-[#84cc16]" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-gray-500 mr-1" />
                 ) : (
-                  <ArrowDownRight className="w-3 h-3 text-red-500" />
+                  <ArrowDownRight className="w-3.5 h-3.5 text-gray-500 mr-1" />
                 )}
-                <span className={`text-xs font-medium ${
-                  metric.changeType === 'positive' ? 'text-[#84cc16]' : 'text-red-500'
+                <span className={`font-medium mr-1 ${
+                  metric.changeType === 'positive' ? 'text-gray-700' : 'text-gray-700'
                 }`}>
                   {metric.change}
                 </span>
-                <span className="text-xs text-gray-500">vs last month</span>
+                <span className="text-gray-500">{metric.context}</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1 leading-tight">
-                {metric.description}
-              </p>
             </CardContent>
           </Card>
         );
