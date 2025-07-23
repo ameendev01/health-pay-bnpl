@@ -35,9 +35,9 @@ interface SearchResult {
 }
 
 export default function Header({ setSidebarOpen, sidebarCollapsed, setSidebarCollapsed }: HeaderProps) {
-  const { signOut } = useClerk();
-  const { user } = useUser();
-  const router = useRouter();
+  // const { signOut } = useClerk();
+  // const { user } = useUser();
+  // const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
