@@ -25,6 +25,7 @@ import RCMClaimsSnapshot from "@/components/dashboard/RCMClaimsSnapshot";
 import { useRecentTransactions } from "@/features/dashboard/hooks/useRecentTransactions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from "@clerk/nextjs";
+// import { KPISummaryCards } from "@/components/dashboard/KPISummaryCards";
 
 export default function DashboardPage() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
