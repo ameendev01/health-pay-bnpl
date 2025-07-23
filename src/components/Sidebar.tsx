@@ -95,10 +95,10 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
         <div className="flex h-full flex-col">
           {/* Logo & Header */}
           <div className={`flex h-20 shrink-0 items-center border-b border-[#e7e4db]/50 transition-all duration-300 ${
-            isCollapsed ? 'justify-center px-4' : 'justify-between px-6'
+            isCollapsed ? 'justify-center px-4' : 'px-6'
           }`}>
             {!isCollapsed ? (
-              <>
+              <div className="flex items-center justify-between w-full">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-xl flex items-center justify-center shadow-lg">
                     <Heart className="w-6 h-6 text-white" />
@@ -108,33 +108,33 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                     <p className="text-xs text-gray-500 font-medium">Healthcare Platform</p>
                   </div>
                 </div>
-                <button
-                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </>
-            ) : (
-              <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-xl flex items-center justify-center shadow-lg">
-                <Heart className="w-6 h-6 text-white" />
+                <div className="flex items-center space-x-2">
+                  {/* Collapse Button */}
+                  <button
+                    onClick={() => setIsCollapsed(true)}
+                    className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 transition-colors group"
+                    title="Collapse Sidebar"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
+                  </button>
+                  {/* Mobile Close Button */}
+                  <button
+                    className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
               </div>
+            ) : (
+              <button
+                onClick={() => setIsCollapsed(false)}
+                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center shadow-lg transition-colors group"
+                title="Expand Sidebar"
+              >
+                <ChevronRight className="w-6 h-6 text-gray-600 group-hover:text-gray-800" />
+              </button>
             )}
-          </div>
-
-          {/* Collapse Toggle Button - Desktop Only */}
-          <div className={`hidden lg:flex ${isCollapsed ? 'justify-center px-2 py-3' : 'justify-end px-4 py-3'}`}>
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors group"
-              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              {isCollapsed ? (
-                <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-gray-700" />
-              ) : (
-                <ChevronLeft className="w-4 h-4 text-gray-500 group-hover:text-gray-700" />
-              )}
-            </button>
           </div>
 
           {/* Search - Only show when expanded */}
