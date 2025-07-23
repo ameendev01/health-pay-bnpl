@@ -1,9 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Bell, Search, Building2, CreditCard, Users, ArrowRight, Settings, User, LogOut } from 'lucide-react';
-import { useClerk, useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import { Menu, Bell, Search, Building2, CreditCard, Users, ArrowRight, HelpCircle } from 'lucide-react';
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
@@ -45,7 +43,6 @@ export default function Header({ setSidebarOpen, sidebarCollapsed, setSidebarCol
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -291,6 +288,11 @@ export default function Header({ setSidebarOpen, sidebarCollapsed, setSidebarCol
 
           {/* Right section */}
           <div className="flex items-center space-x-4">
+            {/* Support */}
+            <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+              <HelpCircle className="w-6 h-6" />
+            </button>
+
             {/* Notifications */}
             <div className="relative">
               <button 
@@ -327,52 +329,6 @@ export default function Header({ setSidebarOpen, sidebarCollapsed, setSidebarCol
                   <div className="p-3 border-t border-gray-200">
                     <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">
                       View all notifications
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="hidden lg:block w-px h-6 bg-gray-300"></div>
-            
-            {/* User Profile */}
-            <div className="relative">
-              <button 
-                onClick={() => setShowProfile(!showProfile)}
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              >
-                <div className="w-8 h-8 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center">
-                  <span className="text-xs font-semibold text-white">AD</span>
-                </div>
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
-                  <p className="text-xs text-gray-500">{new Date().toLocaleDateString()}</p>
-                </div>
-              </button>
-
-              {/* Profile Dropdown */}
-              {showProfile && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
-                  <div className="p-3 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
-                    <p className="text-xs text-gray-500">{user?.emailAddresses[0].emailAddress}</p>
-                  </div>
-                  <div className="py-2">
-                    <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                      <User className="w-4 h-4 mr-3" />
-                      Profile
-                    </button>
-                    <button className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                      <Settings className="w-4 h-4 mr-3" />
-                      Settings
-                    </button>
-                    <hr className="my-2 border-gray-200" />
-                    <button 
-                      onClick={() => signOut(() => router.push('/'))}
-                      className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4 mr-3" />
-                      Sign out
                     </button>
                   </div>
                 </div>

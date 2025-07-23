@@ -13,13 +13,24 @@ import {
   FileText,
   Bell,
   Search,
-  ChevronDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  User,
+  LogOut
 } from 'lucide-react';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useClerk, useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -74,6 +85,9 @@ const quickActions = [
 
 export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: SidebarProps) {
   const pathname = usePathname();
+  const { signOut } = useClerk();
+  const { user } = useUser();
+  const router = useRouter();
 
   return (
     <>
@@ -229,22 +243,68 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
 
           {/* User Profile */}
           <div className={`border-t border-[#e7e4db]/50 ${isCollapsed ? 'p-2' : 'p-4'}`}>
-            <div className={`flex items-center rounded-xl bg-[#e9f9fb] hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group ${
-              isCollapsed ? 'justify-center p-3' : 'space-x-3 p-3'
-            }`}>
-              <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-                <span className="text-sm font-semibold text-white">AD</span>
-              </div>
-              {!isCollapsed && (
-                <>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">Admin User</p>
-                    <p className="text-xs text-gray-500 truncate">admin@healthpay.com</p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className={`flex items-center rounded-xl bg-[#e9f9fb] hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group ${
+                  isCollapsed ? 'justify-center p-3' : 'space-x-3 p-3'
+                }`}>
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                    <span className="text-sm font-semibold text-white">
+                      {user?.firstName?.charAt(0) || 'U'}{user?.lastName?.charAt(0) || 'U'}
+                    </span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 flex-shrink-0" />
-                </>
-              )}
-            </div>
+                  {!isCollapsed && (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {user?.fullName || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user?.emailAddresses?.[0]?.emailAddress || 'user@example.com'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="w-56" 
+                align={isCollapsed ? "center" : "start"}
+                side={isCollapsed ? "right" : "top"}
+              >
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user?.fullName || 'User'}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.emailAddresses?.[0]?.emailAddress || 'user@example.com'}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => router.push('/settings')}
+                  className="cursor-pointer"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => router.push('/settings')}
+                  className="cursor-pointer"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => signOut(() => router.push('/'))}
+                  className="cursor-pointer text-red-600 focus:text-red-600"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
