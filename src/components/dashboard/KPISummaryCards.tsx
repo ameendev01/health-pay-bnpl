@@ -5,10 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   DollarSign, 
   CreditCard, 
-  CheckCircle, 
   Clock, 
   TrendingUp, 
-  TrendingDown,
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';

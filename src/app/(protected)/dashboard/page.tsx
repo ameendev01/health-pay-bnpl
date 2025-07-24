@@ -5,13 +5,8 @@ import Link from "next/link";
 import {
   Building2,
   CreditCard,
-  MoreHorizontal,
   AlertCircle,
-  ArrowUpRight,
-  ArrowDownRight,
   BarChart3,
-  Users,
-  TrendingUp
 } from "lucide-react";
 import AddClinicModal from "@/components/AddClinicModal";
 import CreatePaymentPlanDialog from "@/components/CreatePaymentPlanDialog";
@@ -30,7 +25,6 @@ import { useUser } from "@clerk/nextjs";
 export default function DashboardPage() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
   const {
-    transactions,
     isLoading: isLoadingTransactions,
     error: errorTransactions,
   } = useRecentTransactions();
