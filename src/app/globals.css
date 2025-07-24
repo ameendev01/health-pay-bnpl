@@ -213,3 +213,32 @@ body {
 .text-pretty {
   text-wrap: pretty;
 }
+/* Dialog backdrop blur effect */
+[data-radix-dialog-overlay] {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Smooth dialog animations */
+[data-radix-dialog-content] {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Custom scrollbar for dialog content */
+.dialog-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dialog-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dialog-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.dialog-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

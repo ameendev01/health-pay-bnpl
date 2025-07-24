@@ -1,18 +1,88 @@
 'use client'
 
 import React, { useState } from 'react';
-import { 
-  X, 
-  Building2, 
-  Save,
-  AlertCircle
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import {
+  Building2,
+  MapPin,
+  CheckCircle,
+  ArrowRight,
+  ArrowLeft,
+  Loader2,
+  Sparkles
 } from 'lucide-react';
+
+// Form validation schemas for each step
+const basicInfoSchema = z.object({
+  name: z.string().min(2, 'Clinic name must be at least 2 characters'),
+  type: z.string().min(1, 'Please select a clinic type'),
+});
+
+const locationInfoSchema = z.object({
+  address: z.string().min(5, 'Please enter a complete address'),
+  city: z.string().min(2, 'City is required'),
+  state: z.string().min(2, 'State is required'),
+  zipCode: z.string().min(5, 'ZIP code must be at least 5 characters'),
+});
+
+const fullFormSchema = basicInfoSchema.and(locationInfoSchema);
+
+type FormData = z.infer<typeof fullFormSchema>;
 
 interface AddClinicModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (clinicData: any) => void;
 }
+
+const steps = [
+  {
+    id: 1,
+    title: 'Basic Information',
+    description: 'Clinic name and type',
+    icon: Building2,
+  },
+  {
+    id: 2,
+    title: 'Location Details',
+    description: 'Address information',
+    icon: MapPin,
+  },
+  {
+    id: 3,
+    title: 'Review',
+    description: 'Review and submit',
+    icon: CheckCircle,
+  }
+];
 
 const clinicTypes = [
   'General Practice',
@@ -30,77 +100,84 @@ const clinicTypes = [
 ];
 
 export default function AddClinicModal({ isOpen, onClose, onSubmit }: AddClinicModalProps) {
-  const [formData, setFormData] = useState({
-    name: '',
-    type: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(fullFormSchema),
+    mode: 'onChange',
+    defaultValues: {
+      name: '',
+      type: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+    },
   });
 
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const watchedValues = form.watch();
+  const progress = (currentStep / steps.length) * 100;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const validateCurrentStep = async () => {
+    let fieldsToValidate: (keyof FormData)[] = [];
     
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+    switch (currentStep) {
+      case 1:
+        fieldsToValidate = ['name', 'type'];
+        break;
+      case 2:
+        fieldsToValidate = ['address', 'city', 'state', 'zipCode'];
+        break;
+      default:
+        return true;
+    }
+    
+    const result = await form.trigger(fieldsToValidate);
+    return result;
+  };
+
+  const handleNext = async () => {
+    const isValid = await validateCurrentStep();
+    if (isValid && currentStep < steps.length) {
+      setCurrentStep(prev => prev + 1);
     }
   };
 
-  const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-
-    if (!formData.name.trim()) newErrors.name = 'Clinic name is required';
-    if (!formData.type) newErrors.type = 'Clinic type is required';
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
-    if (!formData.state.trim()) newErrors.state = 'State is required';
-    if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-
+  const handleSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      onSubmit({
-        ...formData,
+      const clinicData = {
+        ...data,
         id: Date.now(),
         status: 'pending',
         totalPlans: 0,
         monthlyRevenue: '$0',
         joinDate: new Date().toISOString().split('T')[0],
-        location: `${formData.city}, ${formData.state}`
-      });
+        location: `${data.city}, ${data.state}`
+      };
       
-      setFormData({
-        name: '',
-        type: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: '',
-      });
+      setIsSuccess(true);
+      onSubmit(clinicData);
       
-      onClose();
+      // Reset form and close dialog after success animation
+      setTimeout(() => {
+        onClose();
+        setCurrentStep(1);
+        setIsSuccess(false);
+        form.reset();
+      }, 2500);
     } catch (error) {
       console.error('Error adding clinic:', error);
     } finally {
@@ -108,143 +185,318 @@ export default function AddClinicModal({ isOpen, onClose, onSubmit }: AddClinicM
     }
   };
 
-  if (!isOpen) return null;
+  const handleClose = () => {
+    onClose();
+    setCurrentStep(1);
+    setIsSuccess(false);
+    form.reset();
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clinic Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Sunrise Medical Center" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Clinic Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select clinic type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {clinicTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="123 Medical Center Dr" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Los Angeles" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input placeholder="CA" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="zipCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ZIP Code</FormLabel>
+                  <FormControl>
+                    <Input placeholder="90210" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-4">
+            <div className="bg-[#fefcf5] border border-[#e7e4db] rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 mb-3">Clinic Summary</h4>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Clinic Name:</span>
+                  <span className="font-medium text-gray-900">{watchedValues.name}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Type:</span>
+                  <span className="font-medium text-gray-900">{watchedValues.type}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Address:</span>
+                  <span className="font-medium text-gray-900 text-right">
+                    {watchedValues.address}<br />
+                    {watchedValues.city}, {watchedValues.state} {watchedValues.zipCode}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#84cc16]/10 border border-[#84cc16]/20 rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-5 h-5 text-[#84cc16]" />
+                <p className="text-sm font-medium text-gray-900">
+                  Ready to add clinic
+                </p>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
+                All information has been validated and the clinic is ready to be added.
+              </p>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const renderSuccessState = () => (
+    <div className="text-center py-8">
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+        className="w-16 h-16 bg-[#84cc16] rounded-full flex items-center justify-center mx-auto mb-4"
+      >
+        <CheckCircle className="w-8 h-8 text-white" />
+      </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Clinic Added Successfully!</h3>
+        <p className="text-gray-600 mb-4">
+          {watchedValues.name} has been added to your network.
+        </p>
+        <div className="bg-[#e9f9fb] rounded-lg p-3 inline-block">
+          <p className="text-sm text-gray-700">
+            Status: <span className="font-semibold text-[#1557f6]">Pending Approval</span>
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity" onClick={onClose}></div>
-        
-        <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl">
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Add New Clinic</h2>
-                <p className="text-sm text-gray-600">Enter the essential details to get started.</p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="p-6">
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Clinic Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 ${errors.name ? 'border-red-300' : 'border-gray-300'}`}
-                  placeholder="Enter clinic name"
-                />
-                {errors.name && <p className="mt-1 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.name}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Clinic Type *</label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 ${errors.type ? 'border-red-300' : 'border-gray-300'}`}
-                >
-                  <option value="">Select clinic type</option>
-                  {clinicTypes.map(type => <option key={type} value={type}>{type}</option>)}
-                </select>
-                {errors.type && <p className="mt-1 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.type}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Street Address *</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 ${errors.address ? 'border-red-300' : 'border-gray-300'}`}
-                  placeholder="Enter street address"
-                />
-                {errors.address && <p className="mt-1 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.address}</p>}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 ${errors.city ? 'border-red-300' : 'border-gray-300'}`}
-                    placeholder="City"
-                  />
-                  {errors.city && <p className="mt-1 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.city}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">State *</label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 ${errors.state ? 'border-red-300' : 'border-gray-300'}`}
-                    placeholder="State"
-                  />
-                  {errors.state && <p className="mt-1 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.state}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code *</label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors duration-200 ${errors.zipCode ? 'border-red-300' : 'border-gray-300'}`}
-                    placeholder="ZIP"
-                  />
-                  {errors.zipCode && <p className="mt-1 text-sm text-red-600 flex items-center"><AlertCircle className="w-4 h-4 mr-1" />{errors.zipCode}</p>}
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[450px] max-h-[90vh] overflow-y-auto">
+        {!isSuccess ? (
+          <>
+            <DialogHeader className="pb-4">
+              <DialogTitle className="text-xl font-semibold text-gray-900">
+                Add New Clinic
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Step {currentStep} of {steps.length}: {steps[currentStep - 1]?.description}
+              </DialogDescription>
+              
+              {/* Progress Bar */}
+              <div className="space-y-2 pt-2">
+                <Progress value={progress} className="h-2" />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Progress</span>
+                  <span>{Math.round(progress)}%</span>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center justify-end pt-8 border-t border-gray-200 mt-8 space-x-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex items-center px-6 py-3 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Adding Clinic...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-5 h-5 mr-2" />
-                    Add Clinic
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+              {/* Step Indicators */}
+              <div className="flex items-center justify-between pt-4">
+                {steps.map((step, index) => {
+                  const Icon = step.icon;
+                  const isActive = currentStep === step.id;
+                  const isCompleted = currentStep > step.id;
+                  
+                  return (
+                    <div key={step.id} className="flex items-center">
+                      <div className={`
+                        w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-300
+                        ${isCompleted 
+                          ? 'bg-[#84cc16] text-white' 
+                          : isActive 
+                          ? 'bg-[#1557f6] text-white' 
+                          : 'bg-gray-200 text-gray-400'
+                        }
+                      `}>
+                        {isCompleted ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          <Icon className="w-4 h-4" />
+                        )}
+                      </div>
+                      {index < steps.length - 1 && (
+                        <div className={`
+                          w-8 h-0.5 mx-1 transition-colors duration-300
+                          ${isCompleted ? 'bg-[#84cc16]' : 'bg-gray-200'}
+                        `} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </DialogHeader>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {renderStepContent()}
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Navigation Buttons */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                    disabled={currentStep === 1}
+                    size="sm"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Previous
+                  </Button>
+
+                  {currentStep < steps.length ? (
+                    <Button
+                      type="button"
+                      onClick={handleNext}
+                      className="bg-[#1557f6] hover:bg-[#1557f6]/90 text-white"
+                      size="sm"
+                    >
+                      Next
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="bg-[#84cc16] hover:bg-[#65a30d] text-white"
+                      size="sm"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Add Clinic
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Form>
+          </>
+        ) : (
+          renderSuccessState()
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
