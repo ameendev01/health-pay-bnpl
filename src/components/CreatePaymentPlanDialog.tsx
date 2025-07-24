@@ -37,17 +37,12 @@ import { Badge } from '@/components/ui/badge';
 import {
   CreditCard,
   User,
-  DollarSign,
   Calendar,
   CheckCircle,
   ArrowRight,
   ArrowLeft,
   Loader2,
   FileText,
-  Building2,
-  Phone,
-  Mail,
-  MapPin,
   Calculator,
   Sparkles
 } from 'lucide-react';

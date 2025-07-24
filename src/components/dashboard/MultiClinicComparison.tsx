@@ -6,10 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Building2, 
   TrendingUp, 
-  TrendingDown, 
   DollarSign, 
   CreditCard,
-  Users,
   BarChart3,
   ArrowUpRight,
   ArrowDownRight

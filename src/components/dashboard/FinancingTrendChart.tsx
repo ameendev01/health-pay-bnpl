@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { TrendingUp, BarChart3 } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 const monthlyData = [
   { month: 'Jan', financing: 185000, insurance: 320000, total: 505000, plans: 234 },

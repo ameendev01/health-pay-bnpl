@@ -6,9 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle, 
   CreditCard, 
-  Clock, 
   DollarSign, 
-  User,
   ArrowRight,
   RefreshCw
 } from 'lucide-react';
