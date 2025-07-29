@@ -265,7 +265,7 @@ export default function Sidebar({
           </nav>
 
           {/* Onboarding Teaser */}
-          {!user?.publicMetadata.length ? (
+          {!user?.publicMetadata.onboardingComplete === true ? (
             <div
               className={`transition-all duration-300 ${
                 isCollapsed ? "px-2 py-2" : "px-4 py-2"
