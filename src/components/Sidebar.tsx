@@ -31,6 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import OnboardingTeaser from '@/components/onboarding/OnboardingTeaser';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -240,6 +241,11 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
               </div>
             )}
           </nav>
+
+          {/* Onboarding Teaser */}
+          <div className={`transition-all duration-300 ${isCollapsed ? 'px-2 py-2' : 'px-4 py-2'}`}>
+            <OnboardingTeaser isCollapsed={isCollapsed} />
+          </div>
 
           {/* User Profile */}
           <div className={`border-t border-[#e7e4db]/50 ${isCollapsed ? 'p-2' : 'p-4'}`}>
