@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import React from 'react';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  CreditCard, 
-  BarChart3, 
+import React from "react";
+import {
+  LayoutDashboard,
+  Building2,
+  CreditCard,
+  BarChart3,
   Settings,
   X,
   Heart,
@@ -16,13 +16,13 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
-  LogOut
-} from 'lucide-react';
+  LogOut,
+} from "lucide-react";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useClerk, useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useClerk, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,8 +30,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import OnboardingTeaser from '@/components/onboarding/OnboardingTeaser';
+} from "@/components/ui/dropdown-menu";
+import OnboardingTeaser from "@/components/onboarding/OnboardingTeaser";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -41,77 +41,87 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { 
-    name: 'Dashboard', 
-    id: 'dashboard', 
-    href: '/dashboard', 
+  {
+    name: "Dashboard",
+    id: "dashboard",
+    href: "/dashboard",
     icon: LayoutDashboard,
-    description: 'Overview & insights'
+    description: "Overview & insights",
   },
-  { 
-    name: 'Clinics', 
-    id: 'clinics', 
-    href: '/clinics', 
+  {
+    name: "Clinics",
+    id: "clinics",
+    href: "/clinics",
     icon: Building2,
-    description: 'Manage providers'
+    description: "Manage providers",
   },
-  { 
-    name: 'Payments', 
-    id: 'payments', 
-    href: '/payments', 
+  {
+    name: "Payments",
+    id: "payments",
+    href: "/payments",
     icon: CreditCard,
-    description: 'Payment plans'
+    description: "Payment plans",
   },
-  { 
-    name: 'Analytics', 
-    id: 'analytics', 
-    href: '/analytics', 
+  {
+    name: "Analytics",
+    id: "analytics",
+    href: "/analytics",
     icon: BarChart3,
-    description: 'Reports & metrics'
+    description: "Reports & metrics",
   },
-  { 
-    name: 'Settings', 
-    id: 'settings', 
-    href: '/settings', 
+  {
+    name: "Settings",
+    id: "settings",
+    href: "/settings",
     icon: Settings,
-    description: 'System configuration'
+    description: "System configuration",
   },
 ];
 
 const quickActions = [
-  { name: 'All Patients', icon: Users, count: '2,847' },
-  { name: 'Active Plans', icon: FileText, count: '1,234' },
-  { name: 'Notifications', icon: Bell, count: '12' },
+  { name: "All Patients", icon: Users, count: "2,847" },
+  { name: "Active Plans", icon: FileText, count: "1,234" },
+  { name: "Notifications", icon: Bell, count: "12" },
 ];
 
-export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: SidebarProps) {
+export default function Sidebar({
+  isOpen,
+  setIsOpen,
+  isCollapsed,
+  setIsCollapsed,
+}: SidebarProps) {
   const pathname = usePathname();
   const { signOut } = useClerk();
   const { user } = useUser();
   const router = useRouter();
+  console.log("user", user);
 
   return (
     <>
       {/* Mobile backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         fixed top-6 left-6 bottom-6 z-50 bg-[#fefcf5]/95 backdrop-blur-xl shadow-xl border border-[#e7e4db]/50 rounded-2xl transform transition-all duration-500 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0
-        ${isCollapsed ? 'w-16' : 'w-72'}
-      `}>
+        ${isCollapsed ? "w-16" : "w-72"}
+      `}
+      >
         <div className="flex h-full flex-col">
           {/* Logo & Header */}
-          <div className={`flex h-20 shrink-0 items-center border-b border-[#e7e4db]/50 transition-all duration-300 ${
-            isCollapsed ? 'justify-center px-4' : 'px-6'
-          }`}>
+          <div
+            className={`flex h-20 shrink-0 items-center border-b border-[#e7e4db]/50 transition-all duration-300 ${
+              isCollapsed ? "justify-center px-4" : "px-6"
+            }`}
+          >
             {!isCollapsed ? (
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center space-x-3">
@@ -119,8 +129,12 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                     <Heart className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <span className="text-xl font-bold text-gray-900">HealthPay</span>
-                    <p className="text-xs text-gray-500 font-medium">Healthcare Platform</p>
+                    <span className="text-xl font-bold text-gray-900">
+                      HealthPay
+                    </span>
+                    <p className="text-xs text-gray-500 font-medium">
+                      Healthcare Platform
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -167,7 +181,7 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
           )}
 
           {/* Navigation */}
-          <nav className={`flex-1 space-y-2 ${isCollapsed ? 'px-2' : 'px-4'}`}>
+          <nav className={`flex-1 space-y-2 ${isCollapsed ? "px-2" : "px-4"}`}>
             <div className="mb-6">
               {!isCollapsed && (
                 <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
@@ -185,10 +199,12 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                     onClick={() => setIsOpen(false)}
                     className={`
                       group flex items-center text-sm font-medium rounded-xl transition-all duration-200 relative overflow-hidden
-                      ${isCollapsed ? 'px-3 py-3 justify-center' : 'px-3 py-3'}
-                      ${isActive
-                        ? 'bg-[#e9f9fb] text-[#1557f6] shadow-sm'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}
+                      ${isCollapsed ? "px-3 py-3 justify-center" : "px-3 py-3"}
+                      ${
+                        isActive
+                          ? "bg-[#e9f9fb] text-[#1557f6] shadow-sm"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      }
                     `}
                     title={isCollapsed ? item.name : undefined}
                   >
@@ -198,14 +214,20 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                     <Icon
                       className={`
                         w-5 h-5 transition-colors duration-200 flex-shrink-0
-                        ${isCollapsed ? '' : 'mr-3'}
-                        ${isActive ? 'text-[#1557f6]' : 'text-gray-400 group-hover:text-gray-600'}
+                        ${isCollapsed ? "" : "mr-3"}
+                        ${
+                          isActive
+                            ? "text-[#1557f6]"
+                            : "text-gray-400 group-hover:text-gray-600"
+                        }
                       `}
                     />
                     {!isCollapsed && (
                       <div className="flex-1 min-w-0">
                         <div className="font-medium">{item.name}</div>
-                        <div className="text-xs text-gray-500 mt-0.5 truncate">{item.description}</div>
+                        <div className="text-xs text-gray-500 mt-0.5 truncate">
+                          {item.description}
+                        </div>
                       </div>
                     )}
                   </Link>
@@ -243,67 +265,82 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
           </nav>
 
           {/* Onboarding Teaser */}
-          <div className={`transition-all duration-300 ${isCollapsed ? 'px-2 py-2' : 'px-4 py-2'}`}>
-            <OnboardingTeaser isCollapsed={isCollapsed} />
-          </div>
+          {!user?.publicMetadata.length ? (
+            <div
+              className={`transition-all duration-300 ${
+                isCollapsed ? "px-2 py-2" : "px-4 py-2"
+              }`}
+            >
+              <OnboardingTeaser isCollapsed={isCollapsed} />
+            </div>
+          ) : null}
 
           {/* User Profile */}
-          <div className={`border-t border-[#e7e4db]/50 ${isCollapsed ? 'p-2' : 'p-4'}`}>
+          <div
+            className={`border-t border-[#e7e4db]/50 ${
+              isCollapsed ? "p-2" : "p-4"
+            }`}
+          >
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <div className={`flex items-center rounded-xl bg-[#e9f9fb] hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group ${
-                  isCollapsed ? 'justify-center p-3' : 'space-x-3 p-3'
-                }`}>
+                <div
+                  className={`flex items-center rounded-xl bg-[#e9f9fb] hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group ${
+                    isCollapsed ? "justify-center p-3" : "space-x-3 p-3"
+                  }`}
+                >
                   <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
                     <span className="text-sm font-semibold text-white">
-                      {user?.firstName?.charAt(0) || 'U'}{user?.lastName?.charAt(0) || 'U'}
+                      {user?.firstName?.charAt(0) || "U"}
+                      {user?.lastName?.charAt(0) || "U"}
                     </span>
                   </div>
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate">
-                        {user?.fullName || 'User'}
+                        {user?.fullName || "User"}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
-                        {user?.emailAddresses?.[0]?.emailAddress || 'user@example.com'}
+                        {user?.emailAddresses?.[0]?.emailAddress ||
+                          "user@example.com"}
                       </p>
                     </div>
                   )}
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                className="w-56" 
+              <DropdownMenuContent
+                className="w-56"
                 align={isCollapsed ? "center" : "start"}
                 side={isCollapsed ? "right" : "top"}
               >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user?.fullName || 'User'}
+                      {user?.fullName || "User"}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user?.emailAddresses?.[0]?.emailAddress || 'user@example.com'}
+                      {user?.emailAddresses?.[0]?.emailAddress ||
+                        "user@example.com"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={() => router.push('/settings')}
+                <DropdownMenuItem
+                  onClick={() => router.push("/settings")}
                   className="cursor-pointer"
                 >
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => router.push('/settings')}
+                <DropdownMenuItem
+                  onClick={() => router.push("/settings")}
                   className="cursor-pointer"
                 >
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={() => signOut(() => router.push('/'))}
+                <DropdownMenuItem
+                  onClick={() => signOut(() => router.push("/"))}
                   className="cursor-pointer text-red-600 focus:text-red-600"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
