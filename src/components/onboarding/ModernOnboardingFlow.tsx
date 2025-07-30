@@ -40,10 +40,11 @@ import {
   step9Schema,
   step10Schema,
 } from "./schemas";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { savePartialOnboarding } from "@/app/(auth)/onboarding/_partial_actions";
 
 // Compact Progress Card Component
 function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
@@ -1541,6 +1542,24 @@ export default function ModernOnboardingFlow() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const lastStep = user?.publicMetadata.lastCompletedStep as number | undefined;
+    if (lastStep) {
+      setCurrentStep(lastStep);
+    }
+  }, [user]);
+
+  const handleSaveAndExit = async () => {
+    const values = form.getValues();
+    const result = await savePartialOnboarding(values, currentStep);
+    console.log('result', result);
+    if (result.success) {
+      router.push("/dashboard");
+    } else {
+      setError(result.error || "Failed to save progress.");
+    }
+  };
+
   const form = useForm<OnboardingData>({
     resolver: zodResolver(onboardingSchema),
     shouldUnregister: false,
@@ -1633,6 +1652,9 @@ export default function ModernOnboardingFlow() {
 
   return (
     <div className="" style={{ zoom: 1.14 }}>
+      <div className="absolute top-4 left-4">
+        <Button variant="link" onClick={handleSaveAndExit}>Fill rest of the info later</Button>
+      </div>
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-xl mx-auto px-4">
         <div className=" mb-14">
           {currentStep === 1 && <Step1 form={form} />}
