@@ -51,6 +51,7 @@ const SaveAndContinueLaterButton: React.FC<SaveAndContinueLaterButtonProps> = ({
           <AnimatePresence>
             {isHovered && (
               <motion.div
+                key="tooltip"
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -76,6 +77,7 @@ const SaveAndContinueLaterButton: React.FC<SaveAndContinueLaterButtonProps> = ({
         {showExitDialog && (
           <>
             <motion.div 
+              key="backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -83,6 +85,7 @@ const SaveAndContinueLaterButton: React.FC<SaveAndContinueLaterButtonProps> = ({
               onClick={() => setShowExitDialog(false)}
             />
             <motion.div
+              key="dialog"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}

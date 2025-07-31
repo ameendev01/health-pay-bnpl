@@ -1653,7 +1653,7 @@ export default function ModernOnboardingFlow() {
 
   return (
     <div className="" style={{ zoom: 1.14 }}>
-      <div className="absolute top-18 left-4 cursor-pointer">
+      <div className="absolute top-18 left-6 cursor-pointer">
         <SaveAndContinueLaterButton onSaveAndExit={handleSaveAndExit} />
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-xl mx-auto px-4">
