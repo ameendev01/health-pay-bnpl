@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Gift } from 'lucide-react';
+import { ArrowRight, Gift, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface OnboardingTeaserProps {
@@ -35,11 +35,11 @@ export default function OnboardingTeaser({ isCollapsed }: OnboardingTeaserProps)
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="mr-3 rounded-full bg-white/20 p-2">
-              <Gift className="h-5 w-5" />
+              <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h4 className="font-semibold">Get Started</h4>
-              <p className="text-xs text-white/80">Complete your profile</p>
+              <h4 className="font-semibold">Finish Setup</h4>
+              <p className="text-xs text-white/80">Add your details</p>
             </div>
           </div>
           <motion.div

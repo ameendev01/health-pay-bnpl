@@ -44,6 +44,7 @@ import { useState, useEffect } from "react";
 import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import SaveAndContinueLaterButton from './SaveAndContinueLaterButton';
 import { savePartialOnboarding } from "@/app/(auth)/onboarding/_partial_actions";
 
 // Compact Progress Card Component
@@ -1545,7 +1546,7 @@ export default function ModernOnboardingFlow() {
   useEffect(() => {
     const lastStep = user?.publicMetadata.lastCompletedStep as number | undefined;
     if (lastStep) {
-      setCurrentStep(lastStep);
+      setCurrentStep(lastStep + 1);
     }
   }, [user]);
 
@@ -1652,8 +1653,8 @@ export default function ModernOnboardingFlow() {
 
   return (
     <div className="" style={{ zoom: 1.14 }}>
-      <div className="absolute top-4 left-4">
-        <Button variant="link" onClick={handleSaveAndExit}>Fill rest of the info later</Button>
+      <div className="absolute top-18 left-4 cursor-pointer">
+        <SaveAndContinueLaterButton onSaveAndExit={handleSaveAndExit} />
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-xl mx-auto px-4">
         <div className=" mb-14">
