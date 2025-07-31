@@ -31,17 +31,20 @@ const SaveAndContinueLaterButton: React.FC<SaveAndContinueLaterButtonProps> = ({
 
   return (
     <div className={cn("w-full max-w-2xl mx-auto", className)}>
-      <div className="flex justify-start border-2 border-dashed border-border rounded-lg">
+      <div className="flex justify-start rounded-lg">
         <div 
           className="relative"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           <Button 
-            variant="ghost" 
+            variant="link"
             onClick={() => setShowExitDialog(true)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground no-underline hover:no-underline transition-colors border-2 border-dashed hover:border-solid flex items-center gap-0 cursor-pointer"
           >
+            <motion.div animate={{ x: isHovered ? -4 : 0 }} transition={{ type: "spring", stiffness: 800, damping: 10 }}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+            </motion.div>
             Save and exit
           </Button>
           
