@@ -211,24 +211,24 @@ export default function RecentApprovalsTransactions() {
           {activeTab === 'approvals' ? (
             <>
               {recentApprovals.map((approval) => (
-                <div key={approval.id} className="flex items-center justify-between p-4 bg-[#fefcf5] border border-[#e7e4db] rounded-lg hover:bg-[#e9f9fb] transition-colors duration-200">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-[#84cc16] rounded-full flex items-center justify-center">
+                <div key={approval.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#fefcf5] border border-[#e7e4db] rounded-lg hover:bg-[#e9f9fb] transition-colors duration-200">
+                  <div className="flex items-center space-x-4 min-w-0">
+                    <div className="w-10 h-10 bg-[#84cc16] rounded-full flex items-center justify-center flex-shrink-0">
                       <CheckCircle className="w-5 h-5 text-white" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-gray-900">{approval.patientName}</p>
+                        <p className="font-medium text-gray-900 truncate">{approval.patientName}</p>
                         <Badge className={getStatusColor(approval.status)}>
                           {approval.status.replace('_', ' ')}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 truncate">
                         {approval.procedure} • {approval.clinic}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right mt-2 sm:mt-0 flex-shrink-0">
                     <p className="font-semibold text-gray-900">
                       ${approval.amount.toLocaleString()}
                     </p>
@@ -240,27 +240,27 @@ export default function RecentApprovalsTransactions() {
           ) : (
             <>
               {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between p-4 bg-[#fefcf5] border border-[#e7e4db] rounded-lg hover:bg-[#e9f9fb] transition-colors duration-200">
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#fefcf5] border border-[#e7e4db] rounded-lg hover:bg-[#e9f9fb] transition-colors duration-200">
+                  <div className="flex items-center space-x-4 min-w-0">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                       transaction.type === 'payment' ? 'bg-[#84cc16]' :
                       transaction.type === 'refund' ? 'bg-red-500' : 'bg-[#1557f6]'
                     }`}>
                       {getTransactionIcon(transaction.type)}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-gray-900">{transaction.patientName}</p>
+                        <p className="font-medium text-gray-900 truncate">{transaction.patientName}</p>
                         <Badge className={getTransactionTypeColor(transaction.type)}>
                           {transaction.type}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 truncate">
                         {transaction.paymentMethod} • {transaction.clinic}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right mt-2 sm:mt-0 flex-shrink-0">
                     <p className={`font-semibold ${
                       transaction.type === 'refund' ? 'text-red-600' : 'text-gray-900'
                     }`}>

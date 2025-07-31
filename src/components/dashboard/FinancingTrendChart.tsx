@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { TrendingUp } from 'lucide-react';
@@ -27,8 +27,14 @@ const yearOverYearData = [
   { month: 'Aug', current: 465000, previous: 340000 },
 ];
 
+const MemoizedBarChart = React.memo(BarChart);
+const MemoizedLineChart = React.memo(LineChart);
+
 export default function FinancingTrendChart() {
   const [viewType, setViewType] = useState<'monthly' | 'yoy'>('monthly');
+
+  const memoizedMonthlyData = useMemo(() => monthlyData, []);
+  const memoizedYearOverYearData = useMemo(() => yearOverYearData, []);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -87,7 +93,7 @@ export default function FinancingTrendChart() {
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             {viewType === 'monthly' ? (
-              <BarChart data={monthlyData}>
+              <MemoizedBarChart data={memoizedMonthlyData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
                 <XAxis 
                   dataKey="month" 
@@ -113,9 +119,9 @@ export default function FinancingTrendChart() {
                   name="Insurance Collections"
                   radius={[4, 4, 0, 0]}
                 />
-              </BarChart>
+              </MemoizedBarChart>
             ) : (
-              <LineChart data={yearOverYearData}>
+              <MemoizedLineChart data={memoizedYearOverYearData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
                 <XAxis 
                   dataKey="month" 
@@ -146,7 +152,7 @@ export default function FinancingTrendChart() {
                   name="2023 BNPL Volume"
                   dot={{ fill: '#1557f6', strokeWidth: 2, r: 4 }}
                 />
-              </LineChart>
+              </MemoizedLineChart>
             )}
           </ResponsiveContainer>
         </div>

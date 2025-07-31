@@ -40,10 +40,14 @@ import {
   step9Schema,
   step10Schema,
 } from "./schemas";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+// import { useSupabaseClient } from "";
+import SaveAndContinueLaterButton from './SaveAndContinueLaterButton';
+import { savePartialOnboarding } from "@/app/(auth)/onboarding/_partial_actions";
+import { useSupabaseClient } from "../../../supabase/client";
 
 // Compact Progress Card Component
 function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
@@ -1538,7 +1542,9 @@ export default function ModernOnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(1);
   const { user } = useUser();
   const router = useRouter();
+  const { supabase } = useSupabaseClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<OnboardingData>({
@@ -1581,6 +1587,43 @@ export default function ModernOnboardingFlow() {
       accuracy: false,
     },
   });
+
+    useEffect(() => {
+    const lastStep = user?.publicMetadata.lastCompletedStep as number | undefined;
+    if (lastStep) {
+      setCurrentStep(lastStep + 1);
+    }
+  }, [user]);
+
+  const handleSaveAndExit = async () => {
+    const values = form.getValues();
+    const result = await savePartialOnboarding(values, currentStep - 1);
+    console.log('result', result);
+    if (result.success) {
+      router.push("/dashboard");
+    } else {
+      setError(result.error || "Failed to save progress.");
+    }
+  };
+  
+  useEffect(() => {
+    const fetchPartialData = async () => {
+      if (!supabase || !isLoading) return;
+
+      const { data } = await supabase
+        .from('partial_onboarding')
+        .select('data, last_completed_step')
+        .single();
+
+      if (data) {
+        form.reset(data.data);
+        setCurrentStep(data.last_completed_step + 1);
+      }
+      setIsLoading(false);
+    };
+
+    fetchPartialData();
+  }, [supabase, form, isLoading]);
 
   const {
     handleSubmit,
@@ -1631,8 +1674,19 @@ export default function ModernOnboardingFlow() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="" style={{ zoom: 1.14 }}>
+      <div className="absolute top-18 left-6 cursor-pointer">
+        <SaveAndContinueLaterButton onSaveAndExit={handleSaveAndExit} />
+      </div>
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-xl mx-auto px-4">
         <div className=" mb-14">
           {currentStep === 1 && <Step1 form={form} />}
