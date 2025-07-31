@@ -1597,7 +1597,7 @@ export default function ModernOnboardingFlow() {
 
   const handleSaveAndExit = async () => {
     const values = form.getValues();
-    const result = await savePartialOnboarding(values, currentStep);
+    const result = await savePartialOnboarding(values, currentStep - 1);
     console.log('result', result);
     if (result.success) {
       router.push("/dashboard");
@@ -1673,6 +1673,14 @@ export default function ModernOnboardingFlow() {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="" style={{ zoom: 1.14 }}>
