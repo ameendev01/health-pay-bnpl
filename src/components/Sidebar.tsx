@@ -19,9 +19,9 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +38,14 @@ interface SidebarProps {
   isCollapsed: boolean;
   setIsCollapsed: (collapsed: boolean) => void;
 }
+
+// tokens that mirror your brand
+const RAIL_WIDTH = "w-[72px]";
+const DRAWER_WIDTH = "w-72";
+const BRAND_BG = "bg-[#fefcf5]/95";
+const BRAND_BORDER = "border-[#e7e4db]/50";
+const BRAND_TINT = "bg-[#e9f9fb]";
+const BRAND_BLUE = "#1557f6";
 
 const navigation = [
   {
@@ -93,209 +101,227 @@ export default function Sidebar({
   const { signOut } = useClerk();
   const { user } = useUser();
   const router = useRouter();
-  console.log("user", user);
+
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
+
+  const needsOnboarding =
+    (user?.publicMetadata as any)?.onboardingComplete !== true;
 
   return (
     <>
-      {/* Mobile backdrop */}
+      {/* mobile backdrop */}
       {isOpen && (
         <div
-          className=" inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <div
-        className={`
-    z-50 lg:z-auto bg-[#fefcf5]/95 backdrop-blur-xl shadow-xl border border-[#e7e4db]/50
-    rounded-2xl transform transition-all duration-500 ease-in-out h-full
-    ${isOpen ? "translate-x-0" : "-translate-x-full"}  /* mobile drawer */
-    lg:translate-x-0
-    w-72 lg:w-full  /* mobile drawer is 18rem; on desktop fill the grid track */
-  `}
+      {/* shell */}
+      <aside
+        className={[
+          "z-50 lg:z-auto",
+          BRAND_BG,
+          "backdrop-blur-xl shadow-xl border",
+          BRAND_BORDER,
+          "rounded-2xl h-full flex flex-col min-h-0",
+          "transform transition-all duration-500 ease-in-out",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          "lg:translate-x-0",
+          isCollapsed ? RAIL_WIDTH : DRAWER_WIDTH,
+          "lg:w-full",
+        ].join(" ")}
+        aria-label="Primary"
       >
-        <div className="flex flex-col">
-          {/* Logo & Header */}
-          <div
-            className={`flex h-20 shrink-0 items-center border-b border-[#e7e4db]/50 transition-all duration-300 ${
-              isCollapsed ? "justify-center px-4" : "px-6"
-            }`}
-          >
-            {!isCollapsed ? (
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-xl flex items-center justify-center shadow-lg">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <span className="text-xl font-bold text-gray-900">
-                      HealthPay
-                    </span>
-                    <p className="text-xs text-gray-500 font-medium">
-                      Healthcare Platform
-                    </p>
-                  </div>
+        {/* header */}
+        <div
+          className={[
+            "flex items-center h-16 shrink-0 border-b",
+            BRAND_BORDER,
+            isCollapsed ? "justify-center px-3" : "justify-between px-4",
+          ].join(" ")}
+        >
+          {isCollapsed ? (
+            <button
+              onClick={() => setIsCollapsed(false)}
+              className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center shadow-lg transition-colors group"
+              title="Expand"
+              aria-label="Expand sidebar"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-600 group-hover:text-gray-800" />
+            </button>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-xl flex items-center justify-center shadow-lg">
+                  <Heart className="w-5 h-5 text-white" />
                 </div>
-                <div className="flex items-center space-x-2">
-                  {/* Collapse Button */}
-                  <button
-                    onClick={() => setIsCollapsed(true)}
-                    className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 transition-colors group"
-                    title="Collapse Sidebar"
-                  >
-                    <ChevronLeft className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
-                  </button>
-                  {/* Mobile Close Button */}
-                  <button
-                    className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <X className="w-5 h-5 text-gray-500" />
-                  </button>
+                <div className="leading-tight">
+                  <span className="text-lg font-bold text-gray-900">
+                    HealthPay
+                  </span>
+                  <p className="text-[11px] text-gray-500 font-medium">
+                    Healthcare Platform
+                  </p>
                 </div>
               </div>
-            ) : (
-              <button
-                onClick={() => setIsCollapsed(false)}
-                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center shadow-lg transition-colors group"
-                title="Expand Sidebar"
-              >
-                <ChevronRight className="w-6 h-6 text-gray-600 group-hover:text-gray-800" />
-              </button>
-            )}
-          </div>
 
-          {/* Search - Only show when expanded */}
-          {/* {!isCollapsed && (
-            <div className="px-6 py-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Quick search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#e9f9fb] border border-[#e7e4db] rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#1557f6] focus:border-transparent transition-all"
-                />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsCollapsed(true)}
+                  className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 transition-colors group"
+                  title="Collapse"
+                  aria-label="Collapse sidebar"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
+                </button>
+                <button
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
               </div>
-            </div>
-          )} */}
+            </>
+          )}
+        </div>
 
-          {/* Navigation */}
-          <nav className={`flex-1 space-y-2 ${isCollapsed ? "px-2" : "px-4"}`}>
-            <div className="mb-6">
-              {!isCollapsed && (
-                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Main Navigation
-                </p>
-              )}
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
+        {/* scrollable nav */}
+        <nav
+          className={[
+            "flex-1 min-h-0 overflow-y-auto",
+            isCollapsed ? "px-2 py-3" : "px-4 py-4",
+          ].join(" ")}
+        >
+          {!isCollapsed && (
+            <p className="px-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Main
+            </p>
+          )}
 
-                return (
+          <ul className="space-y-2">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+
+              return (
+                <li key={item.id}>
                   <Link
-                    key={item.id}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className={`
-                      group flex items-center text-sm font-medium rounded-xl transition-all duration-200 relative overflow-hidden
-                      ${isCollapsed ? "px-3 py-3 justify-center" : "px-3 py-3"}
-                      ${
-                        isActive
-                          ? "bg-[#e9f9fb] text-[#1557f6] shadow-sm"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                      }
-                    `}
-                    title={isCollapsed ? item.name : undefined}
+                    title={
+                      isCollapsed ? item.description || item.name : undefined
+                    }
+                    aria-current={active ? "page" : undefined}
+                    className={[
+                      "group relative flex items-center rounded-xl text-sm font-medium transition-all",
+                      isCollapsed ? "justify-center px-2 py-3" : "px-3 py-2",
+                      active
+                        ? `${BRAND_TINT} text-[#1557f6] ring-1 ring-[#1557f6]/10`
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900",
+                    ].join(" ")}
                   >
-                    {isActive && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#1557f6] rounded-r-full" />
+                    {/* subtle active rail */}
+                    {active && (
+                      <span
+                        className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full"
+                        style={{ backgroundColor: BRAND_BLUE }}
+                        aria-hidden="true"
+                      />
                     )}
+
                     <Icon
-                      className={`
-                        w-5 h-5 transition-colors duration-200 flex-shrink-0
-                        ${isCollapsed ? "" : "mr-3"}
-                        ${
-                          isActive
-                            ? "text-[#1557f6]"
-                            : "text-gray-400 group-hover:text-gray-600"
-                        }
-                      `}
+                      className={[
+                        "w-5 h-5 flex-shrink-0",
+                        isCollapsed ? "" : "mr-3",
+                        active
+                          ? "text-[#1557f6]"
+                          : "text-gray-400 group-hover:text-gray-600",
+                        "transition-colors",
+                      ].join(" ")}
                     />
+
                     {!isCollapsed && (
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-xs text-gray-500 mt-0.5 truncate">
-                          {item.description}
-                        </div>
-                      </div>
+                      <span className="truncate">{item.name}</span>
                     )}
                   </Link>
-                );
-              })}
-            </div>
+                </li>
+              );
+            })}
+          </ul>
 
-            {/* Quick Actions - Only show when expanded */}
-            {!isCollapsed && (
-              <div className="mb-6">
-                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                  Quick Actions
-                </p>
-                <div className="space-y-2">
-                  {quickActions.map((action, index) => {
-                    const Icon = action.icon;
-                    return (
-                      <button
-                        key={index}
-                        className="w-full flex items-center justify-between px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors group"
-                      >
-                        <div className="flex items-center">
-                          <Icon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
-                          <span className="font-medium">{action.name}</span>
-                        </div>
-                        <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                          {action.count}
+          {/* quick actions (expanded only), spaced and quiet */}
+          {!isCollapsed && (
+            <div className="mt-6">
+              <p className="px-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                Quick Actions
+              </p>
+              <div className="space-y-2">
+                {quickActions.map((action, idx) => {
+                  const Icon = action.icon;
+                  return (
+                    <button
+                      key={idx}
+                      className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-50 transition-colors group"
+                    >
+                      <div className="flex items-center min-w-0">
+                        <Icon className="w-4 h-4 mr-3 text-gray-400 group-hover:text-gray-600" />
+                        <span className="font-medium truncate">
+                          {action.name}
                         </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                      </div>
+                      <span className="text-[11px] font-semibold text-gray-600 bg-gray-100 px-2 py-0 rounded-full">
+                        {action.count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
-          </nav>
+            </div>
+          )}
+        </nav>
 
-          {/* Onboarding Teaser */}
-          {!user?.publicMetadata.onboardingComplete === true ? (
-            <div
-              className={`transition-all duration-300 ${
-                isCollapsed ? "px-2 py-2" : "px-4 py-2"
-              }`}
-            >
+        {/* bottom stack: teaser (if needed) above profile */}
+        <div
+          className={[
+            "shrink-0",
+            isCollapsed ? "p-2 pt-0" : "px-4 pb-3 pt-0",
+          ].join(" ")}
+        >
+          {needsOnboarding && (
+            <div>
+              {/* we’ll refine visual once you share the component; for now we keep prop */}
               <OnboardingTeaser isCollapsed={isCollapsed} />
             </div>
-          ) : null}
+          )}
 
-          {/* User Profile */}
           <div
-            className={`border-t border-[#e7e4db]/50 ${
-              isCollapsed ? "p-2" : "p-4"
-            }`}
+            className={[
+              "border-t",
+              BRAND_BORDER,
+              isCollapsed ? "pt-2" : "pt-3",
+            ].join(" ")}
           >
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div
-                  className={`flex items-center rounded-xl bg-[#e9f9fb] hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group ${
-                    isCollapsed ? "justify-center p-3" : "space-x-3 p-3"
-                  }`}
+                  className={[
+                    "mt-2 flex items-center rounded-xl",
+                    BRAND_TINT,
+                    "hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group",
+                    isCollapsed ? "justify-center p-2.5" : "gap-3 p-3",
+                  ].join(" ")}
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-                    <span className="text-sm font-semibold text-white">
-                      {user?.firstName?.charAt(0) || "U"}
-                      {user?.lastName?.charAt(0) || "U"}
+                  <div className="w-9 h-9 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                    <span className="text-xs font-semibold text-white">
+                      {user?.firstName?.[0] || "U"}
+                      {user?.lastName?.[0] || "U"}
                     </span>
                   </div>
                   {!isCollapsed && (
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate">
                         {user?.fullName || "User"}
                       </p>
@@ -307,6 +333,7 @@ export default function Sidebar({
                   )}
                 </div>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent
                 className="w-56"
                 align={isCollapsed ? "center" : "start"}
@@ -350,7 +377,7 @@ export default function Sidebar({
             </DropdownMenu>
           </div>
         </div>
-      </div>
+      </aside>
     </>
   );
 }
