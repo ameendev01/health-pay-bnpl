@@ -12,7 +12,6 @@ import {
   Users,
   FileText,
   Bell,
-  Search,
   ChevronLeft,
   ChevronRight,
   User,
@@ -101,7 +100,7 @@ export default function Sidebar({
       {/* Mobile backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
+          className=" inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -109,13 +108,14 @@ export default function Sidebar({
       {/* Sidebar */}
       <div
         className={`
-        fixed top-6 left-6 bottom-6 z-50 bg-[#fefcf5]/95 backdrop-blur-xl shadow-xl border border-[#e7e4db]/50 rounded-2xl transform transition-all duration-500 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0
-        ${isCollapsed ? "w-16" : "w-72"}
-      `}
+    z-50 lg:z-auto bg-[#fefcf5]/95 backdrop-blur-xl shadow-xl border border-[#e7e4db]/50
+    rounded-2xl transform transition-all duration-500 ease-in-out h-full
+    ${isOpen ? "translate-x-0" : "-translate-x-full"}  /* mobile drawer */
+    lg:translate-x-0
+    w-72 lg:w-full  /* mobile drawer is 18rem; on desktop fill the grid track */
+  `}
       >
-        <div className="flex h-full flex-col">
+        <div className="flex flex-col">
           {/* Logo & Header */}
           <div
             className={`flex h-20 shrink-0 items-center border-b border-[#e7e4db]/50 transition-all duration-300 ${
@@ -167,7 +167,7 @@ export default function Sidebar({
           </div>
 
           {/* Search - Only show when expanded */}
-          {!isCollapsed && (
+          {/* {!isCollapsed && (
             <div className="px-6 py-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -178,7 +178,7 @@ export default function Sidebar({
                 />
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Navigation */}
           <nav className={`flex-1 space-y-2 ${isCollapsed ? "px-2" : "px-4"}`}>

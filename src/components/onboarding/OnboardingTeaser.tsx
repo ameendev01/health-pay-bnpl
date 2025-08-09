@@ -25,10 +25,7 @@ export default function OnboardingTeaser({ isCollapsed }: OnboardingTeaserProps)
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+    <div
       className="group relative cursor-pointer overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl"
     >
       <Link href="/onboarding" className="block">
@@ -50,6 +47,6 @@ export default function OnboardingTeaser({ isCollapsed }: OnboardingTeaserProps)
           </motion.div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 }
