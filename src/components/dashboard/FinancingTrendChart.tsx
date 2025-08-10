@@ -57,11 +57,11 @@ export default function FinancingTrendChart() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2 text-[#1557f6]" />
+            <CardTitle className="text-lg font-semibold text-neutral-800 flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
               Revenue Trends & BNPL Growth
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-neutral-500 mt-1">
               Monthly financing volume with year-over-year comparison
             </p>
           </div>
@@ -70,8 +70,8 @@ export default function FinancingTrendChart() {
               onClick={() => setViewType('monthly')}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 viewType === 'monthly'
-                  ? 'bg-[#1557f6] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
               }`}
             >
               Monthly Mix
@@ -80,8 +80,8 @@ export default function FinancingTrendChart() {
               onClick={() => setViewType('yoy')}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 viewType === 'yoy'
-                  ? 'bg-[#1557f6] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
               }`}
             >
               Year over Year
@@ -94,63 +94,63 @@ export default function FinancingTrendChart() {
           <ResponsiveContainer width="100%" height="100%">
             {viewType === 'monthly' ? (
               <MemoizedBarChart data={memoizedMonthlyData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200" />
                 <XAxis 
                   dataKey="month" 
-                  className="text-sm text-gray-600"
+                  className="text-sm text-neutral-500"
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis 
-                  className="text-sm text-gray-600"
+                  className="text-sm text-neutral-500"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 <Bar 
                   dataKey="financing" 
-                  fill="#84cc16" 
+                  fill="#22c55e" 
                   name="BNPL Financing"
                   radius={[0, 0, 4, 4]}
                 />
                 <Bar 
                   dataKey="insurance" 
-                  fill="#1557f6" 
+                  fill="#3b82f6" 
                   name="Insurance Collections"
                   radius={[4, 4, 0, 0]}
                 />
               </MemoizedBarChart>
             ) : (
               <MemoizedLineChart data={memoizedYearOverYearData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200" />
                 <XAxis 
                   dataKey="month" 
-                  className="text-sm text-gray-600"
+                  className="text-sm text-neutral-500"
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis 
-                  className="text-sm text-gray-600"
+                  className="text-sm text-neutral-500"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 <Line 
                   type="monotone" 
                   dataKey="current" 
-                  stroke="#84cc16" 
+                  stroke="#22c55e" 
                   strokeWidth={3}
                   name="2024 BNPL Volume"
-                  dot={{ fill: '#84cc16', strokeWidth: 2, r: 4 }}
+                  dot={{ fill: '#22c55e', strokeWidth: 2, r: 4 }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="previous" 
-                  stroke="#1557f6" 
+                  stroke="#3b82f6" 
                   strokeWidth={3}
                   strokeDasharray="5 5"
                   name="2023 BNPL Volume"
-                  dot={{ fill: '#1557f6', strokeWidth: 2, r: 4 }}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                 />
               </MemoizedLineChart>
             )}
@@ -159,29 +159,29 @@ export default function FinancingTrendChart() {
         
         {/* Key Insights */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-[#e9f9fb] rounded-lg p-4">
+          <div className="bg-green-50 rounded-lg p-4">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="w-3 h-3 bg-[#84cc16] rounded-full"></div>
-              <span className="text-sm font-medium text-gray-700">BNPL Growth</span>
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span className="text-sm font-medium text-neutral-700">BNPL Growth</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">+32%</p>
-            <p className="text-xs text-gray-600">vs last year</p>
+            <p className="text-2xl font-bold text-neutral-800">+32%</p>
+            <p className="text-xs text-neutral-500">vs last year</p>
           </div>
-          <div className="bg-[#e9f9fb] rounded-lg p-4">
+          <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="w-3 h-3 bg-[#1557f6] rounded-full"></div>
-              <span className="text-sm font-medium text-gray-700">Conversion Rate</span>
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span className="text-sm font-medium text-neutral-700">Conversion Rate</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">87.3%</p>
-            <p className="text-xs text-gray-600">with financing option</p>
+            <p className="text-2xl font-bold text-neutral-800">87.3%</p>
+            <p className="text-xs text-neutral-500">with financing option</p>
           </div>
-          <div className="bg-[#e9f9fb] rounded-lg p-4">
+          <div className="bg-green-50 rounded-lg p-4">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="w-3 h-3 bg-[#84cc16] rounded-full"></div>
-              <span className="text-sm font-medium text-gray-700">Avg Plan Value</span>
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span className="text-sm font-medium text-neutral-700">Avg Plan Value</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">$2,156</p>
-            <p className="text-xs text-gray-600">per financing plan</p>
+            <p className="text-2xl font-bold text-neutral-800">$2,156</p>
+            <p className="text-xs text-neutral-500">per financing plan</p>
           </div>
         </div>
       </CardContent>

@@ -101,9 +101,9 @@ export default function MultiClinicComparison() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'excellent':
-        return 'bg-[#84cc16] text-white';
+        return 'bg-green-100 text-green-800';
       case 'good':
-        return 'bg-[#1557f6] text-white';
+        return 'bg-blue-100 text-blue-800';
       case 'needs_attention':
         return 'bg-yellow-100 text-yellow-800';
       default:
@@ -133,11 +133,11 @@ export default function MultiClinicComparison() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-              <Building2 className="w-5 h-5 mr-2 text-[#1557f6]" />
+            <CardTitle className="text-lg font-semibold text-neutral-800 flex items-center">
+              <Building2 className="w-5 h-5 mr-2 text-blue-600" />
               Multi-Clinic Performance Dashboard
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-neutral-500 mt-1">
               Compare financing and collection metrics across all locations
             </p>
           </div>
@@ -145,7 +145,7 @@ export default function MultiClinicComparison() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1557f6] focus:border-[#1557f6]"
+              className="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
             >
               <option value="financing">Sort by Financing</option>
               <option value="growth">Sort by Growth</option>
@@ -157,31 +157,31 @@ export default function MultiClinicComparison() {
       <CardContent>
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-[#e9f9fb] rounded-lg p-4">
+          <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total BNPL Volume</p>
-                <p className="text-2xl font-bold text-gray-900">${(totalFinancing / 1000).toFixed(0)}k</p>
+                <p className="text-sm font-medium text-neutral-600">Total BNPL Volume</p>
+                <p className="text-2xl font-bold text-neutral-800">${(totalFinancing / 1000).toFixed(0)}k</p>
               </div>
-              <DollarSign className="w-8 h-8 text-[#84cc16]" />
+              <DollarSign className="w-8 h-8 text-green-500" />
             </div>
           </div>
-          <div className="bg-[#e9f9fb] rounded-lg p-4">
+          <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Insurance Collections</p>
-                <p className="text-2xl font-bold text-gray-900">${(totalInsurance / 1000).toFixed(0)}k</p>
+                <p className="text-sm font-medium text-neutral-600">Insurance Collections</p>
+                <p className="text-2xl font-bold text-neutral-800">${(totalInsurance / 1000).toFixed(0)}k</p>
               </div>
-              <Building2 className="w-8 h-8 text-[#1557f6]" />
+              <Building2 className="w-8 h-8 text-blue-600" />
             </div>
           </div>
-          <div className="bg-[#e9f9fb] rounded-lg p-4">
+          <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Active Plans</p>
-                <p className="text-2xl font-bold text-gray-900">{totalPlans}</p>
+                <p className="text-sm font-medium text-neutral-600">Active Plans</p>
+                <p className="text-2xl font-bold text-neutral-800">{totalPlans}</p>
               </div>
-              <CreditCard className="w-8 h-8 text-[#84cc16]" />
+              <CreditCard className="w-8 h-8 text-green-500" />
             </div>
           </div>
         </div>
@@ -189,32 +189,32 @@ export default function MultiClinicComparison() {
         {/* Clinic Comparison Table */}
         <div className="space-y-3">
           {sortedClinics.map((clinic, index) => (
-            <div key={clinic.id} className="p-4 border border-gray-200 rounded-lg hover:bg-[#fefcf5] transition-colors duration-200">
+            <div key={clinic.id} className="p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors duration-200">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
                     <span className="text-xs font-semibold text-white">
                       #{index + 1}
                     </span>
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h4 className="font-medium text-gray-900">{clinic.name}</h4>
+                      <h4 className="font-medium text-neutral-800">{clinic.name}</h4>
                       <Badge className={getStatusColor(clinic.status)}>
                         {clinic.status.replace('_', ' ')}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600">{clinic.location}</p>
+                    <p className="text-sm text-neutral-500">{clinic.location}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-1">
                   {clinic.growth > 0 ? (
-                    <ArrowUpRight className="w-4 h-4 text-[#84cc16]" />
+                    <ArrowUpRight className="w-4 h-4 text-green-500" />
                   ) : (
                     <ArrowDownRight className="w-4 h-4 text-red-500" />
                   )}
                   <span className={`text-sm font-medium ${
-                    clinic.growth > 0 ? 'text-[#84cc16]' : 'text-red-500'
+                    clinic.growth > 0 ? 'text-green-500' : 'text-red-500'
                   }`}>
                     {clinic.growth > 0 ? '+' : ''}{clinic.growth}%
                   </span>
@@ -223,29 +223,29 @@ export default function MultiClinicComparison() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">BNPL Volume</p>
-                  <p className="font-semibold text-gray-900">${(clinic.financingVolume / 1000).toFixed(0)}k</p>
+                  <p className="text-xs text-neutral-500 mb-1">BNPL Volume</p>
+                  <p className="font-semibold text-neutral-800">${(clinic.financingVolume / 1000).toFixed(0)}k</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Insurance</p>
-                  <p className="font-semibold text-gray-900">${(clinic.insuranceCollections / 1000).toFixed(0)}k</p>
+                  <p className="text-xs text-neutral-500 mb-1">Insurance</p>
+                  <p className="font-semibold text-neutral-800">${(clinic.insuranceCollections / 1000).toFixed(0)}k</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Active Plans</p>
-                  <p className="font-semibold text-gray-900">{clinic.activePlans}</p>
+                  <p className="text-xs text-neutral-500 mb-1">Active Plans</p>
+                  <p className="font-semibold text-neutral-800">{clinic.activePlans}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Approval Rate</p>
-                  <p className="font-semibold text-gray-900">{clinic.approvalRate}%</p>
+                  <p className="text-xs text-neutral-500 mb-1">Approval Rate</p>
+                  <p className="font-semibold text-neutral-800">{clinic.approvalRate}%</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Avg Plan Value</p>
-                  <p className="font-semibold text-gray-900">${clinic.avgPlanValue.toLocaleString()}</p>
+                  <p className="text-xs text-neutral-500 mb-1">Avg Plan Value</p>
+                  <p className="font-semibold text-neutral-800">${clinic.avgPlanValue.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">A/R Days</p>
+                  <p className="text-xs text-neutral-500 mb-1">A/R Days</p>
                   <p className={`font-semibold ${
-                    clinic.arDays < 30 ? 'text-[#84cc16]' : 
+                    clinic.arDays < 30 ? 'text-green-500' : 
                     clinic.arDays < 40 ? 'text-yellow-600' : 'text-red-600'
                   }`}>
                     {clinic.arDays}
@@ -257,23 +257,23 @@ export default function MultiClinicComparison() {
         </div>
 
         {/* Performance Insights */}
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-neutral-200">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-[#84cc16]/10 border border-[#84cc16]/20 rounded-lg p-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-[#84cc16]" />
-                <span className="text-sm font-medium text-gray-700">Top Performer</span>
+                <TrendingUp className="w-4 h-4 text-green-500" />
+                <span className="text-sm font-medium text-neutral-700">Top Performer</span>
               </div>
-              <p className="font-semibold text-gray-900">Heart Health Specialists</p>
-              <p className="text-xs text-gray-600">+22.3% growth, 97.1% approval rate</p>
+              <p className="font-semibold text-neutral-800">Heart Health Specialists</p>
+              <p className="text-xs text-neutral-500">+22.3% growth, 97.1% approval rate</p>
             </div>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <BarChart3 className="w-4 h-4 text-yellow-600" />
-                <span className="text-sm font-medium text-gray-700">Needs Attention</span>
+                <span className="text-sm font-medium text-neutral-700">Needs Attention</span>
               </div>
-              <p className="font-semibold text-gray-900">Metro Dental Care</p>
-              <p className="text-xs text-gray-600">-2.1% growth, 35.8 A/R days</p>
+              <p className="font-semibold text-neutral-800">Metro Dental Care</p>
+              <p className="text-xs text-neutral-500">-2.1% growth, 35.8 A/R days</p>
             </div>
           </div>
         </div>

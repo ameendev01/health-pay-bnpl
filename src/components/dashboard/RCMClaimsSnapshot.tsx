@@ -41,7 +41,7 @@ const claimsMetrics: ClaimsMetric[] = [
     change: "+$8.1k",
     changeType: "negative",
     icon: XCircle,
-    color: "#ef4444"
+    color: "#dc2626"
   },
   {
     title: "Avg Days to Pay",
@@ -49,7 +49,7 @@ const claimsMetrics: ClaimsMetric[] = [
     change: "-2.3",
     changeType: "positive",
     icon: Calendar,
-    color: "#1557f6"
+    color: "#2563eb"
   },
   {
     title: "Clean Claim Rate",
@@ -57,13 +57,13 @@ const claimsMetrics: ClaimsMetric[] = [
     change: "+1.2%",
     changeType: "positive",
     icon: CheckCircle,
-    color: "#84cc16"
+    color: "#16a34a"
   }
 ];
 
 const claimsBreakdown = [
-  { status: 'Submitted', count: 156, percentage: 63.2, color: '#1557f6' },
-  { status: 'In Review', count: 67, percentage: 27.1, color: '#f59e0b' },
+  { status: 'Submitted', count: 156, percentage: 63.2, color: '#3b82f6' },
+  { status: 'In Review', count: 67, percentage: 27.1, color: '#f97316' },
   { status: 'Pending Info', count: 24, percentage: 9.7, color: '#ef4444' }
 ];
 
@@ -75,13 +75,13 @@ const recentDenials = [
 
 export default function RCMClaimsSnapshot() {
   return (
-    <Card className="bg-white border border-gray-200">
+    <Card className="bg-white border border-neutral-200">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-          <FileText className="w-5 h-5 mr-2 text-[#1557f6]" />
+        <CardTitle className="text-lg font-semibold text-neutral-800 flex items-center">
+          <FileText className="w-5 h-5 mr-2 text-blue-600" />
           Revenue Cycle Management
         </CardTitle>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-neutral-500 mt-1">
           Insurance claims processing and collection metrics
         </p>
       </CardHeader>
@@ -91,17 +91,17 @@ export default function RCMClaimsSnapshot() {
           {claimsMetrics.map((metric, index) => {
             const Icon = metric.icon;
             return (
-              <div key={index} className="bg-[#fefcf5] border border-[#e7e4db] rounded-lg p-4">
+              <div key={index} className="bg-neutral-50 border border-neutral-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <Icon className="w-5 h-5" style={{ color: metric.color }} />
                   <span className={`text-xs font-medium ${
-                    metric.changeType === 'positive' ? 'text-[#84cc16]' : 'text-red-500'
+                    metric.changeType === 'positive' ? 'text-green-500' : 'text-red-500'
                   }`}>
                     {metric.change}
                   </span>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 mb-1">{metric.value}</p>
-                <p className="text-xs text-gray-600">{metric.title}</p>
+                <p className="text-2xl font-bold text-neutral-800 mb-1">{metric.value}</p>
+                <p className="text-xs text-neutral-600">{metric.title}</p>
               </div>
             );
           })}
@@ -109,11 +109,11 @@ export default function RCMClaimsSnapshot() {
 
         {/* Claims Status Breakdown */}
         <div className="mb-6">
-          <h4 className="font-medium text-gray-900 mb-3">Claims Status Breakdown</h4>
+          <h4 className="font-medium text-neutral-800 mb-3">Claims Status Breakdown</h4>
           <div className="space-y-3">
             {claimsBreakdown.map((item, index) => (
               <div key={index} className="flex items-center space-x-3">
-                <div className="w-20 text-sm text-gray-600">{item.status}</div>
+                <div className="w-20 text-sm text-neutral-600">{item.status}</div>
                 <div className="flex-1">
                   <Progress 
                     value={item.percentage} 
@@ -124,8 +124,8 @@ export default function RCMClaimsSnapshot() {
                   />
                 </div>
                 <div className="w-16 text-right">
-                  <span className="text-sm font-medium text-gray-900">{item.count}</span>
-                  <span className="text-xs text-gray-500 ml-1">({item.percentage}%)</span>
+                  <span className="text-sm font-medium text-neutral-800">{item.count}</span>
+                  <span className="text-xs text-neutral-500 ml-1">({item.percentage}%)</span>
                 </div>
               </div>
             ))}
@@ -135,8 +135,8 @@ export default function RCMClaimsSnapshot() {
         {/* Recent Denials */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-gray-900">Recent Claim Denials</h4>
-            <span className="text-xs text-gray-500">Requires attention</span>
+            <h4 className="font-medium text-neutral-800">Recent Claim Denials</h4>
+            <span className="text-xs text-neutral-500">Requires attention</span>
           </div>
           <div className="space-y-2">
             {recentDenials.map((denial, index) => (
@@ -146,13 +146,13 @@ export default function RCMClaimsSnapshot() {
                     <XCircle className="w-4 h-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{denial.patient}</p>
-                    <p className="text-xs text-gray-600">{denial.reason} • {denial.insurer}</p>
+                    <p className="font-medium text-neutral-800">{denial.patient}</p>
+                    <p className="text-xs text-neutral-600">{denial.reason} • {denial.insurer}</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-red-600">${denial.amount.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500">{denial.id}</p>
+                  <p className="text-xs text-neutral-500">{denial.id}</p>
                 </div>
               </div>
             ))}
@@ -160,21 +160,21 @@ export default function RCMClaimsSnapshot() {
         </div>
 
         {/* Performance Summary */}
-        <div className="pt-4 border-t border-gray-200">
+        <div className="pt-4 border-t border-neutral-200">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <div className="flex items-center justify-center space-x-1 mb-1">
-                <DollarSign className="w-4 h-4 text-[#84cc16]" />
-                <span className="text-lg font-bold text-gray-900">$1.8M</span>
+                <DollarSign className="w-4 h-4 text-green-500" />
+                <span className="text-lg font-bold text-neutral-800">$1.8M</span>
               </div>
-              <p className="text-xs text-gray-600">Monthly Collections</p>
+              <p className="text-xs text-neutral-600">Monthly Collections</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center space-x-1 mb-1">
-                <TrendingUp className="w-4 h-4 text-[#1557f6]" />
-                <span className="text-lg font-bold text-gray-900">96.2%</span>
+                <TrendingUp className="w-4 h-4 text-blue-600" />
+                <span className="text-lg font-bold text-neutral-800">96.2%</span>
               </div>
-              <p className="text-xs text-gray-600">Collection Rate</p>
+              <p className="text-xs text-neutral-600">Collection Rate</p>
             </div>
           </div>
         </div>

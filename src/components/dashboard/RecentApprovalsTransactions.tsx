@@ -133,11 +133,11 @@ export default function RecentApprovalsTransactions() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved':
-        return 'bg-[#84cc16] text-white';
+        return 'bg-green-100 text-green-800';
       case 'pending_signature':
         return 'bg-yellow-100 text-yellow-800';
       case 'active':
-        return 'bg-[#1557f6] text-white';
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -146,7 +146,7 @@ export default function RecentApprovalsTransactions() {
   const getTransactionTypeColor = (type: string) => {
     switch (type) {
       case 'payment':
-        return 'bg-[#84cc16] text-white';
+        return 'bg-green-100 text-green-800';
       case 'refund':
         return 'bg-red-100 text-red-800';
       case 'adjustment':
@@ -170,25 +170,25 @@ export default function RecentApprovalsTransactions() {
   };
 
   return (
-    <Card className="bg-white border border-gray-200">
+    <Card className="bg-white border border-neutral-200">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-              <CreditCard className="w-5 h-5 mr-2 text-[#1557f6]" />
+            <CardTitle className="text-lg font-semibold text-neutral-800 flex items-center">
+              <CreditCard className="w-5 h-5 mr-2 text-blue-600" />
               Recent Activity
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-neutral-500 mt-1">
               Latest approvals and completed transactions
             </p>
           </div>
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center bg-neutral-100 rounded-lg p-1">
             <button
               onClick={() => setActiveTab('approvals')}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 activeTab === 'approvals'
-                  ? 'bg-white text-[#1557f6] shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-neutral-600 hover:text-neutral-800'
               }`}
             >
               Approvals
@@ -197,8 +197,8 @@ export default function RecentApprovalsTransactions() {
               onClick={() => setActiveTab('transactions')}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 activeTab === 'transactions'
-                  ? 'bg-white text-[#1557f6] shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-neutral-600 hover:text-neutral-800'
               }`}
             >
               Transactions
@@ -211,28 +211,28 @@ export default function RecentApprovalsTransactions() {
           {activeTab === 'approvals' ? (
             <>
               {recentApprovals.map((approval) => (
-                <div key={approval.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#fefcf5] border border-[#e7e4db] rounded-lg hover:bg-[#e9f9fb] transition-colors duration-200">
+                <div key={approval.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-neutral-50 border border-neutral-200 rounded-lg hover:bg-blue-50 transition-colors duration-200">
                   <div className="flex items-center space-x-4 min-w-0">
-                    <div className="w-10 h-10 bg-[#84cc16] rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <CheckCircle className="w-5 h-5 text-white" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-gray-900 truncate">{approval.patientName}</p>
+                        <p className="font-medium text-neutral-800 truncate">{approval.patientName}</p>
                         <Badge className={getStatusColor(approval.status)}>
                           {approval.status.replace('_', ' ')}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 truncate">
+                      <p className="text-sm text-neutral-600 truncate">
                         {approval.procedure} • {approval.clinic}
                       </p>
                     </div>
                   </div>
                   <div className="text-right mt-2 sm:mt-0 flex-shrink-0">
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-neutral-800">
                       ${approval.amount.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-500">{approval.approvedAt}</p>
+                    <p className="text-sm text-neutral-500">{approval.approvedAt}</p>
                   </div>
                 </div>
               ))}
@@ -240,33 +240,33 @@ export default function RecentApprovalsTransactions() {
           ) : (
             <>
               {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#fefcf5] border border-[#e7e4db] rounded-lg hover:bg-[#e9f9fb] transition-colors duration-200">
+                <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-neutral-50 border border-neutral-200 rounded-lg hover:bg-blue-50 transition-colors duration-200">
                   <div className="flex items-center space-x-4 min-w-0">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      transaction.type === 'payment' ? 'bg-[#84cc16]' :
-                      transaction.type === 'refund' ? 'bg-red-500' : 'bg-[#1557f6]'
+                      transaction.type === 'payment' ? 'bg-green-500' :
+                      transaction.type === 'refund' ? 'bg-red-500' : 'bg-blue-500'
                     }`}>
                       {getTransactionIcon(transaction.type)}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-gray-900 truncate">{transaction.patientName}</p>
+                        <p className="font-medium text-neutral-800 truncate">{transaction.patientName}</p>
                         <Badge className={getTransactionTypeColor(transaction.type)}>
                           {transaction.type}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 truncate">
+                      <p className="text-sm text-neutral-600 truncate">
                         {transaction.paymentMethod} • {transaction.clinic}
                       </p>
                     </div>
                   </div>
                   <div className="text-right mt-2 sm:mt-0 flex-shrink-0">
                     <p className={`font-semibold ${
-                      transaction.type === 'refund' ? 'text-red-600' : 'text-gray-900'
+                      transaction.type === 'refund' ? 'text-red-600' : 'text-neutral-800'
                     }`}>
                       {transaction.type === 'refund' ? '-' : '+'}${transaction.amount.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-500">{transaction.completedAt}</p>
+                    <p className="text-sm text-neutral-500">{transaction.completedAt}</p>
                   </div>
                 </div>
               ))}
@@ -275,15 +275,15 @@ export default function RecentApprovalsTransactions() {
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-neutral-200">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-neutral-600">
               {activeTab === 'approvals' ? 'Need patient signatures' : 'Pending transactions'}: 
-              <span className="font-medium text-[#1557f6] ml-1">
+              <span className="font-medium text-blue-600 ml-1">
                 {activeTab === 'approvals' ? '3 plans' : '2 payments'}
               </span>
             </p>
-            <button className="text-sm font-medium text-[#1557f6] hover:text-[#1557f6]/80 transition-colors">
+            <button className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors">
               View All →
             </button>
           </div>
