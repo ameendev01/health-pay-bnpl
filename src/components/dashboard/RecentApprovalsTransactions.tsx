@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  CheckCircle, 
   CreditCard, 
   DollarSign, 
   ArrowRight,
@@ -130,16 +129,16 @@ const recentTransactions: RecentTransaction[] = [
 export default function RecentApprovalsTransactions() {
   const [activeTab, setActiveTab] = useState<'approvals' | 'transactions'>('approvals');
 
-  const getStatusColor = (status: string) => {
+  const getStatusDot = (status: string) => {
     switch (status) {
       case 'approved':
-        return 'bg-green-100 text-green-800';
+        return <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0 mr-2"></div>;
       case 'pending_signature':
-        return 'bg-yellow-100 text-yellow-800';
+        return <div className="w-2 h-2 bg-yellow-500 rounded-full flex-shrink-0 mr-2"></div>;
       case 'active':
-        return 'bg-blue-100 text-blue-800';
+        return <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mr-2"></div>;
       default:
-        return 'bg-gray-100 text-gray-800';
+        return <div className="w-2 h-2 bg-gray-500 rounded-full flex-shrink-0 mr-2"></div>;
     }
   };
 
@@ -159,13 +158,13 @@ export default function RecentApprovalsTransactions() {
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'payment':
-        return <DollarSign className="w-4 h-4" />;
+        return <DollarSign className="w-4 h-4 text-green-600" />;
       case 'refund':
-        return <ArrowRight className="w-4 h-4 rotate-180" />;
+        return <ArrowRight className="w-4 h-4 rotate-180 text-red-600" />;
       case 'adjustment':
-        return <RefreshCw className="w-4 h-4" />;
+        return <RefreshCw className="w-4 h-4 text-blue-600" />;
       default:
-        return <DollarSign className="w-4 h-4" />;
+        return <DollarSign className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -211,17 +210,12 @@ export default function RecentApprovalsTransactions() {
           {activeTab === 'approvals' ? (
             <>
               {recentApprovals.map((approval) => (
-                <div key={approval.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-neutral-50 border border-neutral-200 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                  <div className="flex items-center space-x-4 min-w-0">
-                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    </div>
+                <div key={approval.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-neutral-50 border border-neutral-200 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <div className="flex items-center space-x-3 min-w-0">
+                    {getStatusDot(approval.status)}
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-neutral-800 truncate">{approval.patientName}</p>
-                        <Badge className={getStatusColor(approval.status)}>
-                          {approval.status.replace('_', ' ')}
-                        </Badge>
+                        <p className="font-medium text-base text-neutral-800 truncate">{approval.patientName}</p>
                       </div>
                       <p className="text-sm text-neutral-600 truncate">
                         {approval.procedure} • {approval.clinic}
@@ -229,7 +223,7 @@ export default function RecentApprovalsTransactions() {
                     </div>
                   </div>
                   <div className="text-right mt-2 sm:mt-0 flex-shrink-0">
-                    <p className="font-semibold text-neutral-800">
+                    <p className="font-semibold text-base text-neutral-800">
                       ${approval.amount.toLocaleString()}
                     </p>
                     <p className="text-sm text-neutral-500">{approval.approvedAt}</p>
@@ -240,17 +234,14 @@ export default function RecentApprovalsTransactions() {
           ) : (
             <>
               {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-neutral-50 border border-neutral-200 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                  <div className="flex items-center space-x-4 min-w-0">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      transaction.type === 'payment' ? 'bg-green-500' :
-                      transaction.type === 'refund' ? 'bg-red-500' : 'bg-blue-500'
-                    }`}>
+                <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-neutral-50 border border-neutral-200 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-100`}>
                       {getTransactionIcon(transaction.type)}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2">
-                        <p className="font-medium text-neutral-800 truncate">{transaction.patientName}</p>
+                        <p className="font-medium text-base text-neutral-800 truncate">{transaction.patientName}</p>
                         <Badge className={getTransactionTypeColor(transaction.type)}>
                           {transaction.type}
                         </Badge>
@@ -261,7 +252,7 @@ export default function RecentApprovalsTransactions() {
                     </div>
                   </div>
                   <div className="text-right mt-2 sm:mt-0 flex-shrink-0">
-                    <p className={`font-semibold ${
+                    <p className={`font-semibold text-base ${
                       transaction.type === 'refund' ? 'text-red-600' : 'text-neutral-800'
                     }`}>
                       {transaction.type === 'refund' ? '-' : '+'}${transaction.amount.toLocaleString()}
