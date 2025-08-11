@@ -16,6 +16,7 @@ import {
   ChevronRight,
   User,
   LogOut,
+  ChevronUp,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -305,33 +306,39 @@ export default function Sidebar({
             ].join(" ")}
           >
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <div
+              <DropdownMenuTrigger
+                asChild
+                aria-label={`Open account menu for ${user?.fullName || "User"}`}
+              >
+                <button
                   className={[
-                    "mt-2 flex items-center rounded-xl",
-                    BRAND_TINT,
-                    "hover:bg-[#e9f9fb]/80 transition-colors cursor-pointer group",
-                    isCollapsed ? "justify-center p-2.5" : "gap-3 p-3",
+                    "w-full flex items-center rounded-xl transition-colors p-2",
+                    "hover:bg-gray-100",
+                    isCollapsed
+                      ? "justify-center h-14"
+                      : "p-2 gap-4 h-14",
                   ].join(" ")}
+                  aria-haspopup="menu"
+                  aria-expanded="false" // manage this state dynamically
                 >
-                  <div className="w-9 h-9 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-                    <span className="text-xs font-semibold text-white">
-                      {user?.firstName?.[0] || "U"}
-                      {user?.lastName?.[0] || "U"}
-                    </span>
+                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                    <User className="w-6 h-6 text-gray-600" />
                   </div>
                   {!isCollapsed && (
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
-                        {user?.fullName || "User"}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {user?.emailAddresses?.[0]?.emailAddress ||
-                          "user@example.com"}
-                      </p>
-                    </div>
+                    <>
+                      <div className="min-w-0 text-left">
+                        <p className="text-sm font-medium text-gray-800 truncate">
+                          {user?.fullName || "User"}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {user?.emailAddresses?.[0]?.emailAddress ||
+                            "user@example.com"}
+                        </p>
+                      </div>
+                      <ChevronUp className="w-4 h-4 text-gray-400 ml-auto" />
+                    </>
                   )}
-                </div>
+                </button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
