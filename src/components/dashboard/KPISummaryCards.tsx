@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { 
   DollarSign, 
   CreditCard, 
@@ -18,6 +18,7 @@ interface KPIMetric {
   changeType: 'positive' | 'negative';
   icon: React.ElementType;
   description: string;
+  iconBgColor: string;
 }
 
 const kpiMetrics: KPIMetric[] = [
@@ -27,7 +28,8 @@ const kpiMetrics: KPIMetric[] = [
     change: "+15.2%",
     changeType: "positive",
     icon: DollarSign,
-    description: "Total financing volume this month"
+    description: "vs. last month",
+    iconBgColor: "bg-blue-100"
   },
   {
     title: "Active Payment Plans",
@@ -35,31 +37,17 @@ const kpiMetrics: KPIMetric[] = [
     change: "+23.1%",
     changeType: "positive",
     icon: CreditCard,
-    description: "Currently active financing plans"
+    description: "vs. last month",
+    iconBgColor: "bg-green-100"
   },
-    // {
-    //   title: "Approval Rate",
-    //   value: "94.2%",
-    //   change: "+2.1%",
-    //   changeType: "positive",
-    //   icon: CheckCircle,
-    //   description: "Patient financing approval rate"
-    // },
-    // {
-    //   title: "Insurance Collections",
-    //   value: "$1.8M",
-    //   change: "+8.7%",
-    //   changeType: "positive",
-    //   icon: TrendingUp,
-    //   description: "Total insurance collections this month"
-    // },
   {
     title: "A/R Days Outstanding",
     value: "28.5",
     change: "-3.2",
     changeType: "positive",
     icon: Clock,
-    description: "Average days to collect payment"
+    description: "vs. last month",
+    iconBgColor: "bg-yellow-100"
   },
   {
     title: "Revenue Conversion",
@@ -67,45 +55,45 @@ const kpiMetrics: KPIMetric[] = [
     change: "+5.4%",
     changeType: "positive",
     icon: TrendingUp,
-    description: "Treatment acceptance rate with financing"
+    description: "vs. last month",
+    iconBgColor: "bg-purple-100"
   }
 ];
 
+const ChangeIndicator = ({ change, changeType }: { change: string; changeType: 'positive' | 'negative' }) => {
+  const isPositive = changeType === 'positive';
+  return (
+    <div className={`flex items-center space-x-1 text-sm font-semibold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+      {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+      <span>{change}</span>
+    </div>
+  );
+};
+
 export default function KPISummaryCards() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
       {kpiMetrics.map((metric, index) => {
         const Icon = metric.icon;
         return (
-          <Card key={index} className="bg-white border border-neutral-200 hover:shadow-md transition-all duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-neutral-600 leading-tight">
-                {metric.title}
-              </CardTitle>
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Icon className="w-4 h-4 text-blue-600" />
+          <Card 
+            key={index} 
+            className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-in-out"
+          >
+            <CardContent className="px-6">
+              <div className="flex items-start justify-between">
+                <div className="flex flex-col space-y-1.5">
+                  <span className="text-sm font-medium text-gray-500">{metric.title}</span>
+                  <span className="text-3xl font-bold text-gray-800">{metric.value}</span>
+                </div>
+                <div className={`p-3 rounded-full ${metric.iconBgColor}`}>
+                  <Icon className="w-6 h-6 text-gray-700" />
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-neutral-800 mb-1">
-                {metric.value}
+              <div className="flex items-center justify-between mt-4">
+                <ChangeIndicator change={metric.change} changeType={metric.changeType} />
+                <span className="text-xs text-gray-400">{metric.description}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                {metric.changeType === 'positive' ? (
-                  <ArrowUpRight className="w-3 h-3 text-green-500" />
-                ) : (
-                  <ArrowDownRight className="w-3 h-3 text-red-500" />
-                )}
-                <span className={`text-xs font-medium ${
-                  metric.changeType === 'positive' ? 'text-green-500' : 'text-red-500'
-                }`}>
-                  {metric.change}
-                </span>
-                <span className="text-xs text-neutral-500">vs last month</span>
-              </div>
-              <p className="text-xs text-neutral-500 mt-1 leading-tight">
-                {metric.description}
-              </p>
             </CardContent>
           </Card>
         );

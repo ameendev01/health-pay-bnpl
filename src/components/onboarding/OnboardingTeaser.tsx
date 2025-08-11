@@ -13,8 +13,8 @@ interface OnboardingTeaserProps {
 export default function OnboardingTeaser({ isCollapsed }: OnboardingTeaserProps) {
   if (isCollapsed) {
     return (
-      <Link href="/onboarding">
-        <div className="group relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-neutral-800 text-white transition-all duration-300 ease-in-out hover:bg-neutral-700">
+      <Link href="/onboarding" className="w-full flex items-center justify-center h-14">
+        <div className="group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-neutral-800 text-white transition-all duration-300 ease-in-out hover:bg-neutral-700">
           <Sparkles className="h-6 w-6" />
           <span className="absolute left-full ml-4 hidden w-auto min-w-max origin-left scale-0 rounded-md bg-black px-3 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 group-hover:scale-100 lg:block">
             Complete your profile
@@ -26,7 +26,7 @@ export default function OnboardingTeaser({ isCollapsed }: OnboardingTeaserProps)
 
   return (
     <div
-      className="group relative cursor-pointer overflow-hidden rounded-xl bg-neutral-800 p-4 text-white shadow-lg transition-all duration-300 ease-in-out hover:bg-neutral-700"
+      className="group relative cursor-pointer overflow-hidden rounded-xl bg-neutral-800 p-4 text-white shadow-lg transition-all duration-300 ease-in-out hover:bg-neutral-700 mb-3"
     >
       <Link href="/onboarding" className="block">
         <div className="flex items-center justify-between">

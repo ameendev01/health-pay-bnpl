@@ -44,7 +44,7 @@ interface SidebarProps {
 const RAIL_WIDTH = "w-[72px]";
 const DRAWER_WIDTH = "w-72";
 const BRAND_BG = "bg-[#fefcf5]/95";
-const BRAND_BORDER = "border-[#e7e4db]/50";
+const BRAND_BORDER = "border-[#e7e4db]/100";
 const BRAND_TINT = "bg-[#e9f9fb]";
 const BRAND_BLUE = "#1557f6";
 
@@ -292,19 +292,12 @@ export default function Sidebar({
           ].join(" ")}
         >
           {needsOnboarding && (
-            <div>
-              {/* we’ll refine visual once you share the component; for now we keep prop */}
+            <div className="mb-0">
               <OnboardingTeaser isCollapsed={isCollapsed} />
             </div>
           )}
 
-          <div
-            className={[
-              "border-t",
-              BRAND_BORDER,
-              isCollapsed ? "pt-2" : "pt-3",
-            ].join(" ")}
-          >
+          <div>
             <DropdownMenu>
               <DropdownMenuTrigger
                 asChild
@@ -312,7 +305,7 @@ export default function Sidebar({
               >
                 <button
                   className={[
-                    "w-full flex items-center rounded-xl transition-colors p-2",
+                    "w-full flex items-center rounded-xl transition-colors",
                     "hover:bg-gray-100",
                     isCollapsed
                       ? "justify-center h-14"
