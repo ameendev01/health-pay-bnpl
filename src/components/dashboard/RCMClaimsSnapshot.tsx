@@ -848,7 +848,7 @@ export default function RevenueCycleManagement() {
                         <TableCell className="px-4 py-4 text-right">
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             className="h-8 px-2 text-neutral-700 hover:text-neutral-900"
                           >
                             Fix <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
