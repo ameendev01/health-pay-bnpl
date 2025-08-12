@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import {
-  Building2,
-  CreditCard,
-  AlertCircle,
-  BarChart3,
-} from "lucide-react";
+import { Building2, CreditCard } from "lucide-react";
 import AddClinicModal from "@/components/AddClinicModal";
 import CreatePaymentPlanDialog from "@/components/CreatePaymentPlanDialog";
 import PageHeader from "@/components/shared/PageHeader";
@@ -18,18 +12,16 @@ import RecentApprovalsTransactions from "@/components/dashboard/RecentApprovalsT
 import MultiClinicComparison from "@/components/dashboard/MultiClinicComparison";
 import RCMClaimsSnapshot from "@/components/dashboard/RCMClaimsSnapshot";
 import { useRecentTransactions } from "@/features/dashboard/hooks/useRecentTransactions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from "@clerk/nextjs";
+import NeedsAttentionCard from "@/components/dashboard/attention/NeedAttentionCard";
 // import { KPISummaryCards } from "@/components/dashboard/KPISummaryCards";
 
 export default function DashboardPage() {
   const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
-  const {
-    isLoading: isLoadingTransactions,
-    error: errorTransactions,
-  } = useRecentTransactions();
+  const { isLoading: isLoadingTransactions, error: errorTransactions } =
+    useRecentTransactions();
   const { user } = useUser();
-  console.log('user', user)
+  console.log("user", user);
 
   if (isLoadingTransactions) {
     return (
@@ -48,7 +40,9 @@ export default function DashboardPage() {
 
   const handlePaymentPlanSuccess = (data: any) => {
     console.log("New payment plan created:", data);
-    alert(`Payment plan has been created successfully for ${data.patientName}!`);
+    alert(
+      `Payment plan has been created successfully for ${data.patientName}!`
+    );
   };
 
   return (
@@ -56,8 +50,7 @@ export default function DashboardPage() {
       <PageHeader
         title={`Welcome back, ${
           user?.firstName
-            ? user.firstName.charAt(0).toUpperCase() +
-              user.firstName.slice(1)
+            ? user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1)
             : ""
         }👋`}
         description="Here's a summary of your clinics' performance and activities."
@@ -69,7 +62,7 @@ export default function DashboardPage() {
           <Building2 className="w-5 h-5 mr-2" />
           Add Clinic
         </button>
-        <CreatePaymentPlanDialog 
+        <CreatePaymentPlanDialog
           onSuccess={handlePaymentPlanSuccess}
           trigger={
             <button className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
@@ -94,7 +87,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Secondary Column */}
-        <div className="xl:col-span-1 space-y-6">
+        <div className="xl:col-span-1 space-y-6 xl:space-y-0 xl:flex xl:flex-col xl:gap-6 xl:min-h-0">
           {/* Repayment Status Gauge */}
           <RepaymentStatusGauge />
 
@@ -102,44 +95,9 @@ export default function DashboardPage() {
           <RecentApprovalsTransactions />
 
           {/* Needs Attention */}
-          <Card className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900 mb-4">
-                Needs Attention
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <Link
-                  href="/payments?status=overdue"
-                  className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-xl hover:bg-[#fefcf5] hover:border-[#84cc16] transition-all duration-200 group"
-                >
-                  <span className="font-medium text-gray-900 group-hover:text-[#84cc16]">
-                    23 Claims Need Resubmission
-                  </span>
-                  <AlertCircle className="w-5 h-5 text-red-400 group-hover:text-[#84cc16]" />
-                </Link>
-                <Link
-                  href="/clinics?status=pending"
-                  className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-xl hover:bg-[#fefcf5] hover:border-[#1557f6] transition-all duration-200 group"
-                >
-                  <span className="font-medium text-gray-900 group-hover:text-[#1557f6]">
-                    19 Delinquent Payment Plans
-                  </span>
-                  <CreditCard className="w-5 h-5 text-yellow-400 group-hover:text-[#1557f6]" />
-                </Link>
-                <Link
-                  href="/analytics?view=performance"
-                  className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-xl hover:bg-[#fefcf5] hover:border-[#84cc16] transition-all duration-200 group"
-                >
-                  <span className="font-medium text-gray-900 group-hover:text-[#84cc16]">
-                    1 Clinic Needs Performance Review
-                  </span>
-                  <BarChart3 className="w-5 h-5 text-yellow-400 group-hover:text-[#84cc16]" />
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="xl:flex-1 xl:min-h-0">
+            <NeedsAttentionCard />
+          </div>
         </div>
 
         <div className="xl:col-span-3 space-y-6">
