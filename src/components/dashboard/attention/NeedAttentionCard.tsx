@@ -65,7 +65,7 @@ export default function NeedsAttentionCard() {
               )} priority`}
               className={clsx(
                 "group grid grid-cols-[8px_124px_1fr_auto] grid-rows-[auto_auto] gap-y-6 items-center",
-                "rounded-lg border border-neutral-200 bg-white px-0 py-4",
+                "rounded-lg border border-neutral-200 bg-white pr-4 py-4",
                 "hover:bg-neutral-50 hover:shadow-sm active:shadow",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
               )}
@@ -84,7 +84,7 @@ export default function NeedsAttentionCard() {
                 <span className="shrink-0 text-[26px] sm:text-[28px] leading-none font-semibold tabular-nums text-slate-900">
                   {n}
                 </span>
-                <span className="truncate whitespace-nowrap text-[11px] uppercase tracking-wide text-neutral-500">
+                <span className=" whitespace-nowrap text-[11px] uppercase tracking-wide text-neutral-500">
                   {labelFor(text)}
                 </span>
               </div>
