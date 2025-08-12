@@ -63,12 +63,22 @@ const fmtMoney = (v: number) =>
 //   return `${h}h ago`;
 // };
 
+export const TOKENS = {
+  success: "#87CEEB", // onTime
+  warning: "#4A90E2", // grace
+  warningBg: "#fef3c7",
+  warningBorder: "#fde68a",
+  warningFg: "#b45309",
+  danger: "#2563EB", // delinquent (or red if allowed)
+  neutral400: "#1D4ED8",
+  neutral500: "#1E40AF", // defaultRisk
+};
+
 export default function RepaymentHealthCard({
   data = defaultData,
   outstandingBalance = 2_400_000,
   error,
   thresholdHighRiskPct = 15,
-  useRedDanger = false,
   excludesClosed = true,
   routes = {
     dueToday: "/followups?due=today",
@@ -81,16 +91,6 @@ export default function RepaymentHealthCard({
   const router = useRouter();
 
   // ===== tokens (kept your nomenclature, mapped to your 5 blues) =====
-  const TOKENS = {
-    success: "#87CEEB", // onTime
-    warning: "#4A90E2", // grace
-    warningBg: "#fef3c7",
-    warningBorder: "#fde68a",
-    warningFg: "#b45309",
-    danger: useRedDanger ? "#dc2626" : "#2563EB", // delinquent (or red if allowed)
-    neutral400: "#1D4ED8",
-    neutral500: "#1E40AF", // defaultRisk
-  };
 
   const stats = useMemo(() => {
     const totalPlans = data.reduce((s, r) => s + r.count, 0);

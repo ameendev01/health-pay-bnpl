@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Card } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Label, ResponsiveContainer } from 'recharts';
+import { TOKENS } from '../RepaymentStatusGauge';
 
 export type StatusItem = { label: string; value: number };
 
@@ -10,14 +11,16 @@ type Props = { status: StatusItem[] };
 
 const clsNum = '[font-variant-numeric:tabular-nums_lining-nums]';
 
+// align Claim Status palette to your brand system
 const COLORS = {
-  completed: '#2FB163',
-  inProgress: '#155D43',
-  pendingStroke: '#2FB163',
-  track: '#E9F3ED',
+  completed: TOKENS.success,       // Submitted
+  inProgress: TOKENS.neutral500,   // In Review
+  pendingStroke: TOKENS.warning,   // Pending (striped accent)
+  track: TOKENS.success,           // rendered with low opacity (see below)
   textMuted: '#6B7280',
   text: '#0F172A',
 };
+
 
 export default function ClaimsStatusCard({ status }: Props) {
   // Map incoming labels to fixed visual roles
@@ -76,7 +79,7 @@ export default function ClaimsStatusCard({ status }: Props) {
                 outerRadius={OUTER}
                 isAnimationActive={false}
               >
-                <Cell fill={COLORS.track} />
+                <Cell fill={COLORS.track} fillOpacity={0.15} />
               </Pie>
 
               {/* data wedges */}
@@ -153,7 +156,7 @@ export default function ClaimsStatusCard({ status }: Props) {
                       ? COLORS.completed
                       : d.key === 'inProgress'
                       ? COLORS.inProgress
-                      : 'repeating-linear-gradient(45deg, white 0 3px, #2FB163 3px 6px)',
+                      : 'repeating-linear-gradient(45deg, white 0 3px, #4A90E2 3px 6px)',
                   borderColor: d.key === 'pending' ? COLORS.pendingStroke : 'transparent',
                 }}
               />

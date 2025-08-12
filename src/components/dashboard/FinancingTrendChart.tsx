@@ -24,7 +24,7 @@ const monthlyData = [
 
 // Light (base) at bottom, Bright (top)
 const chartConfig = {
-  financing: { label: 'BNPL Financing', color: '#8EC5FF' },
+  financing: { label: 'BNPL Financing', color: '#87CEEB' },
   insurance: { label: 'Insurance Payments', color: '#2C7DF9' },
 } satisfies ChartConfig
 
