@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LabelWithHelp } from "../shared/Tooltip";
+import { Sparkline } from "../shared/Sparkline";
 
 /** ─────────────────────────────────────────────────────────────────────────────
  * Types
@@ -193,31 +194,31 @@ function StatusBadge({ status }: { status: StatusKey }) {
   );
 }
 
-function Sparkline({
-  points,
-  width = 72,
-  height = 24,
-}: {
-  points: number[];
-  width?: number;
-  height?: number;
-}) {
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const norm = (v: number) =>
-    max === min ? height / 2 : height - ((v - min) / (max - min)) * height;
-  const step = width / Math.max(points.length - 1, 1);
-  const d = points
-    .map((v, i) => `${i === 0 ? "M" : "L"} ${i * step} ${norm(v)}`)
-    .join(" ");
-  const lastUp = points[points.length - 1] >= points[0];
-  const stroke = lastUp ? "#16a34a" : "#dc2626";
-  return (
-    <svg width={width} height={height} aria-hidden="true">
-      <path d={d} fill="none" stroke={stroke} strokeWidth="2" />
-    </svg>
-  );
-}
+// function Sparkline({
+//   points,
+//   width = 72,
+//   height = 24,
+// }: {
+//   points: number[];
+//   width?: number;
+//   height?: number;
+// }) {
+//   const min = Math.min(...points);
+//   const max = Math.max(...points);
+//   const norm = (v: number) =>
+//     max === min ? height / 2 : height - ((v - min) / (max - min)) * height;
+//   const step = width / Math.max(points.length - 1, 1);
+//   const d = points
+//     .map((v, i) => `${i === 0 ? "M" : "L"} ${i * step} ${norm(v)}`)
+//     .join(" ");
+//   const lastUp = points[points.length - 1] >= points[0];
+//   const stroke = lastUp ? "#16a34a" : "#dc2626";
+//   return (
+//     <svg width={width} height={height} aria-hidden="true">
+//       <path d={d} fill="none" stroke={stroke} strokeWidth="2" />
+//     </svg>
+//   );
+// }
 
 function KpiCard(props: {
   title: string;
@@ -572,13 +573,17 @@ export default function MultiClinicDashboard({
 
                   {/* Inline sparkline trend */}
                   <div className="hidden lg:flex lg:flex-col lg:items-end lg:justify-end">
-                    <span className="text-[12px] text-neutral-500 mb-1">
+                    <span className="text-[12px] text-neutral-500 mb-0.5">
                       BNPL trend
                     </span>
                     <Sparkline
                       points={
                         clinic.bnplTrend ?? [90, 92, 95, 96, 94, 98, 103, 110]
                       }
+                      width={72}
+                      height={24}
+                      paddingY={4} // tweak to 5–6 if you prefer more breathing room
+                      strokeWidth={2}
                     />
                   </div>
                 </div>

@@ -83,21 +83,18 @@ export default function DashboardPage() {
       {/* KPI Summary Cards */}
       <KPISummaryCards />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Primary Column */}
-        <div className="xl:col-span-2 space-y-8">
+        <div className="xl:col-span-2 space-y-6">
           {/* Financing Trend Chart */}
           <FinancingTrendChart />
 
           {/* Multi-Clinic Comparison */}
           <MultiClinicComparison />
-
-          {/* RCM Claims Snapshot */}
-          <RCMClaimsSnapshot />
         </div>
 
         {/* Secondary Column */}
-        <div className="xl:col-span-1 space-y-8">
+        <div className="xl:col-span-1 space-y-6">
           {/* Repayment Status Gauge */}
           <RepaymentStatusGauge />
 
@@ -143,6 +140,11 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="xl:col-span-3 space-y-6">
+          {/* RCM Claims Snapshot */}
+          <RCMClaimsSnapshot />
         </div>
       </div>
 
