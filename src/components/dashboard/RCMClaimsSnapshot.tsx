@@ -14,12 +14,20 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import {
   AlertTriangle, Info, Search, Filter, ArrowUpRight, CheckCircle2,
 } from 'lucide-react';
+import ClaimsStatusCard, { StatusItem } from './rcm/ClaimStatusCard';
 
 const clsNum = '[font-variant-numeric:tabular-nums_lining-nums]';
 const fmtUSD = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 
 // ---------- Sample data (replace with API) ----------
+// you already have STATUS in the parent; adapt it to StatusItem[]
+const STATUS_ITEMS: StatusItem[] = [
+  { label: 'Submitted', value: 156 },
+  { label: 'In Review', value: 67 },
+  { label: 'Pending Info', value: 24 },
+];
+
 type TimeRange = 'this_month'|'last_30d'|'this_quarter';
 const KPIS = [
   { id: 'pending', label: 'Pending Claims', value: 247, deltaPct: -4.6 },
@@ -27,11 +35,7 @@ const KPIS = [
   { id: 'days', label: 'Avg Days to Pay', value: 18.5, deltaPct: -10.9, unit: 'days' },
   { id: 'clean', label: 'Clean Claim Rate', value: 94.7, deltaPct: 1.2, percent: true },
 ];
-const STATUS = [
-  { label: 'Submitted', value: 156, color: 'bg-indigo-500' },
-  { label: 'In Review', value: 67, color: 'bg-indigo-300' },
-  { label: 'Pending Info', value: 24, color: 'bg-indigo-200' },
-];
+
 type Row = { id: string; patient: string; reason: 'Prior Auth'|'Duplicate'|'Medical Necessity'; payer: 'Blue Cross'|'Aetna'|'Cigna'; amount: number; aging: number };
 const ALL_ROWS: Row[] = [
   { id: 'CLM-001', patient: 'John D.', reason: 'Prior Auth', payer: 'Blue Cross', amount: 1250, aging: 3 },
@@ -72,47 +76,110 @@ function KPITile({
   );
 }
 
-function StackedStatus() {
-  const total = STATUS.reduce((s, x) => s + x.value, 0);
-  return (
-    <div className="rounded-lg border border-neutral-200 p-4 h-full flex flex-col">
-      <div className="mb-2 flex items-center justify-between">
-        <h4 className="text-[13px] font-semibold text-neutral-800">Claims Status</h4>
-        <span className={`text-xs text-neutral-500 ${clsNum}`}>{total.toLocaleString()} total</span>
-      </div>
-      <div className="relative h-3 w-full overflow-hidden rounded-full bg-neutral-200" role="progressbar" aria-valuemin={0} aria-valuemax={100}>
-        {STATUS.reduce<{acc:number;nodes:React.ReactNode[]}>((r,s) => {
-          const pct = (s.value/total)*100, left = r.acc;
-          const node = <div key={s.label} className={`absolute inset-y-0 ${s.color}`} style={{ left: `${left}%`, width: `${pct}%` }} aria-label={`${s.label} ${Math.round(pct)}%`} />;
-          return { acc: left + pct, nodes: [...r.nodes, node] };
-        }, {acc:0,nodes:[]}).nodes}
-      </div>
-      <div className="mt-2 space-y-1">
-        {STATUS.map(s => {
-          const pct = ((s.value/total)*100).toFixed(1);
-          return (
-            <div key={s.label} className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className={`h-2 w-2 rounded-full ${s.color}`} />
-                <span className="text-neutral-600">{s.label}</span>
-              </div>
-              <div className={`text-neutral-500 ${clsNum}`}>{s.value.toLocaleString()} ({pct}%)</div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-4">
-        <h5 className="mb-1 text-xs font-medium text-neutral-500">Top denial reasons</h5>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary" className="bg-neutral-100 text-neutral-700">Prior Auth (9)</Badge>
-          <Badge variant="secondary" className="bg-neutral-100 text-neutral-700">Duplicate (6)</Badge>
-          <Badge variant="secondary" className="bg-neutral-100 text-neutral-700">Medical Necessity (4)</Badge>
-        </div>
-      </div>
-      <div className="mt-auto" />
-    </div>
-  );
-}
+// function ClaimsStatusCard() {
+//   // Map STATUS -> chart-friendly data with tokenized colors
+//   type StatusKey = "submitted" | "in_review" | "pending";
+//   const keyOrder: StatusKey[] = ["submitted", "in_review", "pending"];
+//   const total = STATUS.reduce((s, x) => s + x.value, 0);
+
+//   const data = STATUS.map((s, i) => ({
+//     key: keyOrder[i] ?? (`k${i}` as StatusKey),
+//     label: s.label,
+//     value: s.value,
+//   }));
+
+//   // Use shadcn chart tokens so theme controls colors
+//   const config = {
+//     submitted: { label: "Submitted", color: "hsl(var(--chart-1))" },
+//     in_review: { label: "In Review", color: "hsl(var(--chart-2))" },
+//     pending: { label: "Pending Info", color: "hsl(var(--chart-3))" },
+//   } satisfies ChartConfig
+
+//   return (
+//     <div className="rounded-lg border border-neutral-200 p-4 h-full flex flex-col">
+//       {/* Header */}
+//       <div className="mb-2 flex items-center justify-between">
+//         <h4 className="text-[13px] font-semibold text-neutral-800">Claims Status</h4>
+//         <span className={`text-xs text-neutral-500 ${clsNum}`}>{total.toLocaleString()} total</span>
+//       </div>
+
+//       {/* Chart + Legend */}
+//       <div className="flex items-center gap-5">
+//         {/* Compact donut keeps the vertical rhythm tight */}
+//         <ChartContainer config={config} className="h-[180px] w-[180px] shrink-0">
+//           <PieChart>
+//             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+//             <Pie
+//               data={data}
+//               dataKey="value"
+//               nameKey="label"
+//               innerRadius={58}
+//               outerRadius={78}
+//               strokeWidth={2}
+//             >
+//               {data.map((d) => (
+//                 <Cell key={d.key} fill={`var(--color-${d.key})`} />
+//               ))}
+//               <Label
+//                 content={({ viewBox }) => {
+//                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+//                     const { cx, cy } = viewBox as { cx: number; cy: number };
+//                     return (
+//                       <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+//                         <tspan className={`text-[20px] font-semibold fill-neutral-900 ${clsNum}`}>
+//                           {total.toLocaleString()}
+//                         </tspan>
+//                         <tspan x={cx} dy="1.2em" className="text-[11px] fill-neutral-500">
+//                           Total
+//                         </tspan>
+//                       </text>
+//                     );
+//                   }
+//                   return null;
+//                 }}
+//               />
+//             </Pie>
+//           </PieChart>
+//         </ChartContainer>
+
+//         {/* Tight, readable legend with % + count */}
+//         <div className="grid grid-cols-1 gap-2">
+//           {data.map((d) => {
+//             const pct = total ? (d.value / total) * 100 : 0;
+//             return (
+//               <div key={d.key} className="flex items-center justify-between">
+//                 <div className="flex items-center gap-2">
+//                   <span
+//                     className="h-2.5 w-2.5 rounded-full"
+//                     style={{ background: `var(--color-${d.key})` }}
+//                     aria-hidden
+//                   />
+//                   <span className="text-[13px] text-neutral-700">{d.label}</span>
+//                 </div>
+//                 <div className={`text-[12px] text-neutral-500 ${clsNum}`}>
+//                   {d.value.toLocaleString()} ({pct.toFixed(1)}%)
+//                 </div>
+//               </div>
+//             );
+//           })}
+//         </div>
+//       </div>
+
+//       {/* Reasons keep their place but with tighter type scale */}
+//       <div className="mt-4">
+//         <h5 className="mb-1 text-[12px] font-medium text-neutral-500">Top denial reasons</h5>
+//         <div className="flex flex-wrap gap-2">
+//           <Badge variant="secondary" className="bg-neutral-100 text-neutral-700">Prior Auth (9)</Badge>
+//           <Badge variant="secondary" className="bg-neutral-100 text-neutral-700">Duplicate (6)</Badge>
+//           <Badge variant="secondary" className="bg-neutral-100 text-neutral-700">Medical Necessity (4)</Badge>
+//         </div>
+//       </div>
+
+//       <div className="mt-auto" />
+//     </div>
+//   );
+// }
+
 
 // ---------- Main ----------
 export default function RevenueCycleManagement() {
@@ -321,7 +388,7 @@ export default function RevenueCycleManagement() {
 
           {/* Status panel (equal height) */}
           <aside className="col-span-12 lg:col-span-4 flex flex-col">
-            <StackedStatus />
+            <ClaimsStatusCard status={STATUS_ITEMS} />
           </aside>
         </div>
 

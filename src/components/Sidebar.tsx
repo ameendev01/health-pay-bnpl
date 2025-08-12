@@ -2,7 +2,6 @@
 
 import React from "react";
 import {
-  LayoutDashboard,
   Building2,
   CreditCard,
   BarChart3,
@@ -17,6 +16,7 @@ import {
   User,
   LogOut,
   ChevronUp,
+  House,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -45,15 +45,14 @@ const RAIL_WIDTH = "w-[72px]";
 const DRAWER_WIDTH = "w-72";
 const BRAND_BG = "bg-[#fefcf5]/95";
 const BRAND_BORDER = "border-[#e7e4db]/100";
-const BRAND_TINT = "bg-[#e9f9fb]";
-const BRAND_BLUE = "#1557f6";
+const BRAND_TINT = "bg-[#e0e3e5]/80";
 
 const navigation = [
   {
     name: "Dashboard",
     id: "dashboard",
     href: "/dashboard",
-    icon: LayoutDashboard,
+    icon: House,
     description: "Overview & insights",
   },
   {
@@ -220,25 +219,25 @@ export default function Sidebar({
                       "group relative flex items-center rounded-xl text-sm font-medium transition-all",
                       isCollapsed ? "justify-center px-2 py-3" : "px-3 py-2",
                       active
-                        ? `${BRAND_TINT} text-[#1557f6] ring-1 ring-[#1557f6]/10`
+                        ? `${BRAND_TINT} text-gray-900 ring-1 ring-[#1557f6]/10`
                         : "text-gray-700 hover:bg-gray-50 hover:text-gray-900",
                     ].join(" ")}
                   >
                     {/* subtle active rail */}
-                    {active && (
+                    {/* {active && (
                       <span
                         className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full"
                         style={{ backgroundColor: BRAND_BLUE }}
                         aria-hidden="true"
                       />
-                    )}
+                    )} */}
 
                     <Icon
                       className={[
                         "w-5 h-5 flex-shrink-0",
                         isCollapsed ? "" : "mr-3",
                         active
-                          ? "text-[#1557f6]"
+                          ? "text-gray-800"
                           : "text-gray-400 group-hover:text-gray-600",
                         "transition-colors",
                       ].join(" ")}
