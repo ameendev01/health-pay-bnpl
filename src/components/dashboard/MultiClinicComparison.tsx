@@ -1,280 +1,511 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Building2, 
-  TrendingUp, 
-  DollarSign, 
+import React, { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Card, CardHeader, CardTitle, CardContent,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  Building2,
+  DollarSign,
   CreditCard,
-  BarChart3,
+  CheckCircle2,
+  ThumbsUp,
+  AlertTriangle,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  ChevronRight,
+  Search,
 } from 'lucide-react';
 
-interface ClinicMetrics {
+/** ─────────────────────────────────────────────────────────────────────────────
+ * Types
+ * ────────────────────────────────────────────────────────────────────────────*/
+export type StatusKey = 'excellent' | 'good' | 'needs_attention';
+
+export interface ClinicMetrics {
   id: string;
   name: string;
   location: string;
-  financingVolume: number;
-  insuranceCollections: number;
+  financingVolume: number;         // BNPL Volume (booked or collected)
+  insuranceCollections: number;    // Insurance Collections
   activePlans: number;
-  approvalRate: number;
-  avgPlanValue: number;
-  arDays: number;
-  growth: number;
-  status: 'excellent' | 'good' | 'needs_attention';
+  approvalRate: number;            // 0..100
+  avgPlanValue: number;            // dollars
+  arDays: number;                  // days
+  growth: number;                  // % vs selected period
+  status: StatusKey;
+  bnplTrend?: number[];            // optional: tiny sparkline points
 }
 
-const clinicData: ClinicMetrics[] = [
-  {
-    id: 'CLI-001',
-    name: 'Sunrise Dental Center',
-    location: 'Los Angeles, CA',
-    financingVolume: 125000,
-    insuranceCollections: 280000,
-    activePlans: 145,
-    approvalRate: 96.2,
-    avgPlanValue: 2400,
-    arDays: 24.5,
-    growth: 15.2,
-    status: 'excellent'
+type SortKey = 'bnpl' | 'growth' | 'approval' | 'ar' | 'apv';
+type FocusKey = 'all' | 'bnpl' | 'insurance' | 'plans';
+
+/** ─────────────────────────────────────────────────────────────────────────────
+ * Local tokens & formatters (kept inline for easy drop-in)
+ * ────────────────────────────────────────────────────────────────────────────*/
+const fmtMoney = (n: number) =>
+  n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M`
+    : n >= 1_000 ? `$${Math.round(n / 1_000)}k`
+      : `$${n.toLocaleString()}`;
+
+const fmtMoneyExact = (n: number) => `$${n.toLocaleString()}`;
+const fmtPct = (p: number, d = 1) => `${p.toFixed(d)}%`;
+const fmtDays = (d: number, digits = 1) => `${d.toFixed(digits)} days`;
+
+const STATUS_CFG: Record<StatusKey, {
+  label: string;
+  explain: string;
+  Icon: React.ComponentType<any>;
+  cls: string;   // static tailwind (avoid dynamic class pitfalls)
+}> = {
+  excellent: {
+    label: 'Excellent',
+    explain: 'Approval ≥95% and A/R ≤25 days',
+    Icon: CheckCircle2,
+    cls: 'bg-emerald-100 text-emerald-800',
   },
-  {
-    id: 'CLI-002',
-    name: 'Valley Orthodontics',
-    location: 'Phoenix, AZ',
-    financingVolume: 89500,
-    insuranceCollections: 195000,
-    activePlans: 98,
-    approvalRate: 94.8,
-    avgPlanValue: 1850,
-    arDays: 28.2,
-    growth: 8.7,
-    status: 'good'
+  good: {
+    label: 'Good',
+    explain: 'Approval ≥90% and A/R ≤32 days',
+    Icon: ThumbsUp,
+    cls: 'bg-blue-100 text-blue-800',
   },
-  {
-    id: 'CLI-003',
-    name: 'Metro Dental Care',
-    location: 'Denver, CO',
-    financingVolume: 67800,
-    insuranceCollections: 145000,
-    activePlans: 76,
-    approvalRate: 91.3,
-    avgPlanValue: 2100,
-    arDays: 35.8,
-    growth: -2.1,
-    status: 'needs_attention'
+  needs_attention: {
+    label: 'Needs attention',
+    explain: 'Approval <90% or A/R >32 days',
+    Icon: AlertTriangle,
+    cls: 'bg-amber-100 text-amber-800',
   },
+};
+
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: 'bnpl', label: 'BNPL Volume' },
+  { key: 'growth', label: 'Growth' },
+  { key: 'approval', label: 'Approval Rate' },
+  { key: 'ar', label: 'A/R Days (low → high)' },
+  { key: 'apv', label: 'Avg Plan Value' },
+];
+
+/** ─────────────────────────────────────────────────────────────────────────────
+ * Demo data (can be removed when wiring API)
+ * ────────────────────────────────────────────────────────────────────────────*/
+const demoData: ClinicMetrics[] = [
   {
     id: 'CLI-004',
     name: 'Heart Health Specialists',
     location: 'Austin, TX',
-    financingVolume: 198400,
-    insuranceCollections: 420000,
+    financingVolume: 198_400,
+    insuranceCollections: 420_000,
     activePlans: 187,
     approvalRate: 97.1,
-    avgPlanValue: 3200,
+    avgPlanValue: 3_200,
     arDays: 22.1,
     growth: 22.3,
-    status: 'excellent'
+    status: 'excellent',
+    bnplTrend: [150, 155, 160, 165, 168, 175, 190, 198],
+  },
+  {
+    id: 'CLI-001',
+    name: 'Sunrise Dental Center',
+    location: 'Los Angeles, CA',
+    financingVolume: 125_000,
+    insuranceCollections: 280_000,
+    activePlans: 145,
+    approvalRate: 96.2,
+    avgPlanValue: 2_400,
+    arDays: 24.5,
+    growth: 15.2,
+    status: 'excellent',
+    bnplTrend: [92, 95, 94, 97, 101, 108, 116, 125],
+  },
+  {
+    id: 'CLI-003',
+    name: 'Valley Orthodontics',
+    location: 'Phoenix, AZ',
+    financingVolume: 89_500,
+    insuranceCollections: 195_000,
+    activePlans: 98,
+    approvalRate: 94.8,
+    avgPlanValue: 1_850,
+    arDays: 28.2,
+    growth: 8.7,
+    status: 'good',
+    bnplTrend: [78, 82, 86, 84, 88, 92, 91, 90],
+  },
+  {
+    id: 'CLI-002',
+    name: 'Metro Dental Care',
+    location: 'Denver, CO',
+    financingVolume: 67_800,
+    insuranceCollections: 145_000,
+    activePlans: 76,
+    approvalRate: 91.3,
+    avgPlanValue: 2_100,
+    arDays: 35.8,
+    growth: -2.1,
+    status: 'needs_attention',
+    bnplTrend: [74, 72, 70, 69, 68, 68, 68, 67],
   },
   {
     id: 'CLI-005',
     name: 'Family Wellness Center',
     location: 'San Diego, CA',
-    financingVolume: 45200,
-    insuranceCollections: 98000,
+    financingVolume: 45_200,
+    insuranceCollections: 98_000,
     activePlans: 52,
     approvalRate: 89.4,
-    avgPlanValue: 1650,
+    avgPlanValue: 1_650,
     arDays: 31.2,
     growth: 5.8,
-    status: 'good'
-  }
+    status: 'good',
+    bnplTrend: [40, 41, 42, 43, 44, 45, 45, 45],
+  },
 ];
 
-export default function MultiClinicComparison() {
-  const [sortBy, setSortBy] = useState<'financing' | 'growth' | 'plans'>('financing');
+/** ─────────────────────────────────────────────────────────────────────────────
+ * Small helpers
+ * ────────────────────────────────────────────────────────────────────────────*/
+function LabelWithHelp({ label, help }: { label: string; help: string }) {
+  return (
+    <TooltipProvider>
+      <Tooltip delayDuration={200}>
+        <TooltipTrigger asChild>
+          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-neutral-500 cursor-help">
+            {label}
+            <span aria-hidden="true" className="text-neutral-400">ⓘ</span>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[260px]">
+          <p className="text-[12px] leading-5">{help}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'excellent':
-        return 'bg-green-100 text-green-800';
-      case 'good':
-        return 'bg-blue-100 text-blue-800';
-      case 'needs_attention':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+function StatusBadge({ status }: { status: StatusKey }) {
+  const S = STATUS_CFG[status];
+  return (
+    <Badge className={`gap-1 ${S.cls}`} title={S.explain} aria-label={`${S.label}. ${S.explain}`}>
+      <S.Icon className="w-3.5 h-3.5" aria-hidden="true" />
+      {S.label}
+    </Badge>
+  );
+}
+
+function Sparkline({ points, width = 72, height = 24 }: { points: number[]; width?: number; height?: number }) {
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const norm = (v: number) => (max === min ? height / 2 : height - ((v - min) / (max - min)) * height);
+  const step = width / Math.max(points.length - 1, 1);
+  const d = points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${i * step} ${norm(v)}`).join(' ');
+  const lastUp = points[points.length - 1] >= points[0];
+  const stroke = lastUp ? '#16a34a' : '#dc2626';
+  return (
+    <svg width={width} height={height} aria-hidden="true">
+      <path d={d} fill="none" stroke={stroke} strokeWidth="2" />
+    </svg>
+  );
+}
+
+function KpiCard(props: {
+  title: string;
+  value: string;
+  context?: string;
+  Icon: React.ComponentType<any>;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  const { title, value, context, Icon, active, onClick } = props;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={!!active}
+      className={`text-left rounded-lg border border-neutral-200 bg-white p-4 transition focus-visible:ring-2 focus-visible:ring-blue-600 ${active ? 'ring-2 ring-blue-600' : ''}`}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-[14px] font-medium text-neutral-600">{title}</div>
+          <div className="text-[20px] font-semibold text-neutral-900">{value}</div>
+          {context && <div className="text-[12px] font-medium text-neutral-500">{context}</div>}
+        </div>
+        <Icon className="w-7 h-7 text-neutral-400" aria-hidden="true" />
+      </div>
+    </button>
+  );
+}
+
+/** ─────────────────────────────────────────────────────────────────────────────
+ * Drop-in main component
+ * ────────────────────────────────────────────────────────────────────────────*/
+export default function MultiClinicDashboard({
+  data = demoData,
+  dateLabel = 'last 30 days',
+}: {
+  data?: ClinicMetrics[];
+  /** Used in copy like “vs last 30 days” */
+  dateLabel?: string;
+}) {
+  const router = useRouter();
+
+  // Controls
+  const [sortBy, setSortBy] = useState<SortKey>('bnpl');
+  const [focus, setFocus] = useState<FocusKey>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | StatusKey>('all');
+  const [q, setQ] = useState('');
+
+  // Aggregates
+  const totals = useMemo(() => ({
+    financing: data.reduce((s, c) => s + c.financingVolume, 0),
+    insurance: data.reduce((s, c) => s + c.insuranceCollections, 0),
+    plans: data.reduce((s, c) => s + c.activePlans, 0),
+  }), [data]);
+
+  // Sorting
+  const sorted = useMemo(() => {
+    const arr = [...data];
+    arr.sort((a, b) => {
+      switch (sortBy) {
+        case 'bnpl': return b.financingVolume - a.financingVolume;
+        case 'growth': return b.growth - a.growth;
+        case 'approval': return b.approvalRate - a.approvalRate;
+        case 'ar': return a.arDays - b.arDays;
+        case 'apv': return b.avgPlanValue - a.avgPlanValue;
+      }
+    });
+    return arr;
+  }, [data, sortBy]);
+
+  // Filters
+  const filtered = useMemo(() => {
+    let arr = [...sorted];
+    if (focus === 'bnpl') arr = arr.filter(c => c.financingVolume > 0);
+    if (focus === 'insurance') arr = arr.filter(c => c.insuranceCollections > 0);
+    if (focus === 'plans') arr = arr.filter(c => c.activePlans > 0);
+    if (statusFilter !== 'all') arr = arr.filter(c => c.status === statusFilter);
+    if (q.trim()) {
+      const qq = q.toLowerCase();
+      arr = arr.filter(c => (c.name + ' ' + c.location).toLowerCase().includes(qq));
     }
-  };
+    return arr;
+  }, [sorted, focus, statusFilter, q]);
 
-  const sortedClinics = [...clinicData].sort((a, b) => {
-    switch (sortBy) {
-      case 'financing':
-        return b.financingVolume - a.financingVolume;
-      case 'growth':
-        return b.growth - a.growth;
-      case 'plans':
-        return b.activePlans - a.activePlans;
-      default:
-        return 0;
-    }
-  });
-
-  const totalFinancing = clinicData.reduce((sum, clinic) => sum + clinic.financingVolume, 0);
-  const totalInsurance = clinicData.reduce((sum, clinic) => sum + clinic.insuranceCollections, 0);
-  const totalPlans = clinicData.reduce((sum, clinic) => sum + clinic.activePlans, 0);
+  const lastUpdated = useMemo(() => {
+    const d = new Date();
+    const hh = d.getHours().toString().padStart(2, '0');
+    const mm = d.getMinutes().toString().padStart(2, '0');
+    return `${hh}:${mm}`;
+  }, []);
 
   return (
-    <Card className="bg-white border border-gray-200">
+    <Card className="bg-white border border-neutral-200">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-lg font-semibold text-neutral-800 flex items-center">
-              <Building2 className="w-5 h-5 mr-2 text-blue-600" />
+            <CardTitle className="text-lg font-semibold text-neutral-900 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-600" />
               Multi-Clinic Performance Dashboard
             </CardTitle>
             <p className="text-sm text-neutral-500 mt-1">
               Compare financing and collection metrics across all locations
             </p>
+            <p className="text-xs text-neutral-400 mt-0.5">Updated {lastUpdated}</p>
           </div>
-          <div className="flex items-center space-x-2">
+
+          {/* Sort control */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="sortby" className="sr-only">Sort by</label>
             <select
+              id="sortby"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={e => setSortBy(e.target.value as SortKey)}
               className="px-3 py-1.5 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+              aria-label="Sort clinics by metric"
             >
-              <option value="financing">Sort by Financing</option>
-              <option value="growth">Sort by Growth</option>
-              <option value="plans">Sort by Active Plans</option>
+              {SORTS.map(s => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
             </select>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-600">Total BNPL Volume</p>
-                <p className="text-2xl font-bold text-neutral-800">${(totalFinancing / 1000).toFixed(0)}k</p>
-              </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
-            </div>
-          </div>
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-600">Insurance Collections</p>
-                <p className="text-2xl font-bold text-neutral-800">${(totalInsurance / 1000).toFixed(0)}k</p>
-              </div>
-              <Building2 className="w-8 h-8 text-blue-600" />
-            </div>
-          </div>
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-600">Active Plans</p>
-                <p className="text-2xl font-bold text-neutral-800">{totalPlans}</p>
-              </div>
-              <CreditCard className="w-8 h-8 text-green-500" />
-            </div>
+
+      <CardContent className="space-y-5">
+        {/* KPI row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <KpiCard
+            title="Total BNPL Volume"
+            value={fmtMoney(totals.financing)}
+            context="vs network avg +8.1%"
+            Icon={DollarSign}
+            active={focus === 'bnpl'}
+            onClick={() => setFocus(focus === 'bnpl' ? 'all' : 'bnpl')}
+          />
+          <KpiCard
+            title="Insurance Collections"
+            value={fmtMoney(totals.insurance)}
+            context="collection rate 94.2%"
+            Icon={Building2}
+            active={focus === 'insurance'}
+            onClick={() => setFocus(focus === 'insurance' ? 'all' : 'insurance')}
+          />
+          <KpiCard
+            title="Active Plans"
+            value={totals.plans.toLocaleString()}
+            context="+18 this week"
+            Icon={CreditCard}
+            active={focus === 'plans'}
+            onClick={() => setFocus(focus === 'plans' ? 'all' : 'plans')}
+          />
+        </div>
+
+        {/* Filters: chips + search */}
+        <div className="flex flex-wrap items-center gap-2">
+          {(['all', 'excellent', 'good', 'needs_attention'] as const).map(s => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s as any)}
+              aria-pressed={statusFilter === s}
+              className={`px-3 py-1.5 rounded-full border border-neutral-200 text-sm transition ${statusFilter === s ? 'bg-neutral-100' : 'bg-white hover:bg-neutral-50'}`}
+            >
+              {s === 'all' ? 'All' : STATUS_CFG[s as StatusKey].label}
+            </button>
+          ))}
+
+          <div className="relative ml-auto">
+            <Search className="absolute left-2 top-2.5 w-4 h-4 text-neutral-400" aria-hidden="true" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search clinics or cities…"
+              aria-label="Search clinics or cities"
+              className="pl-8 pr-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+            />
           </div>
         </div>
 
-        {/* Clinic Comparison Table */}
+        {/* List */}
         <div className="space-y-3">
-          {sortedClinics.map((clinic, index) => (
-            <div key={clinic.id} className="p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors duration-200">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
-                    <span className="text-xs font-semibold text-white">
-                      #{index + 1}
+          {filtered.map((clinic, i) => {
+            // rank within current filtered + sorted view
+            const rank = i + 1;
+            const GrowthIcon = clinic.growth >= 0 ? ArrowUpRight : ArrowDownRight;
+            const growthCls = clinic.growth >= 0 ? 'text-green-600' : 'text-red-600';
+
+            return (
+              <button
+                key={clinic.id}
+                type="button"
+                onClick={() => router.push(`/clinics/${clinic.id}`)}
+                className="w-full text-left rounded-lg border border-neutral-200 bg-white p-4 hover:shadow-md focus:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 transition"
+                aria-label={`Open details for ${clinic.name}`}
+              >
+                {/* Row header */}
+                <div className="flex items-center justify-between gap-3 mb-8">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-green-500 text-white grid place-items-center text-xs font-semibold shrink-0">
+                      #{rank}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h4 className="font-semibold text-neutral-900 truncate">{clinic.name}</h4>
+                        <StatusBadge status={clinic.status} />
+                      </div>
+                      <p className="text-sm text-neutral-500 truncate">{clinic.location}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <GrowthIcon className={`w-4 h-4 ${growthCls}`} aria-hidden="true" />
+                    <span className={`text-sm font-medium ${growthCls}`}>
+                      {clinic.growth > 0 ? '+' : ''}{fmtPct(clinic.growth)} · vs {dateLabel}
                     </span>
+                    <ChevronRight className="w-4 h-4 text-neutral-400" aria-hidden="true" />
+                  </div>
+                </div>
+
+                {/* Metrics grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 items-end">
+                  <div>
+                    <LabelWithHelp label="BNPL Volume" help="Total financed amount during the selected period." />
+                    <p className="font-semibold text-neutral-900">{fmtMoneyExact(clinic.financingVolume)}</p>
                   </div>
                   <div>
-                    <div className="flex items-center space-x-2">
-                      <h4 className="font-medium text-neutral-800">{clinic.name}</h4>
-                      <Badge className={getStatusColor(clinic.status)}>
-                        {clinic.status.replace('_', ' ')}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-neutral-500">{clinic.location}</p>
+                    <LabelWithHelp label="Insurance Collections" help="Total insurance payments collected during the selected period." />
+                    <p className="font-semibold text-neutral-900">{fmtMoneyExact(clinic.insuranceCollections)}</p>
+                  </div>
+                  <div>
+                    <LabelWithHelp label="Active Plans" help="Number of plans currently active." />
+                    <p className="font-semibold text-neutral-900">{clinic.activePlans.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <LabelWithHelp label="Approval Rate" help="Approved / Total applications within the selected period." />
+                    <p className="font-semibold text-neutral-900">{fmtPct(clinic.approvalRate)}</p>
+                  </div>
+                  <div>
+                    <LabelWithHelp label="Avg Plan Value" help="Average amount per approved financing plan." />
+                    <p className="font-semibold text-neutral-900">{fmtMoneyExact(clinic.avgPlanValue)}</p>
+                  </div>
+                  <div>
+                    <LabelWithHelp label="A/R Days" help="Average days outstanding for receivables (lower is better)." />
+                    <p className={`font-semibold ${clinic.arDays < 30 ? 'text-green-600' : clinic.arDays < 40 ? 'text-amber-600' : 'text-red-600'}`}>
+                      {fmtDays(clinic.arDays)}
+                    </p>
+                  </div>
+
+                  {/* Inline sparkline trend */}
+                  <div className="hidden lg:flex lg:flex-col lg:items-end lg:justify-end">
+                    <span className="text-[12px] text-neutral-500 mb-1">BNPL trend</span>
+                    <Sparkline points={clinic.bnplTrend ?? [90, 92, 95, 96, 94, 98, 103, 110]} />
                   </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  {clinic.growth > 0 ? (
-                    <ArrowUpRight className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <ArrowDownRight className="w-4 h-4 text-red-500" />
-                  )}
-                  <span className={`text-sm font-medium ${
-                    clinic.growth > 0 ? 'text-green-500' : 'text-red-500'
-                  }`}>
-                    {clinic.growth > 0 ? '+' : ''}{clinic.growth}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <div>
-                  <p className="text-xs text-neutral-500 mb-1">BNPL Volume</p>
-                  <p className="font-semibold text-neutral-800">${(clinic.financingVolume / 1000).toFixed(0)}k</p>
-                </div>
-                <div>
-                  <p className="text-xs text-neutral-500 mb-1">Insurance</p>
-                  <p className="font-semibold text-neutral-800">${(clinic.insuranceCollections / 1000).toFixed(0)}k</p>
-                </div>
-                <div>
-                  <p className="text-xs text-neutral-500 mb-1">Active Plans</p>
-                  <p className="font-semibold text-neutral-800">{clinic.activePlans}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-neutral-500 mb-1">Approval Rate</p>
-                  <p className="font-semibold text-neutral-800">{clinic.approvalRate}%</p>
-                </div>
-                <div>
-                  <p className="text-xs text-neutral-500 mb-1">Avg Plan Value</p>
-                  <p className="font-semibold text-neutral-800">${clinic.avgPlanValue.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-neutral-500 mb-1">A/R Days</p>
-                  <p className={`font-semibold ${
-                    clinic.arDays < 30 ? 'text-green-500' : 
-                    clinic.arDays < 40 ? 'text-yellow-600' : 'text-red-600'
-                  }`}>
-                    {clinic.arDays}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Performance Insights */}
-        <div className="mt-6 pt-4 border-t border-neutral-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium text-neutral-700">Top Performer</span>
-              </div>
-              <p className="font-semibold text-neutral-800">Heart Health Specialists</p>
-              <p className="text-xs text-neutral-500">+22.3% growth, 97.1% approval rate</p>
+        {/* Insights */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-neutral-200">
+          {/* Top Performer */}
+          <div className="rounded-lg p-4 border border-green-200 bg-green-50">
+            <div className="flex items-center gap-2 mb-2">
+              <ArrowUpRight className="w-4 h-4 text-green-600" aria-hidden="true" />
+              <span className="text-sm font-medium text-neutral-700">Top Performer</span>
             </div>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-yellow-600" />
-                <span className="text-sm font-medium text-neutral-700">Needs Attention</span>
-              </div>
-              <p className="font-semibold text-neutral-800">Metro Dental Care</p>
-              <p className="text-xs text-neutral-500">-2.1% growth, 35.8 A/R days</p>
+            <p className="font-semibold text-neutral-900">
+              {filtered.sort((a, b) => b.growth - a.growth)[0]?.name ?? '—'}
+            </p>
+            <p className="text-xs text-neutral-600">
+              {filtered.length
+                ? `+${fmtPct(Math.max(0, filtered.sort((a, b) => b.growth - a.growth)[0].growth)).replace('+', '')} growth, ${fmtPct(filtered.sort((a, b) => b.growth - a.growth)[0].approvalRate)} approval`
+                : '—'}
+            </p>
+          </div>
+
+          {/* Needs Attention */}
+          <div className="rounded-lg p-4 border border-amber-200 bg-amber-50">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600" aria-hidden="true" />
+              <span className="text-sm font-medium text-neutral-700">Needs Attention</span>
             </div>
+            <p className="font-semibold text-neutral-900">
+              {filtered.sort((a, b) => b.arDays - a.arDays)[0]?.name ?? '—'}
+            </p>
+            <p className="text-xs text-neutral-600">
+              {filtered.length
+                ? `${fmtPct(filtered.sort((a, b) => b.arDays - a.arDays)[0].growth)} growth, ${fmtDays(filtered.sort((a, b) => b.arDays - a.arDays)[0].arDays)} A/R`
+                : '—'}
+            </p>
           </div>
         </div>
       </CardContent>
