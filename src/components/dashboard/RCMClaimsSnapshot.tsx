@@ -746,7 +746,7 @@ export default function RevenueCycleManagement() {
             </div>
 
             {/* Table container */}
-            <div className="rounded-lg border border-neutral-200 flex-1 flex flex-col min-h-[420px]">
+            <div className="rounded-lg border border-neutral-200 flex-1 flex flex-col max-h-[480px] min-h-[480px]">
               {/* Sticky header with fixed column grid */}
               <div className="sticky top-[64px] z-10 bg-white">
                 <Table>
