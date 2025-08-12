@@ -16,7 +16,7 @@ import { PieChart, Pie, Label, Cell, ResponsiveContainer } from "recharts";
 type RepaymentStatus = {
   category: "On-Time" | "Grace Period" | "Delinquent" | "Default Risk";
   count: number;
-  percentage: number;
+  percentage?: number;
 };
 
 type Routes = {
@@ -39,10 +39,10 @@ type Props = {
 };
 
 const defaultData: RepaymentStatus[] = [
-  { category: "On-Time", count: 1174, percentage: 94.2 },
-  { category: "Grace Period", count: 48, percentage: 3.9 },
-  { category: "Delinquent", count: 19, percentage: 1.5 },
-  { category: "Default Risk", count: 6, percentage: 0.4 },
+  { category: "On-Time", count: 274 },
+  { category: "Grace Period", count: 148 },
+  { category: "Delinquent", count: 112 },
+  { category: "Default Risk", count: 78 },
 ];
 
 // simple compact currency
@@ -92,38 +92,66 @@ export default function RepaymentHealthCard({
     neutral500: "#1E40AF", // defaultRisk
   };
 
-  const totals = useMemo(() => {
+  const stats = useMemo(() => {
     const totalPlans = data.reduce((s, r) => s + r.count, 0);
-    const map = Object.fromEntries(data.map((r) => [r.category, r]));
+
+    // derive percentages from counts (1 decimal)
+    const enriched = data.map((r) => ({
+      ...r,
+      percentage: totalPlans
+        ? Number(((r.count / totalPlans) * 100).toFixed(1))
+        : 0,
+    }));
+
+    // (nice-to-have) ensure the rounded values sum to exactly 100.0
+    if (totalPlans) {
+      const sum = Number(
+        enriched.reduce((s, r) => s + (r.percentage ?? 0), 0).toFixed(1)
+      );
+      const delta = Number((100 - sum).toFixed(1));
+      if (delta !== 0) {
+        const iLargest = enriched.reduce(
+          (iMax, r, i, arr) =>
+            r.percentage! > arr[iMax].percentage! ? i : iMax,
+          0
+        );
+        enriched[iLargest].percentage = Number(
+          (enriched[iLargest].percentage! + delta).toFixed(1)
+        );
+      }
+    }
+
+    const map = Object.fromEntries(enriched.map((r) => [r.category, r]));
     const urgentCount =
       (map["Delinquent"]?.count ?? 0) + (map["Default Risk"]?.count ?? 0);
     const atRiskCount = urgentCount + (map["Grace Period"]?.count ?? 0);
-    return { totalPlans, map, urgentCount, atRiskCount };
+
+    return { totalPlans, map, urgentCount, atRiskCount, enriched };
   }, [data]);
 
   const donutData = [
     {
       id: "onTime",
-      value: totals.map["On-Time"]?.count ?? 0,
-      pct: totals.map["On-Time"]?.percentage ?? 0,
+      value: stats.map["On-Time"]?.count ?? 0,
+      pct: stats.map["On-Time"]?.percentage ?? 0,
       fill: `var(--color-onTime, ${TOKENS.success})`,
     },
     {
       id: "grace",
-      value: totals.map["Grace Period"]?.count ?? 0,
-      pct: totals.map["Grace Period"]?.percentage ?? 0,
+      value: stats.map["Grace Period"]?.count ?? 0,
+      pct: stats.map["Grace Period"]?.percentage ?? 0,
       fill: `var(--color-grace, ${TOKENS.warning})`,
     },
     {
       id: "delinquent",
-      value: totals.map["Delinquent"]?.count ?? 0,
-      pct: totals.map["Delinquent"]?.percentage ?? 0,
+      value: stats.map["Delinquent"]?.count ?? 0,
+      pct: stats.map["Delinquent"]?.percentage ?? 0,
       fill: `var(--color-delinquent, ${TOKENS.danger})`,
     },
     {
       id: "defaultRisk",
-      value: totals.map["Default Risk"]?.count ?? 0,
-      pct: totals.map["Default Risk"]?.percentage ?? 0,
+      value: stats.map["Default Risk"]?.count ?? 0,
+      pct: stats.map["Default Risk"]?.percentage ?? 0,
       fill: `var(--color-defaultRisk, ${TOKENS.neutral500})`,
     },
   ];
@@ -135,9 +163,9 @@ export default function RepaymentHealthCard({
     defaultRisk: { label: "Default risk", color: TOKENS.neutral500 },
   } satisfies ChartConfig;
 
-  const onTimePct = totals.map["On-Time"]?.percentage ?? 0;
-  const percentAtRisk = totals.totalPlans
-    ? Math.round((totals.atRiskCount / totals.totalPlans) * 1000) / 10
+  const onTimePct = stats.map["On-Time"]?.percentage ?? 0;
+  const percentAtRisk = stats.totalPlans
+    ? Math.round((stats.atRiskCount / stats.totalPlans) * 1000) / 10
     : 0;
 
   return (
@@ -153,7 +181,7 @@ export default function RepaymentHealthCard({
             <p className="mt-1 text-sm text-neutral-500">
               Live repayment health for{" "}
               <span className="font-medium text-neutral-700">
-                {totals.totalPlans.toLocaleString()}
+                {stats.totalPlans.toLocaleString()}
               </span>{" "}
               active plans
               {excludesClosed && (
@@ -174,7 +202,7 @@ export default function RepaymentHealthCard({
               }}
               title="Open today's follow-up queue"
             >
-              Due today: {totals.urgentCount}
+              Due today: {stats.urgentCount}
             </Link>
             {/* <span className="text-xs text-neutral-400 shrink-0">
               Updated {lastUpdated ? timeAgo(lastUpdated) : "just now"}
@@ -296,7 +324,7 @@ export default function RepaymentHealthCard({
         <div className="grid grid-cols-2 gap-4 pb-4 pt-12 border-b border-neutral-200">
           <div>
             <div className="text-2xl font-semibold text-neutral-900 tabular-nums">
-              {totals.totalPlans.toLocaleString()}
+              {stats.totalPlans.toLocaleString()}
             </div>
             <div className="text-sm text-neutral-500">Active plans</div>
           </div>
@@ -321,8 +349,8 @@ export default function RepaymentHealthCard({
               At-risk (1–30+ days)
             </span>
             <span className="text-sm font-medium text-neutral-900 shrink-0 tabular-nums">
-              {totals.atRiskCount.toLocaleString()} ({percentAtRisk}%) of{" "}
-              {totals.totalPlans.toLocaleString()}
+              {stats.atRiskCount.toLocaleString()} ({percentAtRisk}%) of{" "}
+              {stats.totalPlans.toLocaleString()}
             </span>
           </div>
 
@@ -354,14 +382,14 @@ export default function RepaymentHealthCard({
                       overflow: "hidden",
                     }}
                   >
-                    {totals.map["Delinquent"]?.count ?? 0} delinquent ·{" "}
-                    {totals.map["Default Risk"]?.count ?? 0} default risk —
+                    {stats.map["Delinquent"]?.count ?? 0} delinquent ·{" "}
+                    {stats.map["Default Risk"]?.count ?? 0} default risk —
                     Manual outreach required.
                   </div>
                 </div>
               </div>
               <span className="text-sm text-neutral-900 whitespace-nowrap flex items-center gap-1">
-                Start follow-ups ({totals.urgentCount})
+                Start follow-ups ({stats.urgentCount})
                 <ArrowRight className="h-4 w-4" />
               </span>
             </li>
@@ -390,14 +418,14 @@ export default function RepaymentHealthCard({
                 </div>
               </div>
               <span className="text-sm text-neutral-900 whitespace-nowrap flex items-center gap-1">
-                Open queue ({totals.map["Grace Period"]?.count ?? 0})
+                Open queue ({stats.map["Grace Period"]?.count ?? 0})
                 <ArrowRight className="h-4 w-4" />
               </span>
             </li>
           </ul>
 
           {/* States */}
-          {totals.atRiskCount === 0 && (
+          {stats.atRiskCount === 0 && (
             <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-600">
               All clear — auto-reminders running. Next check in 24h.
             </div>
@@ -436,7 +464,7 @@ export default function RepaymentHealthCard({
             </summary>
             <div className="mt-2 overflow-hidden rounded-md border border-neutral-200">
               <div className="divide-y divide-neutral-200">
-                {data.map((r) => (
+                {stats.enriched.map((r) => (
                   <div
                     key={r.category}
                     className="grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2"
