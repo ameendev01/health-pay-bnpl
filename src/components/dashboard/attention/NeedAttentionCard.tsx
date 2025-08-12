@@ -1,7 +1,13 @@
 "use client";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
-import { AlertCircle, CreditCard, BarChart3, ChevronRight } from "lucide-react";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertCircle,
+  CreditCard,
+  BarChart3,
+  ChevronRight,
+  AlertTriangle,
+} from "lucide-react";
 import clsx from "clsx";
 
 type Tone = "danger" | "warning" | "info";
@@ -44,18 +50,37 @@ const PILL: Record<Tone, string> = {
 export default function NeedsAttentionCard() {
   return (
     <Card className="h-full rounded-2xl border border-neutral-200/80 shadow-sm flex flex-col">
-      {/* header unchanged */}
-      <div className="px-5 pt-0 pb-2 flex items-center justify-between">
-        <h3 className="leading-tight text-lg sm:text-[1.1rem] font-semibold text-neutral-900">
-          Needs attention
-        </h3>
-        <span className="hidden sm:inline-flex items-center rounded-full bg-neutral-100 text-[11px] font-medium text-neutral-700 px-2 py-1">
-          {items.length} items need attention
-        </span>
-      </div>
+      {/* Header: shadcn layout + icon */}
+      <CardHeader>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-[18px] font-semibold text-neutral-900">
+              <span
+                className={`
+              inline-grid h-5 w-5 place-items-center rounded-md
+              bg-amber-50 text-amber-700 ring-1 ring-amber-200
+            `}
+              >
+                <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
+              </span>
+              Needs attention
+            </CardTitle>
+            <p className="mt-1 text-[14px] text-neutral-600">
+              Items that require your review.
+            </p>
+          </div>
+
+          <span
+            className="hidden sm:inline-flex items-center rounded-full bg-neutral-100
+                   text-[11px] font-medium text-neutral-700 px-2 py-1 shrink-0"
+          >
+            {items.length} items need attention
+          </span>
+        </div>
+      </CardHeader>
 
       {/* rows are auto-height now → no fake top padding */}
-      <ul className="flex-1 min-h-0 flex flex-col gap-6 px-5 pb-0">
+      <ul className="flex-1 min-h-0 flex flex-col gap-3 px-5 pb-0">
         {items.map(({ href, n, text, icon: Icon, tone }) => (
           <li key={text} className="min-h-0">
             <Link
@@ -64,7 +89,7 @@ export default function NeedsAttentionCard() {
                 tone
               )} priority`}
               className={clsx(
-                "group grid grid-cols-[8px_124px_1fr_auto] grid-rows-[auto_auto] gap-y-6 items-center",
+                "group grid grid-cols-[8px_124px_1fr_auto] grid-rows-[auto_auto] gap-y-4 items-center",
                 "rounded-lg border border-neutral-200 bg-white pr-4 py-4",
                 "hover:bg-neutral-50 hover:shadow-sm active:shadow",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
