@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useMemo } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertTriangle, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Label, Cell, ResponsiveContainer } from "recharts";
 
 type RepaymentStatus = {
   category: "On-Time" | "Grace Period" | "Delinquent" | "Default Risk";
@@ -18,271 +19,440 @@ type RepaymentStatus = {
   percentage: number;
 };
 
-const repaymentData: RepaymentStatus[] = [
+type Routes = {
+  dueToday: string;
+  urgent: string;
+  grace: string;
+  breakdown?: string;
+};
+
+type Props = {
+  data?: RepaymentStatus[];
+  outstandingBalance?: number; // dollars
+  lastUpdated?: Date;
+  error?: string;
+  thresholdHighRiskPct?: number; // default 15
+  useRedDanger?: boolean; // set true if brand allows red
+  excludesClosed?: boolean; // default true
+  routes?: Routes;
+  onRefresh?: () => void;
+};
+
+const defaultData: RepaymentStatus[] = [
   { category: "On-Time", count: 1174, percentage: 94.2 },
   { category: "Grace Period", count: 48, percentage: 3.9 },
   { category: "Delinquent", count: 19, percentage: 1.5 },
   { category: "Default Risk", count: 6, percentage: 0.4 },
 ];
 
-// Minimal palette: 1 brand accent + neutral tones
-const chartConfig = {
-  onTime: { label: "On-Time", color: "#16a34a" }, // brand green
-  grace: { label: "Grace (1–5d)", color: "#d4d4d8" }, // neutral-300
-  delinquent: { label: "Delinquent", color: "#a1a1aa" }, // neutral-400
-  defaultRisk: { label: "Default Risk", color: "#71717a" }, // neutral-500
-} satisfies ChartConfig;
+// simple compact currency
+const fmtMoney = (v: number) =>
+  Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(v);
 
-export default function RepaymentHealthCard() {
+// const timeAgo = (d: Date) => {
+//   const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+//   if (diff < 60) return "just now";
+//   const m = Math.floor(diff / 60);
+//   if (m < 60) return `${m} min ago`;
+//   const h = Math.floor(m / 60);
+//   return `${h}h ago`;
+// };
+
+export default function RepaymentHealthCard({
+  data = defaultData,
+  outstandingBalance = 2_400_000,
+  error,
+  thresholdHighRiskPct = 15,
+  useRedDanger = false,
+  excludesClosed = true,
+  routes = {
+    dueToday: "/followups?due=today",
+    urgent: "/followups?tab=urgent",
+    grace: "/followups?tab=grace",
+    breakdown: "/followups/breakdown",
+  },
+  onRefresh,
+}: Props) {
+  const router = useRouter();
+
+  // ===== tokens (kept your nomenclature, mapped to your 5 blues) =====
+  const TOKENS = {
+    success: "#87CEEB", // onTime
+    warning: "#4A90E2", // grace
+    warningBg: "#fef3c7",
+    warningBorder: "#fde68a",
+    warningFg: "#b45309",
+    danger: useRedDanger ? "#dc2626" : "#2563EB", // delinquent (or red if allowed)
+    neutral400: "#1D4ED8",
+    neutral500: "#1E40AF", // defaultRisk
+  };
+
   const totals = useMemo(() => {
-    const totalPlans = repaymentData.reduce((s, r) => s + r.count, 0);
-    const map = Object.fromEntries(repaymentData.map((r) => [r.category, r]));
-    const urgentCount = map["Delinquent"].count + map["Default Risk"].count;
-    const atRiskCount = urgentCount + map["Grace Period"].count;
+    const totalPlans = data.reduce((s, r) => s + r.count, 0);
+    const map = Object.fromEntries(data.map((r) => [r.category, r]));
+    const urgentCount =
+      (map["Delinquent"]?.count ?? 0) + (map["Default Risk"]?.count ?? 0);
+    const atRiskCount = urgentCount + (map["Grace Period"]?.count ?? 0);
     return { totalPlans, map, urgentCount, atRiskCount };
-  }, []);
+  }, [data]);
 
-  // Donut data: one slice per status. `id` must match keys in chartConfig.
   const donutData = [
     {
       id: "onTime",
-      value: totals.map["On-Time"].count,
-      pct: totals.map["On-Time"].percentage,
+      value: totals.map["On-Time"]?.count ?? 0,
+      pct: totals.map["On-Time"]?.percentage ?? 0,
+      fill: `var(--color-onTime, ${TOKENS.success})`,
     },
     {
       id: "grace",
-      value: totals.map["Grace Period"].count,
-      pct: totals.map["Grace Period"].percentage,
+      value: totals.map["Grace Period"]?.count ?? 0,
+      pct: totals.map["Grace Period"]?.percentage ?? 0,
+      fill: `var(--color-grace, ${TOKENS.warning})`,
     },
     {
       id: "delinquent",
-      value: totals.map["Delinquent"].count,
-      pct: totals.map["Delinquent"].percentage,
+      value: totals.map["Delinquent"]?.count ?? 0,
+      pct: totals.map["Delinquent"]?.percentage ?? 0,
+      fill: `var(--color-delinquent, ${TOKENS.danger})`,
     },
     {
       id: "defaultRisk",
-      value: totals.map["Default Risk"].count,
-      pct: totals.map["Default Risk"].percentage,
+      value: totals.map["Default Risk"]?.count ?? 0,
+      pct: totals.map["Default Risk"]?.percentage ?? 0,
+      fill: `var(--color-defaultRisk, ${TOKENS.neutral500})`,
     },
   ];
 
-  const onTimePct = totals.map["On-Time"].percentage;
-  const BRAND_GREEN = "#16a34a";
-  const AMBER_FG = "#b45309";
-  const AMBER_BG = "#fef3c7";
+  const chartConfig = {
+    onTime: { label: "On-time", color: TOKENS.success },
+    grace: { label: "Grace (1–5d)", color: TOKENS.warning },
+    delinquent: { label: "Delinquent", color: TOKENS.danger },
+    defaultRisk: { label: "Default risk", color: TOKENS.neutral500 },
+  } satisfies ChartConfig;
+
+  const onTimePct = totals.map["On-Time"]?.percentage ?? 0;
+  const percentAtRisk = totals.totalPlans
+    ? Math.round((totals.atRiskCount / totals.totalPlans) * 1000) / 10
+    : 0;
 
   return (
     <Card className="bg-white border border-neutral-200 overflow-hidden">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-lg font-semibold text-neutral-900 flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5" style={{ color: BRAND_GREEN }} />
-          Payment Plan Health
-        </CardTitle>
-        <p className="text-sm text-neutral-500">
-          Live repayment health for active plans
-        </p>
+      {/* ---------- Header: responsive & non-clipping ---------- */}
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="flex flex-col gap-3 sm:gap-2 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="leading-tight text-lg sm:text-[1.1rem] font-semibold text-neutral-900 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-blue-600" />
+              <span className="truncate">Payment Plan Health</span>
+            </CardTitle>
+            <p className="mt-1 text-sm text-neutral-500">
+              Live repayment health for{" "}
+              <span className="font-medium text-neutral-700">
+                {totals.totalPlans.toLocaleString()}
+              </span>{" "}
+              active plans
+              {excludesClosed && (
+                <span className="text-neutral-400"> (excludes closed)</span>
+              )}
+            </p>
+          </div>
+
+          {/* Right-side badges stack under title on mobile */}
+          <div className="flex items-center">
+            <Link
+              href={routes.dueToday}
+              className="rounded-full border px-2.5 py-1 text-xs font-medium shrink-0"
+              style={{
+                background: TOKENS.warningBg,
+                borderColor: TOKENS.warningBorder,
+                color: TOKENS.warningFg,
+              }}
+              title="Open today's follow-up queue"
+            >
+              Due today: {totals.urgentCount}
+            </Link>
+            {/* <span className="text-xs text-neutral-400 shrink-0">
+              Updated {lastUpdated ? timeAgo(lastUpdated) : "just now"}
+            </span>
+            {onRefresh && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                onClick={onRefresh}
+                aria-label="Refresh"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )} */}
+          </div>
+        </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
-        {/* Centered donut + KPI */}
+      <CardContent className="space-y-6 sm:space-y-7">
+        {/* ---------- Donut: clamped size, correct label ---------- */}
         <div className="min-w-0">
-          {/* Centered donut with size clamp */}
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto grid place-items-center"
-          >
-            <div className="relative w-[clamp(9rem,18vw,12rem)] h-[clamp(9rem,18vw,12rem)]">
+          <ChartContainer config={chartConfig}>
+            {/* clamp so it never overwhelms the right column */}
+            <div className="mx-auto w-[clamp(180px,22vw,220px)] h-[clamp(180px,22vw,220px)]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent />}
+                  />
                   <Pie
                     data={donutData}
-                    dataKey="value" // counts
-                    nameKey="id" // must match chartConfig keys
-                    innerRadius="68%"
-                    outerRadius="90%" // thinner ring so center text breathes
+                    dataKey="value"
+                    nameKey="id"
+                    innerRadius="65%"
+                    outerRadius="90%"
                     strokeWidth={0}
                     isAnimationActive={false}
                   >
                     {donutData.map((d) => (
-                      <Cell key={d.id} fill={`var(--color-${d.id})`} />
+                      <Cell key={d.id} fill={d.fill} />
                     ))}
+                    <Label
+                      content={({ viewBox }) => {
+                        if (
+                          !viewBox ||
+                          !("cx" in viewBox) ||
+                          !("cy" in viewBox)
+                        )
+                          return null;
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-3xl font-bold"
+                            >
+                              {onTimePct.toLocaleString()}%
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground"
+                            >
+                              on-time
+                            </tspan>
+                          </text>
+                        );
+                      }}
+                    />
                   </Pie>
-
-                  <ChartTooltip
-                    cursor={false}
-                    content={(props) => {
-                      const p = props?.payload?.[0];
-                      if (!p) return null;
-                      const slice = p.payload as (typeof donutData)[number];
-                      return (
-                        <ChartTooltipContent>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="inline-block h-2 w-2 rounded-full"
-                              style={{ background: `var(--color-${slice.id})` }}
-                            />
-                            <span className="text-sm font-medium">
-                              {(chartConfig as any)[slice.id].label}
-                            </span>
-                            <span className="ml-auto tabular-nums text-sm">
-                              {slice.value.toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="mt-1 text-xs text-neutral-500 tabular-nums">
-                            {slice.pct}% of plans
-                          </div>
-                        </ChartTooltipContent>
-                      );
-                    }}
-                  />
                 </PieChart>
               </ResponsiveContainer>
-
-              {/* KPI in the middle (scales with size) */}
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <div className="font-bold text-neutral-900 text-[clamp(1.25rem,2.4vw,1.5rem)]">
-                  {onTimePct}%
-                </div>
-                <div className="text-neutral-500 text-[clamp(0.65rem,1.4vw,0.75rem)]">
-                  On-time payments
-                </div>
-              </div>
             </div>
           </ChartContainer>
+
+          {/* ---------- Legend: simple, readable, non-badged ---------- */}
+          {/* <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-neutral-700 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
+            {[
+              { id: "onTime", label: "On-time" },
+              { id: "grace", label: "Grace (1–5d)" },
+              { id: "delinquent", label: "Delinquent" },
+              { id: "defaultRisk", label: "Default risk" },
+            ].map((l) => (
+              <div key={l.id} className="flex items-center gap-2">
+                <span
+                  className="block size-2 rounded-full flex-none"
+                  style={{ background: `var(--color-${l.id})` }}
+                  aria-hidden
+                />
+                <span>{l.label}</span>
+              </div>
+            ))}
+          </div> */}
+
+          {/* SR-only chart summary */}
+          <div
+            className="sr-only"
+            role="table"
+            aria-label="Repayment status breakdown"
+          >
+            {donutData.map((d) => (
+              <div key={d.id} role="row">
+                <span role="cell">{(chartConfig as any)[d.id].label}</span>
+                <span role="cell">{d.value.toLocaleString()} plans</span>
+                <span role="cell">{d.pct}%</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 pb-4 border-b border-neutral-200">
+        {/* ---------- KPIs ---------- */}
+        <div className="grid grid-cols-2 gap-4 pb-4 pt-12 border-b border-neutral-200">
           <div>
-            <div className="text-2xl font-semibold text-neutral-900">
+            <div className="text-2xl font-semibold text-neutral-900 tabular-nums">
               {totals.totalPlans.toLocaleString()}
             </div>
             <div className="text-sm text-neutral-500">Active plans</div>
           </div>
           <div>
-            <div className="text-2xl font-semibold text-neutral-900">$2.4M</div>
+            <div
+              className="text-2xl font-semibold text-neutral-900"
+              title={Intl.NumberFormat(undefined, {
+                style: "currency",
+                currency: "USD",
+              }).format(outstandingBalance)}
+            >
+              {fmtMoney(outstandingBalance)}
+            </div>
             <div className="text-sm text-neutral-500">Outstanding balance</div>
           </div>
         </div>
 
-        {/* Action rows (unchanged behavior, safe layout) */}
+        {/* ---------- Work queue ---------- */}
         <div className="min-w-0 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-neutral-500">
               At-risk (1–30+ days)
             </span>
-            <span className="text-sm font-medium text-neutral-900 shrink-0">
-              {totals.atRiskCount} / {totals.totalPlans}
+            <span className="text-sm font-medium text-neutral-900 shrink-0 tabular-nums">
+              {totals.atRiskCount.toLocaleString()} ({percentAtRisk}%) of{" "}
+              {totals.totalPlans.toLocaleString()}
             </span>
           </div>
 
           <ul className="space-y-2">
-            <li className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-neutral-200 px-3 py-2">
+            {/* URGENT */}
+            <li
+              onClick={() => router.push(routes.urgent)}
+              onKeyDown={(e) => e.key === "Enter" && router.push(routes.urgent)}
+              role="button"
+              tabIndex={0}
+              className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-neutral-200 px-3 py-3 hover:bg-neutral-50 focus-within:ring-2 focus-within:ring-neutral-300 cursor-pointer min-h-[44px]"
+              aria-label="Open follow-ups for urgent plans"
+            >
               <div className="min-w-0 flex items-center gap-2">
                 <span
-                  className="inline-flex h-2 w-2 rounded-full"
-                  style={{ backgroundColor: AMBER_FG }}
+                  className="block size-2 rounded-full flex-none"
+                  style={{ backgroundColor: TOKENS.danger }}
                 />
                 <div className="min-w-0 text-sm">
                   <div className="font-medium text-neutral-900 truncate">
                     Urgent (6+ days)
                   </div>
-                  <div className="text-xs text-neutral-500 truncate">
-                    {totals.map["Delinquent"].count} delinquent ·{" "}
-                    {totals.map["Default Risk"].count} default risk
+                  <div
+                    className="text-xs text-neutral-500"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {totals.map["Delinquent"]?.count ?? 0} delinquent ·{" "}
+                    {totals.map["Default Risk"]?.count ?? 0} default risk —
+                    Manual outreach required.
                   </div>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="whitespace-nowrap gap-1 hover:bg-neutral-50"
-              >
-                Review {totals.urgentCount}
+              <span className="text-sm text-neutral-900 whitespace-nowrap flex items-center gap-1">
+                Start follow-ups ({totals.urgentCount})
                 <ArrowRight className="h-4 w-4" />
-              </Button>
+              </span>
             </li>
 
-            <li className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-md bg-neutral-50 border border-neutral-200 px-3 py-2">
+            {/* GRACE */}
+            <li
+              onClick={() => router.push(routes.grace)}
+              onKeyDown={(e) => e.key === "Enter" && router.push(routes.grace)}
+              role="button"
+              tabIndex={0}
+              className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-md bg-neutral-50 border border-neutral-200 px-3 py-3 hover:bg-neutral-100 focus-within:ring-2 focus-within:ring-neutral-300 cursor-pointer min-h-[44px]"
+              aria-label="Open queue for grace-period plans"
+            >
               <div className="min-w-0 flex items-center gap-2">
-                <span className="inline-flex h-2 w-2 rounded-full bg-neutral-400" />
+                <span
+                  className="block size-2 rounded-full flex-none"
+                  style={{ backgroundColor: TOKENS.warning }}
+                />
                 <div className="min-w-0 text-sm">
                   <div className="font-medium text-neutral-900 truncate">
                     Grace (1–5 days)
                   </div>
-                  <div className="text-xs text-neutral-500 truncate">
-                    Auto-reminder scheduled
+                  <div className="text-xs text-neutral-500">
+                    Reminder queued (auto-send 5pm)
                   </div>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="whitespace-nowrap gap-1 hover:bg-neutral-100"
-              >
-                Queue {totals.map["Grace Period"].count}
+              <span className="text-sm text-neutral-900 whitespace-nowrap flex items-center gap-1">
+                Open queue ({totals.map["Grace Period"]?.count ?? 0})
                 <ArrowRight className="h-4 w-4" />
-              </Button>
+              </span>
             </li>
           </ul>
 
-          {totals.urgentCount > 0 && (
+          {/* States */}
+          {totals.atRiskCount === 0 && (
+            <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-600">
+              All clear — auto-reminders running. Next check in 24h.
+            </div>
+          )}
+
+          {percentAtRisk >= thresholdHighRiskPct && (
             <div
-              className="mt-1 rounded-md border px-3 py-2 text-sm flex items-center gap-2"
+              className="rounded-md border px-3 py-2 text-sm"
               style={{
-                backgroundColor: AMBER_BG,
-                borderColor: "#fde68a",
-                color: AMBER_FG,
+                background: TOKENS.warningBg,
+                borderColor: TOKENS.warningBorder,
+                color: TOKENS.warningFg,
               }}
             >
-              <AlertTriangle className="h-4 w-4 shrink-0" />
-              <span className="min-w-0 truncate">
-                {totals.urgentCount} plans need follow-up today
-              </span>
+              At-risk over {thresholdHighRiskPct}% — consider bulk outreach.
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              Couldn’t refresh health data. Showing last known snapshot.{" "}
+              {onRefresh && (
+                <button className="underline" onClick={onRefresh}>
+                  Retry
+                </button>
+              )}
             </div>
           )}
         </div>
 
-        {/* Quiet context */}
-        {/* <div className="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-200">
-          <div>
-            <div className="text-2xl font-semibold text-neutral-900">
-              {totals.totalPlans.toLocaleString()}
-            </div>
-            <div className="text-sm text-neutral-500">Active plans</div>
-          </div>
-          <div>
-            <div className="text-2xl font-semibold text-neutral-900">$2.4M</div>
-            <div className="text-sm text-neutral-500">Outstanding balance</div>
-          </div>
-        </div> */}
-
-        {/* View full breakdown — fixed spacing & alignment */}
+        {/* Breakdown */}
         <div className="text-xs text-neutral-500">
           <details>
             <summary className="cursor-pointer hover:text-neutral-700 transition">
               View full breakdown
             </summary>
-
             <div className="mt-2 overflow-hidden rounded-md border border-neutral-200">
               <div className="divide-y divide-neutral-200">
-                {repaymentData.map((r) => (
+                {data.map((r) => (
                   <div
                     key={r.category}
                     className="grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      {/* small color dot mirrors donut slice */}
                       <span
-                        className="h-2 w-2 rounded-full shrink-0"
+                        className="block size-2 rounded-full flex-none"
                         style={{
                           background:
                             r.category === "On-Time"
-                              ? "var(--color-onTime, #16a34a)"
+                              ? "var(--color-onTime, #87CEEB)"
                               : r.category === "Grace Period"
-                              ? "var(--color-grace, #d4d4d8)"
+                              ? "var(--color-grace, #4A90E2)"
                               : r.category === "Delinquent"
-                              ? "var(--color-delinquent, #a1a1aa)"
-                              : "var(--color-defaultRisk, #71717a)",
+                              ? `var(--color-delinquent, ${TOKENS.danger})`
+                              : "var(--color-defaultRisk, #1E40AF)",
                         }}
                       />
                       <span className="truncate text-neutral-700">
