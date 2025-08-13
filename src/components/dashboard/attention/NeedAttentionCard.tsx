@@ -112,7 +112,7 @@ export default function NeedsAttentionCard() {
                 <span className="shrink-0 text-[26px] sm:text-[28px] leading-none font-semibold tabular-nums text-slate-900">
                   {n}
                 </span>
-                <span className="truncate whitespace-nowrap text-[11px] uppercase tracking-wide text-neutral-500">
+                <span className=" whitespace-nowrap text-[11px] uppercase tracking-wide text-neutral-500">
                   {labelFor(text)}
                 </span>
               </div>
