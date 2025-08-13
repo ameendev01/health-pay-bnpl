@@ -26,12 +26,8 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+// at top of RevenueCycleManagement.tsx
+import { LabelWithHelp } from "../shared/Tooltip";
 import {
   AlertTriangle,
   Info,
@@ -312,26 +308,19 @@ function KPITile({
 }) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-[#FAFAFA] px-4 py-3 min-h-[104px] flex flex-col justify-between">
-      <div className="flex items-center justify-between">
-        <div className="text-[13px] font-medium text-neutral-600 whitespace-nowrap">
-          {label}
-        </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="text-neutral-300 hover:text-neutral-400"
-                aria-label={`About ${label}`}
-              >
-                <Info className="h-4 w-4" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[260px] text-xs">
+      <div className="flex items-center">
+        <LabelWithHelp
+          side="top"
+          className="text-[13px] font-medium text-neutral-600 whitespace-nowrap"
+          label={<span>{label}</span>}
+          help={
+            <span className="max-w-[260px] block">
               Calculated for the selected period.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+            </span>
+          }
+        />
       </div>
+
       <div className={`flex items-end justify-between ${clsNum}`}>
         <div className="flex items-baseline gap-1 whitespace-nowrap">
           <span className="text-[22px] leading-tight font-semibold text-neutral-900">
@@ -525,21 +514,12 @@ export default function RevenueCycleManagement() {
               </SelectContent>
             </Select>
 
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    className="text-neutral-300 hover:text-neutral-400"
-                    aria-label="What is a clean claim?"
-                  >
-                    <Info className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-[280px] text-xs">
-                  A clean claim is processed on first pass without edits.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <LabelWithHelp
+              side="left"
+              className="text-neutral-300 hover:text-neutral-400"
+              label={""}
+              help="A clean claim is processed on first pass without edits."
+            />
           </div>
         </div>
       </CardHeader>
