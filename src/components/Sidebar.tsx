@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import OnboardingTeaser from "@/components/onboarding/OnboardingTeaser";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -145,7 +146,10 @@ export default function Sidebar({
           {isCollapsed ? (
             <button
               onClick={() => setIsCollapsed(false)}
-              className={["w-10 h-10 rounded-xl flex items-center justify-center transition-colors group", BRAND_BG].join(" ")}
+              className={[
+                "w-10 h-10 rounded-xl flex items-center justify-center transition-colors group",
+                BRAND_BG,
+              ].join(" ")}
               title="Expand"
               aria-label="Expand sidebar"
             >
@@ -154,9 +158,17 @@ export default function Sidebar({
           ) : (
             <>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-[#1557f6] to-[#84cc16] rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="w-5 h-5 text-white" />
-                </div>
+                <Avatar className="h-9 w-9 rounded-xl shadow-lg ring-1 ring-black/5">
+                  <AvatarImage
+                    src="https://github.com/evilrabbit.png"
+                    alt="Evil Rabbit"
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-[11px] font-medium">
+                    ER
+                  </AvatarFallback>
+                </Avatar>
+
                 <div className="leading-tight">
                   <span className="text-lg font-bold text-gray-900">
                     HealthPay
@@ -170,7 +182,10 @@ export default function Sidebar({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsCollapsed(true)}
-                  className={["w-10 h-10 hidden lg:flex p-2 rounded-xl transition-colors group", BRAND_BG].join(" ")}
+                  className={[
+                    "w-10 h-10 hidden lg:flex p-2 rounded-xl transition-colors group",
+                    BRAND_BG,
+                  ].join(" ")}
                   title="Collapse"
                   aria-label="Collapse sidebar"
                 >
@@ -297,9 +312,7 @@ export default function Sidebar({
                   className={[
                     "w-full flex items-center rounded-xl transition-colors",
                     "hover:bg-gray-100",
-                    isCollapsed
-                      ? "justify-center h-14"
-                      : "p-2 gap-4 h-14",
+                    isCollapsed ? "justify-center h-14" : "p-2 gap-4 h-14",
                   ].join(" ")}
                   aria-haspopup="menu"
                   aria-expanded="false" // manage this state dynamically
