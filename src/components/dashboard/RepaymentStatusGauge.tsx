@@ -211,9 +211,9 @@ export default function RepaymentHealthCard({
       <CardContent className="space-y-6 sm:space-y-7">
         {/* ---------- Donut: clamped size, correct label ---------- */}
         <div className="min-w-0">
-          <ChartContainer config={chartConfig}>
+          <ChartContainer config={chartConfig} className="!h-auto !min-h-0 !aspect-auto p-0 sm:p-0 md:h-[220px]">
             {/* clamp so it never overwhelms the right column */}
-            <div className="mx-auto w-[clamp(180px,22vw,220px)] h-[clamp(180px,22vw,220px)]">
+            <div className="mx-auto w-[clamp(160px,30vw,220px)] h-[clamp(160px,30vw,220px)]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <ChartTooltip
@@ -286,9 +286,8 @@ export default function RepaymentHealthCard({
             ))}
           </div>
         </div>
-
         {/* ---------- KPIs ---------- */}
-        <div className="grid grid-cols-2 gap-4 pb-4 pt-12 border-b border-neutral-200">
+        <div className="grid grid-cols-2 gap-4 border-b border-neutral-200 pb-3 sm:pb-4 pt-4 sm:pt-6 md:pt-8 lg:pt-10">
           <div>
             <div className="text-2xl font-semibold text-neutral-900 tabular-nums">
               {stats.totalPlans.toLocaleString()}
@@ -308,7 +307,6 @@ export default function RepaymentHealthCard({
             <div className="text-sm text-neutral-500">Outstanding balance</div>
           </div>
         </div>
-
         {/* ---------- Work queue ---------- */}
         <div className="min-w-0 space-y-3">
           <div className="flex items-center justify-between gap-3">
@@ -422,7 +420,6 @@ export default function RepaymentHealthCard({
             </div>
           )}
         </div>
-
         {/* Breakdown */}
         <div className="text-xs text-neutral-500">
           <details>
