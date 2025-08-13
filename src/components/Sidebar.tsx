@@ -11,12 +11,12 @@ import {
   Users,
   FileText,
   Bell,
-  ChevronLeft,
-  ChevronRight,
   User,
   LogOut,
   ChevronUp,
   House,
+  PanelRightClose,
+  PanelRightOpen,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -145,11 +145,11 @@ export default function Sidebar({
           {isCollapsed ? (
             <button
               onClick={() => setIsCollapsed(false)}
-              className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center shadow-lg transition-colors group"
+              className={["w-10 h-10 rounded-xl flex items-center justify-center transition-colors group", BRAND_BG].join(" ")}
               title="Expand"
               aria-label="Expand sidebar"
             >
-              <ChevronRight className="w-6 h-6 text-gray-600 group-hover:text-gray-800" />
+              <PanelRightClose className="w-6 h-6 text-gray-500 group-hover:text-gray-600" />
             </button>
           ) : (
             <>
@@ -170,11 +170,11 @@ export default function Sidebar({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsCollapsed(true)}
-                  className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 transition-colors group"
+                  className={["w-10 h-10 hidden lg:flex p-2 rounded-xl transition-colors group", BRAND_BG].join(" ")}
                   title="Collapse"
                   aria-label="Collapse sidebar"
                 >
-                  <ChevronLeft className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
+                  <PanelRightOpen className="w-6 h-6 text-gray-500 group-hover:text-gray-600" />
                 </button>
                 <button
                   className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -223,15 +223,6 @@ export default function Sidebar({
                         : "text-gray-700 hover:bg-gray-50 hover:text-gray-900",
                     ].join(" ")}
                   >
-                    {/* subtle active rail */}
-                    {/* {active && (
-                      <span
-                        className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full"
-                        style={{ backgroundColor: BRAND_BLUE }}
-                        aria-hidden="true"
-                      />
-                    )} */}
-
                     <Icon
                       className={[
                         "w-5 h-5 flex-shrink-0",
