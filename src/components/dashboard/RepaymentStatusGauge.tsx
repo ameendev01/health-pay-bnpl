@@ -172,11 +172,12 @@ export default function RepaymentHealthCard({
     <Card className="bg-white border border-neutral-200 overflow-hidden">
       {/* ---------- Header: responsive & non-clipping ---------- */}
       <CardHeader className="pb-2 sm:pb-3">
-        <div className="flex flex-col gap-3 sm:gap-2 md:flex-row md:items-start md:justify-between">
+        <div className="grid gap-3 sm:gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+          {/* Left: title + sub */}
           <div className="min-w-0">
             <CardTitle className="leading-tight text-lg sm:text-[1.1rem] font-semibold text-neutral-900 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-blue-600" />
-              <span className="truncate">Payment Plan Health</span>
+              <span className="">Payment Plan Health</span>
             </CardTitle>
             <p className="mt-1 text-sm text-neutral-500">
               Live repayment health for{" "}
@@ -190,34 +191,19 @@ export default function RepaymentHealthCard({
             </p>
           </div>
 
-          {/* Right-side badges stack under title on mobile */}
-          <div className="flex items-center">
+          {/* Right: pill (stays inside, aligns right on md+) */}
+          <div className="md:justify-self-end">
             <Link
               href={routes.dueToday}
-              className="rounded-full border px-2.5 py-1 text-xs font-medium shrink-0"
+              className="inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-medium"
               style={{
                 background: TOKENS.warningBg,
                 borderColor: TOKENS.warningBorder,
                 color: TOKENS.warningFg,
               }}
-              title="Open today's follow-up queue"
             >
-              Due today: {stats.urgentCount}
+              <span className="truncate">Due today: {stats.urgentCount}</span>
             </Link>
-            {/* <span className="text-xs text-neutral-400 shrink-0">
-              Updated {lastUpdated ? timeAgo(lastUpdated) : "just now"}
-            </span>
-            {onRefresh && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 shrink-0"
-                onClick={onRefresh}
-                aria-label="Refresh"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            )} */}
           </div>
         </div>
       </CardHeader>
