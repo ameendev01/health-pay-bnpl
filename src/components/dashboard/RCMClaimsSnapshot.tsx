@@ -30,7 +30,6 @@ import {
 import { LabelWithHelp } from "../shared/Tooltip";
 import {
   AlertTriangle,
-  Info,
   Search,
   SlidersHorizontal,
   ArrowUpRight,
