@@ -271,25 +271,6 @@ export default function RepaymentHealthCard({
             </div>
           </ChartContainer>
 
-          {/* ---------- Legend: simple, readable, non-badged ---------- */}
-          {/* <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-neutral-700 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
-            {[
-              { id: "onTime", label: "On-time" },
-              { id: "grace", label: "Grace (1–5d)" },
-              { id: "delinquent", label: "Delinquent" },
-              { id: "defaultRisk", label: "Default risk" },
-            ].map((l) => (
-              <div key={l.id} className="flex items-center gap-2">
-                <span
-                  className="block size-2 rounded-full flex-none"
-                  style={{ background: `var(--color-${l.id})` }}
-                  aria-hidden
-                />
-                <span>{l.label}</span>
-              </div>
-            ))}
-          </div> */}
-
           {/* SR-only chart summary */}
           <div
             className="sr-only"
