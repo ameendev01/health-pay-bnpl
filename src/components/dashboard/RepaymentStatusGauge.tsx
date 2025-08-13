@@ -1,172 +1,468 @@
-'use client'
+"use client";
 
-import React from 'react';
+import React, { useMemo } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Clock, AlertTriangle, XCircle } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from "lucide-react";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { PieChart, Pie, Label, Cell, ResponsiveContainer } from "recharts";
 
-interface RepaymentStatus {
-  category: string;
+type RepaymentStatus = {
+  category: "On-Time" | "Grace Period" | "Delinquent" | "Default Risk";
   count: number;
-  percentage: number;
-  color: string;
-  icon: React.ElementType;
-  description: string;
-}
+  percentage?: number;
+};
 
-const repaymentData: RepaymentStatus[] = [
-  {
-    category: "On-Time",
-    count: 1174,
-    percentage: 94.2,
-    color: "#84cc16",
-    icon: CheckCircle,
-    description: "Payments made on or before due date"
-  },
-  {
-    category: "Grace Period",
-    count: 48,
-    percentage: 3.9,
-    color: "#f59e0b",
-    icon: Clock,
-    description: "1-5 days past due"
-  },
-  {
-    category: "Delinquent",
-    count: 19,
-    percentage: 1.5,
-    color: "#ef4444",
-    icon: AlertTriangle,
-    description: "6-30 days past due"
-  },
-  {
-    category: "Default Risk",
-    count: 6,
-    percentage: 0.4,
-    color: "#dc2626",
-    icon: XCircle,
-    description: "30+ days past due"
-  }
+type Routes = {
+  dueToday: string;
+  urgent: string;
+  grace: string;
+  breakdown?: string;
+};
+
+type Props = {
+  data?: RepaymentStatus[];
+  outstandingBalance?: number; // dollars
+  lastUpdated?: Date;
+  error?: string;
+  thresholdHighRiskPct?: number; // default 15
+  useRedDanger?: boolean; // set true if brand allows red
+  excludesClosed?: boolean; // default true
+  routes?: Routes;
+  onRefresh?: () => void;
+};
+
+const defaultData: RepaymentStatus[] = [
+  { category: "On-Time", count: 274 },
+  { category: "Grace Period", count: 148 },
+  { category: "Delinquent", count: 112 },
+  { category: "Default Risk", count: 78 },
 ];
 
-const totalPlans = repaymentData.reduce((sum, item) => sum + item.count, 0);
+// simple compact currency
+const fmtMoney = (v: number) =>
+  Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(v);
 
-export default function RepaymentStatusGauge() {
+// const timeAgo = (d: Date) => {
+//   const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+//   if (diff < 60) return "just now";
+//   const m = Math.floor(diff / 60);
+//   if (m < 60) return `${m} min ago`;
+//   const h = Math.floor(m / 60);
+//   return `${h}h ago`;
+// };
+
+export const TOKENS = {
+  success: "#87CEEB", // onTime
+  warning: "#4A90E2", // grace
+  warningBg: "#fef3c7",
+  warningBorder: "#fde68a",
+  warningFg: "#b45309",
+  danger: "#2563EB", // delinquent (or red if allowed)
+  neutral400: "#1D4ED8",
+  neutral500: "#1E40AF", // defaultRisk
+};
+
+export default function RepaymentHealthCard({
+  data = defaultData,
+  outstandingBalance = 2_400_000,
+  error,
+  thresholdHighRiskPct = 15,
+  excludesClosed = true,
+  routes = {
+    dueToday: "/followups?due=today",
+    urgent: "/followups?tab=urgent",
+    grace: "/followups?tab=grace",
+    breakdown: "/followups/breakdown",
+  },
+  onRefresh,
+}: Props) {
+  const router = useRouter();
+
+  // ===== tokens (kept your nomenclature, mapped to your 5 blues) =====
+
+  const stats = useMemo(() => {
+    const totalPlans = data.reduce((s, r) => s + r.count, 0);
+
+    // derive percentages from counts (1 decimal)
+    const enriched = data.map((r) => ({
+      ...r,
+      percentage: totalPlans
+        ? Number(((r.count / totalPlans) * 100).toFixed(1))
+        : 0,
+    }));
+
+    // (nice-to-have) ensure the rounded values sum to exactly 100.0
+    if (totalPlans) {
+      const sum = Number(
+        enriched.reduce((s, r) => s + (r.percentage ?? 0), 0).toFixed(1)
+      );
+      const delta = Number((100 - sum).toFixed(1));
+      if (delta !== 0) {
+        const iLargest = enriched.reduce(
+          (iMax, r, i, arr) =>
+            r.percentage! > arr[iMax].percentage! ? i : iMax,
+          0
+        );
+        enriched[iLargest].percentage = Number(
+          (enriched[iLargest].percentage! + delta).toFixed(1)
+        );
+      }
+    }
+
+    const map = Object.fromEntries(enriched.map((r) => [r.category, r]));
+    const urgentCount =
+      (map["Delinquent"]?.count ?? 0) + (map["Default Risk"]?.count ?? 0);
+    const atRiskCount = urgentCount + (map["Grace Period"]?.count ?? 0);
+
+    return { totalPlans, map, urgentCount, atRiskCount, enriched };
+  }, [data]);
+
+  const donutData = [
+    {
+      id: "onTime",
+      value: stats.map["On-Time"]?.count ?? 0,
+      pct: stats.map["On-Time"]?.percentage ?? 0,
+      fill: `var(--color-onTime, ${TOKENS.success})`,
+    },
+    {
+      id: "grace",
+      value: stats.map["Grace Period"]?.count ?? 0,
+      pct: stats.map["Grace Period"]?.percentage ?? 0,
+      fill: `var(--color-grace, ${TOKENS.warning})`,
+    },
+    {
+      id: "delinquent",
+      value: stats.map["Delinquent"]?.count ?? 0,
+      pct: stats.map["Delinquent"]?.percentage ?? 0,
+      fill: `var(--color-delinquent, ${TOKENS.danger})`,
+    },
+    {
+      id: "defaultRisk",
+      value: stats.map["Default Risk"]?.count ?? 0,
+      pct: stats.map["Default Risk"]?.percentage ?? 0,
+      fill: `var(--color-defaultRisk, ${TOKENS.neutral500})`,
+    },
+  ];
+
+  const chartConfig = {
+    onTime: { label: "On-time", color: TOKENS.success },
+    grace: { label: "Grace (1–5d)", color: TOKENS.warning },
+    delinquent: { label: "Delinquent", color: TOKENS.danger },
+    defaultRisk: { label: "Default risk", color: TOKENS.neutral500 },
+  } satisfies ChartConfig;
+
+  const onTimePct = stats.map["On-Time"]?.percentage ?? 0;
+  const percentAtRisk = stats.totalPlans
+    ? Math.round((stats.atRiskCount / stats.totalPlans) * 1000) / 10
+    : 0;
+
   return (
-    <Card className="bg-white border border-gray-200">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-          <CheckCircle className="w-5 h-5 mr-2 text-[#84cc16]" />
-          Payment Plan Health Monitor
-        </CardTitle>
-        <p className="text-sm text-gray-600">
-          Real-time repayment status across all active plans
-        </p>
+    <Card className="bg-white border border-neutral-200 overflow-hidden">
+      {/* ---------- Header: responsive & non-clipping ---------- */}
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="grid gap-3 sm:gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+          {/* Left: title + sub */}
+          <div className="min-w-0">
+            <CardTitle className="leading-tight text-lg sm:text-[1.1rem] font-semibold text-neutral-900 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-blue-600" />
+              <span className="">Payment Plan Health</span>
+            </CardTitle>
+            <p className="mt-1 text-sm text-neutral-500">
+              Live repayment health for{" "}
+              <span className="font-medium text-neutral-700">
+                {stats.totalPlans.toLocaleString()}
+              </span>{" "}
+              active plans
+              {excludesClosed && (
+                <span className="text-neutral-400"> (excludes closed)</span>
+              )}
+            </p>
+          </div>
+
+          {/* Right: pill (stays inside, aligns right on md+) */}
+          <div className="md:justify-self-end">
+            <Link
+              href={routes.dueToday}
+              className="inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-medium"
+              style={{
+                background: TOKENS.warningBg,
+                borderColor: TOKENS.warningBorder,
+                color: TOKENS.warningFg,
+              }}
+            >
+              <span className="truncate">Due today: {stats.urgentCount}</span>
+            </Link>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        {/* Circular Progress Gauge */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="relative w-48 h-48">
-            {/* Background Circle */}
-            <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#f3f4f6"
-                strokeWidth="8"
-                fill="none"
-              />
-              {/* On-time payments arc */}
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#84cc16"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray={`${repaymentData[0].percentage * 2.51} 251`}
-                strokeLinecap="round"
-                className="transition-all duration-1000"
-              />
-              {/* Grace period arc */}
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke="#f59e0b"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray={`${repaymentData[1].percentage * 2.51} 251`}
-                strokeDashoffset={`-${repaymentData[0].percentage * 2.51}`}
-                strokeLinecap="round"
-                className="transition-all duration-1000"
-              />
-            </svg>
-            
-            {/* Center Content */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-3xl font-bold text-gray-900">
-                {repaymentData[0].percentage}%
-              </div>
-              <div className="text-sm text-gray-600 text-center">
-                On-Time<br />Payments
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Status Breakdown */}
-        <div className="space-y-4">
-          {repaymentData.map((status, index) => {
-            const Icon = status.icon;
-            return (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: `${status.color}20` }}
+      <CardContent className="space-y-6 sm:space-y-7">
+        {/* ---------- Donut: clamped size, correct label ---------- */}
+        <div className="min-w-0">
+          <ChartContainer config={chartConfig} className="!h-auto !min-h-0 !aspect-auto p-0 sm:p-0 md:h-[220px]">
+            {/* clamp so it never overwhelms the right column */}
+            <div className="mx-auto w-[clamp(160px,30vw,220px)] h-[clamp(160px,30vw,220px)]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent />}
+                  />
+                  <Pie
+                    data={donutData}
+                    dataKey="value"
+                    nameKey="id"
+                    innerRadius="65%"
+                    outerRadius="90%"
+                    strokeWidth={0}
+                    isAnimationActive={false}
                   >
-                    <Icon className="w-4 h-4" style={{ color: status.color }} />
+                    {donutData.map((d) => (
+                      <Cell key={d.id} fill={d.fill} />
+                    ))}
+                    <Label
+                      content={({ viewBox }) => {
+                        if (
+                          !viewBox ||
+                          !("cx" in viewBox) ||
+                          !("cy" in viewBox)
+                        )
+                          return null;
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-3xl font-bold"
+                            >
+                              {onTimePct.toLocaleString()}%
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground"
+                            >
+                              on-time
+                            </tspan>
+                          </text>
+                        );
+                      }}
+                    />
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </ChartContainer>
+
+          {/* SR-only chart summary */}
+          <div
+            className="sr-only"
+            role="table"
+            aria-label="Repayment status breakdown"
+          >
+            {donutData.map((d) => (
+              <div key={d.id} role="row">
+                <span role="cell">{(chartConfig as any)[d.id].label}</span>
+                <span role="cell">{d.value.toLocaleString()} plans</span>
+                <span role="cell">{d.pct}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* ---------- KPIs ---------- */}
+        <div className="grid grid-cols-2 gap-4 border-b border-neutral-200 pb-3 sm:pb-4 pt-4 sm:pt-6 md:pt-8 lg:pt-10">
+          <div>
+            <div className="text-2xl font-semibold text-neutral-900 tabular-nums">
+              {stats.totalPlans.toLocaleString()}
+            </div>
+            <div className="text-sm text-neutral-500">Active plans</div>
+          </div>
+          <div>
+            <div
+              className="text-2xl font-semibold text-neutral-900"
+              title={Intl.NumberFormat(undefined, {
+                style: "currency",
+                currency: "USD",
+              }).format(outstandingBalance)}
+            >
+              {fmtMoney(outstandingBalance)}
+            </div>
+            <div className="text-sm text-neutral-500">Outstanding balance</div>
+          </div>
+        </div>
+        {/* ---------- Work queue ---------- */}
+        <div className="min-w-0 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm text-neutral-500">
+              At-risk (1–30+ days)
+            </span>
+            <span className="text-sm font-medium text-neutral-900 shrink-0 tabular-nums">
+              {stats.atRiskCount.toLocaleString()} ({percentAtRisk}%) of{" "}
+              {stats.totalPlans.toLocaleString()}
+            </span>
+          </div>
+
+          <ul className="space-y-2">
+            {/* URGENT */}
+            <li
+              onClick={() => router.push(routes.urgent)}
+              onKeyDown={(e) => e.key === "Enter" && router.push(routes.urgent)}
+              role="button"
+              tabIndex={0}
+              className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-neutral-200 px-3 py-3 hover:bg-neutral-50 focus-within:ring-2 focus-within:ring-neutral-300 cursor-pointer min-h-[44px]"
+              aria-label="Open follow-ups for urgent plans"
+            >
+              <div className="min-w-0 flex items-center gap-2">
+                <span
+                  className="block size-2 rounded-full flex-none"
+                  style={{ backgroundColor: TOKENS.danger }}
+                />
+                <div className="min-w-0 text-sm">
+                  <div className="font-medium text-neutral-900 truncate">
+                    Urgent (6+ days)
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{status.category}</p>
-                    <p className="text-xs text-gray-600">{status.description}</p>
+                  <div
+                    className="text-xs text-neutral-500"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {stats.map["Delinquent"]?.count ?? 0} delinquent ·{" "}
+                    {stats.map["Default Risk"]?.count ?? 0} default risk —
+                    Manual outreach required.
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-900">{status.count}</p>
-                  <p className="text-sm text-gray-600">{status.percentage}%</p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Summary Stats */}
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{totalPlans.toLocaleString()}</p>
-              <p className="text-sm text-gray-600">Total Active Plans</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-[#84cc16]">$2.4M</p>
-              <p className="text-sm text-gray-600">Outstanding Balance</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Alert Banner */}
-        {repaymentData[2].count > 15 && (
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-4 h-4 text-yellow-600" />
-              <span className="text-sm font-medium text-yellow-800">
-                Action Required: {repaymentData[2].count} plans need attention
+              <span className="text-sm text-neutral-900 whitespace-nowrap flex items-center gap-1">
+                Start follow-ups ({stats.urgentCount})
+                <ArrowRight className="h-4 w-4" />
               </span>
+            </li>
+
+            {/* GRACE */}
+            <li
+              onClick={() => router.push(routes.grace)}
+              onKeyDown={(e) => e.key === "Enter" && router.push(routes.grace)}
+              role="button"
+              tabIndex={0}
+              className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-md bg-neutral-50 border border-neutral-200 px-3 py-3 hover:bg-neutral-100 focus-within:ring-2 focus-within:ring-neutral-300 cursor-pointer min-h-[44px]"
+              aria-label="Open queue for grace-period plans"
+            >
+              <div className="min-w-0 flex items-center gap-2">
+                <span
+                  className="block size-2 rounded-full flex-none"
+                  style={{ backgroundColor: TOKENS.warning }}
+                />
+                <div className="min-w-0 text-sm">
+                  <div className="font-medium text-neutral-900 truncate">
+                    Grace (1–5 days)
+                  </div>
+                  <div className="text-xs text-neutral-500">
+                    Reminder queued (auto-send 5pm)
+                  </div>
+                </div>
+              </div>
+              <span className="text-sm text-neutral-900 whitespace-nowrap flex items-center gap-1">
+                Open queue ({stats.map["Grace Period"]?.count ?? 0})
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </li>
+          </ul>
+
+          {/* States */}
+          {stats.atRiskCount === 0 && (
+            <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-600">
+              All clear — auto-reminders running. Next check in 24h.
             </div>
-          </div>
-        )}
+          )}
+
+          {percentAtRisk >= thresholdHighRiskPct && (
+            <div
+              className="rounded-md border px-3 py-2 text-sm"
+              style={{
+                background: TOKENS.warningBg,
+                borderColor: TOKENS.warningBorder,
+                color: TOKENS.warningFg,
+              }}
+            >
+              At-risk over {thresholdHighRiskPct}% — consider bulk outreach.
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              Couldn’t refresh health data. Showing last known snapshot.{" "}
+              {onRefresh && (
+                <button className="underline" onClick={onRefresh}>
+                  Retry
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+        {/* Breakdown */}
+        <div className="text-xs text-neutral-500">
+          <details>
+            <summary className="cursor-pointer hover:text-neutral-700 transition">
+              View full breakdown
+            </summary>
+            <div className="mt-2 overflow-hidden rounded-md border border-neutral-200">
+              <div className="divide-y divide-neutral-200">
+                {stats.enriched.map((r) => (
+                  <div
+                    key={r.category}
+                    className="grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="block size-2 rounded-full flex-none"
+                        style={{
+                          background:
+                            r.category === "On-Time"
+                              ? "var(--color-onTime, #87CEEB)"
+                              : r.category === "Grace Period"
+                              ? "var(--color-grace, #4A90E2)"
+                              : r.category === "Delinquent"
+                              ? `var(--color-delinquent, ${TOKENS.danger})`
+                              : "var(--color-defaultRisk, #1E40AF)",
+                        }}
+                      />
+                      <span className="truncate text-neutral-700">
+                        {r.category}
+                      </span>
+                    </div>
+                    <span className="tabular-nums text-neutral-700">
+                      {r.count.toLocaleString()}
+                    </span>
+                    <span className="tabular-nums text-neutral-500">
+                      {r.percentage}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </details>
+        </div>
       </CardContent>
     </Card>
   );
