@@ -311,7 +311,7 @@ function KPITile({
   deltaPct: number;
 }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white px-4 py-3 min-h-[104px] flex flex-col justify-between">
+    <div className="rounded-lg border border-neutral-200 bg-[#FAFAFA] px-4 py-3 min-h-[104px] flex flex-col justify-between">
       <div className="flex items-center justify-between">
         <div className="text-[13px] font-medium text-neutral-600 whitespace-nowrap">
           {label}
@@ -1019,7 +1019,7 @@ export default function RevenueCycleManagement() {
         {/* Quiet footer */}
         <div className="mt-6 grid grid-cols-2 gap-4 border-t border-neutral-200 pt-4">
           <div className="flex items-baseline gap-2">
-            <span className="text-emerald-600">$</span>
+            {/* <span className="text-emerald-600">$</span> */}
             <span
               className={`text-[20px] font-semibold text-neutral-900 ${clsNum}`}
             >
