@@ -371,9 +371,6 @@ function AgingBadge({ days }: { days: number }) {
   );
 }
 
-type SortKey = "amount" | "aging" | null;
-type SortDir = "asc" | "desc";
-
 export default function RevenueCycleManagement() {
   const [range, setRange] = React.useState<TimeRange>("this_month");
 
@@ -384,10 +381,6 @@ export default function RevenueCycleManagement() {
   const [aging, setAging] = React.useState<"Any" | "≤2d" | "≤5d" | ">5d">(
     "Any"
   );
-
-  // sorting
-  const [sortKey, setSortKey] = React.useState<SortKey>(null);
-  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
 
   // pagination
   const [page, setPage] = React.useState(1);
@@ -432,16 +425,33 @@ export default function RevenueCycleManagement() {
     });
   }, [q, payer, reason, aging]);
 
-  // sort (stable)
+  type SortKey = "amount" | "aging" | null;
+  type SortDir = "asc" | "desc";
+
+  // fixed values (non-interactive)
+  const sortKey: SortKey = null;
+  const sortDir: SortDir = "desc";
+
+  // map direction -> multiplier
+  const DIR_FACTOR: Record<SortDir, 1 | -1> = { asc: 1, desc: -1 };
+
   const sorted = React.useMemo(() => {
     if (!sortKey) return filtered;
+
+    const factor = DIR_FACTOR[sortDir];
     const arr = [...filtered];
-    arr.sort((a, b) => {
-      const av = a[sortKey] as number;
-      const bv = b[sortKey] as number;
-      return sortDir === "asc" ? av - bv : bv - av;
+
+    // stable sort with index tiebreak
+    const withIdx = arr.map((v, i) => ({ v, i }));
+    withIdx.sort((a, b) => {
+      const av = a.v[sortKey] as number;
+      const bv = b.v[sortKey] as number;
+      const cmp = av - bv;
+      if (cmp !== 0) return factor * cmp;
+      return a.i - b.i;
     });
-    return arr;
+
+    return withIdx.map((x) => x.v);
   }, [filtered, sortKey, sortDir]);
 
   // paginate
