@@ -429,13 +429,13 @@ export default function RevenueCycleManagement() {
   type SortDir = "asc" | "desc";
 
   // fixed values (non-interactive)
-  const sortKey: SortKey = null;
+  const sortKey: SortKey = "aging";
   const sortDir: SortDir = "desc";
 
   // map direction -> multiplier
-  const DIR_FACTOR: Record<SortDir, 1 | -1> = { asc: 1, desc: -1 };
-
+  
   const sorted = React.useMemo(() => {
+    const DIR_FACTOR: Record<SortDir, 1 | -1> = { asc: 1, desc: -1 };
     if (!sortKey) return filtered;
 
     const factor = DIR_FACTOR[sortDir];
