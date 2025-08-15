@@ -37,6 +37,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Workflow,
 } from "lucide-react";
 import ClaimsStatusCard, { StatusItem } from "./rcm/ClaimStatusCard";
 
@@ -497,9 +498,8 @@ export default function RevenueCycleManagement() {
             <CardTitle className="flex items-center gap-2 text-[18px] font-semibold text-neutral-900">
               <span
                 className="inline-grid h-5 w-5 place-items-center rounded-md"
-                style={{ background: BRAND.softInfoBg }}
               >
-                <CheckIcon />
+                <Workflow className="w-5 h-5 text-blue-600" />
               </span>
               Revenue Cycle Management
             </CardTitle>
@@ -1029,21 +1029,5 @@ export default function RevenueCycleManagement() {
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-/** tiny brand mark to avoid another icon import */
-function CheckIcon() {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      className="h-3.5 w-3.5"
-      style={{ color: BRAND.info }}
-    >
-      <path
-        d="M7.5 13.5L3.5 9.5l1.4-1.4 2.6 2.6 7.6-7.6L16.5 4l-9 9z"
-        fill="currentColor"
-      />
-    </svg>
   );
 }
