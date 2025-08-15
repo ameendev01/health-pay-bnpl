@@ -1,5 +1,7 @@
+
 import React from 'react';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const insights = [
   {
@@ -18,22 +20,27 @@ const insights = [
 
 export default function KeyInsights() {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center space-x-3 mb-4">
-        <Lightbulb className="w-6 h-6 text-yellow-500" />
-        <h2 className="text-lg font-semibold text-gray-900">Key Insights</h2>
-      </div>
-      <ul className="space-y-3">
-        {insights.map((insight, index) => (
-          <li key={index} className="flex items-start space-x-3">
-            <div className="w-1.5 h-1.5 bg-teal-500 rounded-full mt-2"></div>
-            <div>
-              <p className="text-sm text-gray-800">{insight.text}</p>
-              <p className="text-xs text-gray-500">Source: {insight.source}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+      <CardHeader>
+        <div className="flex items-center space-x-3">
+          <Lightbulb className="w-6 h-6 text-yellow-500" />
+          <CardTitle className="text-lg font-semibold text-gray-900">Key Insights</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-4">
+          {insights.map((insight, index) => (
+            <li key={index} className="flex items-start space-x-3">
+              <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
+              <div>
+                <p className="text-sm text-gray-800">{insight.text}</p>
+                <p className="text-xs text-gray-500">Source: {insight.source}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 }
+

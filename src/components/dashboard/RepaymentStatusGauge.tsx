@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { ArrowRight, Gauge } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
@@ -174,10 +174,10 @@ export default function RepaymentHealthCard({
       <CardHeader className="pb-2 sm:pb-3">
         <div className="grid gap-3 sm:gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
           {/* Left: title + sub */}
-          <div className="min-w-0">
+          <div className="min-w-0 -mb-2 sm:-mb-1">
             <CardTitle className="leading-tight text-lg sm:text-[1.1rem] font-semibold text-neutral-900 flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-blue-600" />
-              <span className="">Payment Plan Health</span>
+              <Gauge className="w-5 h-5 text-blue-600" />
+              <span className="">Payment Plans</span>
             </CardTitle>
             <p className="mt-1 text-sm text-neutral-500">
               Live repayment health for{" "}
@@ -211,7 +211,8 @@ export default function RepaymentHealthCard({
       <CardContent className="space-y-6 sm:space-y-7">
         {/* ---------- Donut: clamped size, correct label ---------- */}
         <div className="min-w-0">
-          <ChartContainer config={chartConfig} className="!h-auto !min-h-0 !aspect-auto p-0 sm:p-0 md:h-[220px]">
+          <ChartContainer config={chartConfig} 
+          className="!h-auto !min-h-0 !aspect-auto p-0">
             {/* clamp so it never overwhelms the right column */}
             <div className="mx-auto w-[clamp(160px,30vw,220px)] h-[clamp(160px,30vw,220px)]">
               <ResponsiveContainer width="100%" height="100%">

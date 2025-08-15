@@ -27,7 +27,7 @@ export default function ProtectedLayout({
       <div
         className={`transition-all duration-500 ease-in-out ${
           sidebarCollapsed ? "col-span-38" : "col-span-33"
-        } min-w-0 rounded-2xl bg-[#fefcf5] overflow-y-auto flex flex-col shadow-xl border border-[#e7e4db]/50`}
+        } min-w-0 rounded-2xl bg-[#fefcf5] overflow-y-auto flex flex-col shadow-xl border border-[#e7e4db]/50 px-4 sm:px-6 lg:px-6 pb-6 pt-3`}
       >
         <div className="flex-shrink-0">
           <Header
@@ -36,7 +36,7 @@ export default function ProtectedLayout({
             setSidebarCollapsed={setSidebarCollapsed}
           />
         </div>
-        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6">{children}</div>
+        <div className="flex-1 pt-6">{children}</div>
       </div>
     </div>
   );

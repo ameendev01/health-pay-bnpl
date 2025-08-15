@@ -1,6 +1,10 @@
+
 import React from 'react';
 import { Activity, TrendingUp, TrendingDown } from 'lucide-react';
 import { ProcedureData } from '@/features/analytics/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
 
 interface ProcedureAnalyticsProps {
   data: ProcedureData[];
@@ -9,49 +13,43 @@ interface ProcedureAnalyticsProps {
 export default function ProcedureAnalytics({ data }: ProcedureAnalyticsProps) {
   return (
     <div className="space-y-6">
-      {/* Procedure Analytics */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Procedure Analytics</h2>
+      {/* Procedure Analytics Table */}
+      <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">Procedure Analytics</CardTitle>
           <p className="text-sm text-gray-600 mt-1">Performance metrics by medical procedure</p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Procedure</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Revenue</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Growth</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Market Share</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-b border-neutral-200">
+                <TableHead>Procedure</TableHead>
+                <TableHead>Count</TableHead>
+                <TableHead>Total Revenue</TableHead>
+                <TableHead>Avg Amount</TableHead>
+                <TableHead>Growth</TableHead>
+                <TableHead>Market Share</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {data.map((procedure, index) => {
                 const totalRevenue = data.reduce((sum, p) => sum + p.revenue, 0);
                 const marketShare = (procedure.revenue / totalRevenue) * 100;
                 
                 return (
-                  <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <TableRow key={index} className="border-b last:border-0 border-neutral-100 hover:bg-neutral-50/60">
+                    <TableCell>
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                          <Activity className="w-4 h-4 text-white" />
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Activity className="w-4 h-4 text-blue-600" />
                         </div>
                         <span className="font-medium text-gray-900">{procedure.name}</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-gray-900">{procedure.count}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-semibold text-gray-900">${procedure.revenue.toLocaleString()}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-gray-900">${procedure.avgAmount.toLocaleString()}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </TableCell>
+                    <TableCell>{procedure.count}</TableCell>
+                    <TableCell className="font-semibold">${procedure.revenue.toLocaleString()}</TableCell>
+                    <TableCell>${procedure.avgAmount.toLocaleString()}</TableCell>
+                    <TableCell>
                       <div className="flex items-center space-x-1">
                         {procedure.growth > 0 ? (
                           <TrendingUp className="w-4 h-4 text-green-500" />
@@ -64,43 +62,38 @@ export default function ProcedureAnalytics({ data }: ProcedureAnalyticsProps) {
                           {procedure.growth > 0 ? '+' : ''}{procedure.growth}%
                         </span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex items-center space-x-2">
-                        <div className="w-16 bg-gray-200 rounded-full h-1.5">
-                          <div 
-                            className="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full" 
-                            style={{ width: `${marketShare}%` }}
-                          ></div>
-                        </div>
+                        <Progress value={marketShare} className="w-24" indicatorClassName="bg-blue-500" />
                         <span className="text-sm text-gray-600">{marketShare.toFixed(1)}%</span>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Procedure Revenue Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Revenue by Procedure Type</h3>
+      <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">Revenue by Procedure Type</CardTitle>
           <p className="text-sm text-gray-600 mt-1">Comparative revenue analysis</p>
-        </div>
-        <div className="p-6">
+        </CardHeader>
+        <CardContent>
           <div className="h-64 flex items-end justify-between space-x-3">
             {data.map((procedure, index) => (
               <div key={index} className="flex-1 flex flex-col items-center">
                 <div 
-                  className="w-full bg-gradient-to-t from-indigo-500 to-purple-500 rounded-t-lg transition-all duration-500 hover:from-indigo-600 hover:to-purple-600"
+                  className="w-full bg-blue-500 rounded-t-lg transition-all duration-500 hover:bg-blue-600"
                   style={{ 
                     height: `${(procedure.revenue / Math.max(...data.map(p => p.revenue))) * 200}px`,
                     minHeight: '20px'
                   }}
-                  title={`${procedure.name}: $${procedure.revenue.toLocaleString()}`}
+                  title={`${procedure.name}: ${procedure.revenue.toLocaleString()}`}
                 ></div>
                 <div className="mt-3 text-center">
                   <p className="text-xs font-medium text-gray-900 transform -rotate-12">
@@ -111,8 +104,9 @@ export default function ProcedureAnalytics({ data }: ProcedureAnalyticsProps) {
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
