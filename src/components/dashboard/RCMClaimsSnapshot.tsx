@@ -495,7 +495,7 @@ export default function RevenueCycleManagement() {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle className="flex items-center gap-2 text-[18px] font-semibold text-neutral-900">
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold leading-tight text-neutral-900">
               <span
                 className="inline-grid h-5 w-5 place-items-center rounded-md"
               >

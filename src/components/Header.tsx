@@ -230,7 +230,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
 
   return (
     <div className="sticky top-0 z-30 bg-[#fefcf5]/95 backdrop-blur-xl">
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <button
