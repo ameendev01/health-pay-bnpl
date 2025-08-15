@@ -33,7 +33,7 @@ import {
   Clock,
   Star,
   Lightbulb,
-  TrendingFlat
+  ArrowRight
 } from 'lucide-react';
 import { ProcedureData } from '@/features/analytics/types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, Area, AreaChart } from 'recharts';
@@ -493,7 +493,7 @@ export default function ProcedureAnalytics({ data }: ProcedureAnalyticsProps) {
                             ) : procedure.growth < 0 ? (
                               <ArrowDownRight className="w-4 h-4 text-red-500" />
                             ) : (
-                              <TrendingFlat className="w-4 h-4 text-gray-500" />
+                              <ArrowRight className="w-4 h-4 text-gray-500" />
                             )}
                             <span className={`text-sm font-medium ${
                               procedure.growth > 0 ? 'text-green-600' : 
