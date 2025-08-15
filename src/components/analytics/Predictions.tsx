@@ -1,16 +1,19 @@
+
 import React from 'react';
-import { TrendingUp, Target, Zap } from 'lucide-react';
+import { TrendingUp, Target, Zap, Lightbulb } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 export default function Predictions() {
   return (
     <div className="space-y-6">
       {/* Revenue Predictions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Next Month's Forecast</h2>
-          <p className="text-sm text-gray-600 mt-1">Based on current trends, we project you will add <span className="font-bold text-teal-600">50 new payment plans</span> next month, generating an estimated <span className="font-bold text-teal-600">$150,000</span> in revenue.</p>
-        </div>
-        <div className="p-6">
+      <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">Next Month's Forecast</CardTitle>
+          <p className="text-sm text-gray-600 mt-1">Based on current trends, we project you will add <span className="font-bold text-blue-600">50 new payment plans</span> next month, generating an estimated <span className="font-bold text-blue-600">$150,000</span> in revenue.</p>
+        </CardHeader>
+        <CardContent>
           <div className="h-80 flex items-end justify-between space-x-2">
             {[ 
               { month: 'Jul', actual: 290000, predicted: null },
@@ -24,7 +27,7 @@ export default function Predictions() {
                 <div className="w-full">
                   {item.actual ? (
                     <div 
-                      className="w-full bg-gradient-to-t from-teal-500 to-teal-400 rounded-t-lg"
+                      className="w-full bg-green-500 rounded-t-lg"
                       style={{ 
                         height: `${(item.actual / 400000) * 250}px`,
                         minHeight: '20px'
@@ -33,7 +36,7 @@ export default function Predictions() {
                     ></div>
                   ) : (
                     <div 
-                      className="w-full bg-gradient-to-t from-blue-500 to-purple-500 rounded-t-lg"
+                      className="w-full bg-blue-500 rounded-t-lg"
                       style={{ 
                         height: `${(item.predicted! / 400000) * 250}px`,
                         minHeight: '20px'
@@ -53,7 +56,7 @@ export default function Predictions() {
           </div>
           <div className="mt-6 flex items-center justify-center space-x-6">
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-teal-500 rounded"></div>
+              <div className="w-3 h-3 bg-green-500 rounded"></div>
               <span className="text-sm text-gray-600">Actual Revenue</span>
             </div>
             <div className="flex items-center space-x-2">
@@ -61,69 +64,47 @@ export default function Predictions() {
               <span className="text-sm text-gray-600">Predicted Revenue</span>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Predictive Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Growth Opportunities</h3>
+        <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Growth Opportunities</CardTitle>
             <p className="text-sm text-gray-600 mt-1">AI-identified expansion opportunities</p>
-          </div>
-          <div className="p-6">
+          </CardHeader>
+          <CardContent>
             <div className="space-y-4">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                  <span className="font-medium text-green-800">High Growth Potential</span>
+                <div className="flex items-start space-x-3">
+                    <div className="p-2 bg-green-100 rounded-full"><TrendingUp className="w-5 h-5 text-green-600" /></div>
+                    <p className="text-sm text-gray-700">Dental implant procedures show <span className="font-semibold">32% growth potential</span> in California market.</p>
                 </div>
-                <p className="text-sm text-green-700 mb-2">
-                  Dental implant procedures show 32% growth potential in California market
-                </p>
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Recommended Action</span>
-              </div>
-              
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Target className="w-5 h-5 text-blue-600" />
-                  <span className="font-medium text-blue-800">Market Expansion</span>
+                <div className="flex items-start space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-full"><Target className="w-5 h-5 text-blue-600" /></div>
+                    <p className="text-sm text-gray-700">Untapped market in Florida with <span className="font-semibold">45% higher average payment values</span>.</p>
                 </div>
-                <p className="text-sm text-blue-700 mb-2">
-                  Untapped market in Florida with 45% higher average payment values
-                </p>
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Consider</span>
-              </div>
-              
-              <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Zap className="w-5 h-5 text-purple-600" />
-                  <span className="font-medium text-purple-800">Process Optimization</span>
+                <div className="flex items-start space-x-3">
+                    <div className="p-2 bg-purple-100 rounded-full"><Zap className="w-5 h-5 text-purple-600" /></div>
+                    <p className="text-sm text-gray-700">Automated payment reminders could <span className="font-semibold">reduce late payments by 23%</span>.</p>
                 </div>
-                <p className="text-sm text-purple-700 mb-2">
-                  Automated payment reminders could reduce late payments by 23%
-                </p>
-                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Quick Win</span>
-              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Predictive Metrics</h3>
+        <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Predictive Metrics</CardTitle>
             <p className="text-sm text-gray-600 mt-1">Key performance indicators forecast</p>
-          </div>
-          <div className="p-6">
+          </CardHeader>
+          <CardContent>
             <div className="space-y-6">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">Expected Growth Rate</span>
                   <span className="text-sm font-bold text-green-600">+18.5%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-                </div>
+                <Progress value={75} indicatorClassName="bg-green-500" />
               </div>
               
               <div>
@@ -131,9 +112,7 @@ export default function Predictions() {
                   <span className="text-sm font-medium text-gray-700">Market Penetration</span>
                   <span className="text-sm font-bold text-blue-600">34.2%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style={{ width: '34%' }}></div>
-                </div>
+                <Progress value={34} indicatorClassName="bg-blue-500" />
               </div>
               
               <div>
@@ -141,9 +120,7 @@ export default function Predictions() {
                   <span className="text-sm font-medium text-gray-700">Customer Retention</span>
                   <span className="text-sm font-bold text-teal-600">92.8%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-teal-500 to-cyan-500 h-2 rounded-full" style={{ width: '93%' }}></div>
-                </div>
+                <Progress value={93} indicatorClassName="bg-teal-500" />
               </div>
               
               <div>
@@ -151,14 +128,13 @@ export default function Predictions() {
                   <span className="text-sm font-medium text-gray-700">Risk Score</span>
                   <span className="text-sm font-bold text-orange-600">Low (12.3)</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" style={{ width: '15%' }}></div>
-                </div>
+                <Progress value={15} indicatorClassName="bg-orange-500" />
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
+

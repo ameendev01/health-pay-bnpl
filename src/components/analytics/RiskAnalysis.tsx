@@ -1,6 +1,9 @@
+
 import React from 'react';
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, XCircle, Clock, TrendingDown } from 'lucide-react';
 import { RiskMetric } from '@/features/analytics/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface RiskAnalysisProps {
   data: RiskMetric[];
@@ -22,20 +25,19 @@ const getRiskColor = (status: string) => {
 export default function RiskAnalysis({ data }: RiskAnalysisProps) {
   return (
     <div className="space-y-6">
-      {/* Risk Assessment Dashboard */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Risk Assessment by Clinic</h3>
+        <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Risk Assessment by Clinic</CardTitle>
             <p className="text-sm text-gray-600 mt-1">Default risk scoring and monitoring</p>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
               {data.map((risk, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-                      <AlertTriangle className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                      <AlertTriangle className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">{risk.clinic}</p>
@@ -65,71 +67,50 @@ export default function RiskAnalysis({ data }: RiskAnalysisProps) {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Risk Distribution</h3>
+        <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Risk Distribution</CardTitle>
             <p className="text-sm text-gray-600 mt-1">Portfolio risk breakdown</p>
-          </div>
-          <div className="p-6">
-            <div className="space-y-6">
-              <div className="text-center">
-                <div className="relative inline-flex items-center justify-center w-32 h-32">
-                  <div className="absolute inset-0 rounded-full border-8 border-green-200"></div>
-                  <div className="absolute inset-0 rounded-full border-8 border-green-500" style={{ 
-                    clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 30%, 50% 50%)'
-                  }}></div>
-                  <div className="absolute inset-2 rounded-full border-6 border-yellow-500" style={{ 
-                    clipPath: 'polygon(50% 50%, 100% 30%, 100% 70%, 50% 50%)'
-                  }}></div>
-                  <div className="absolute inset-4 rounded-full border-4 border-red-500" style={{ 
-                    clipPath: 'polygon(50% 50%, 100% 70%, 100% 100%, 50% 100%, 50% 50%)'
-                  }}></div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-gray-900">Portfolio</p>
-                    <p className="text-sm text-gray-600">Risk Score</p>
-                  </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 pt-4">
+                <div>
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-600">Low Risk</span>
+                        <span className="text-sm font-medium text-gray-900">68%</span>
+                    </div>
+                    <Progress value={68} indicatorClassName="bg-green-500" />
                 </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">Low Risk</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">68%</span>
+                <div>
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-600">Medium Risk</span>
+                        <span className="text-sm font-medium text-gray-900">27%</span>
+                    </div>
+                    <Progress value={27} indicatorClassName="bg-yellow-500" />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">Medium Risk</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">27%</span>
+                <div>
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-600">High Risk</span>
+                        <span className="text-sm font-medium text-gray-900">5%</span>
+                    </div>
+                    <Progress value={5} indicatorClassName="bg-red-500" />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-900">5%</span>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Early Warning Indicators */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Early Warning Indicators</h3>
+      <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">Early Warning Indicators</CardTitle>
           <p className="text-sm text-gray-600 mt-1">Potential issues requiring attention</p>
-        </div>
-        <div className="p-6">
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
+            <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
               <div className="flex items-center space-x-2 mb-2">
                 <AlertTriangle className="w-5 h-5 text-yellow-600" />
                 <span className="font-medium text-yellow-800">Late Payments</span>
@@ -138,7 +119,7 @@ export default function RiskAnalysis({ data }: RiskAnalysisProps) {
               <p className="text-sm text-yellow-700">Payments overdue 5 days</p>
             </div>
             
-            <div className="p-4 border border-red-200 bg-red-50 rounded-lg">
+            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
               <div className="flex items-center space-x-2 mb-2">
                 <XCircle className="w-5 h-5 text-red-600" />
                 <span className="font-medium text-red-800">Failed Payments</span>
@@ -147,7 +128,7 @@ export default function RiskAnalysis({ data }: RiskAnalysisProps) {
               <p className="text-sm text-red-700">Payment failures this week</p>
             </div>
             
-            <div className="p-4 border border-orange-200 bg-orange-50 rounded-lg">
+            <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
               <div className="flex items-center space-x-2 mb-2">
                 <Clock className="w-5 h-5 text-orange-600" />
                 <span className="font-medium text-orange-800">At Risk Plans</span>
@@ -156,7 +137,7 @@ export default function RiskAnalysis({ data }: RiskAnalysisProps) {
               <p className="text-sm text-orange-700">Plans with missed payments</p>
             </div>
             
-            <div className="p-4 border border-blue-200 bg-blue-50 rounded-lg">
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center space-x-2 mb-2">
                 <TrendingDown className="w-5 h-5 text-blue-600" />
                 <span className="font-medium text-blue-800">Declining Clinics</span>
@@ -165,8 +146,9 @@ export default function RiskAnalysis({ data }: RiskAnalysisProps) {
               <p className="text-sm text-blue-700">Clinics with negative growth</p>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
