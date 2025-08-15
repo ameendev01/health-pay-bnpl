@@ -5,36 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Activity, 
-  TrendingUp, 
-  TrendingDown,
-  DollarSign,
-  CreditCard,
-  Users,
-  ArrowUpRight,
-  ArrowDownRight,
-  ChevronRight,
-  Filter,
-  Target,
-  Zap,
-  Award,
-  AlertCircle,
-  CheckCircle,
-  Eye,
-  BarChart3,
-  Heart,
-  Stethoscope,
-  Brain,
-  Bone,
-  Smile,
-  Search,
-  Calendar,
-  Clock,
-  Star,
-  Lightbulb,
-  TrendingFlat
-} from 'lucide-react';
+import { Activity, TrendingUp, TrendingDown, DollarSign, CreditCard, Users, ArrowUpRight, ArrowDownRight, ChevronRight, Filter, Target, Zap, Award, AlertCircle, CheckCircle, Eye, BarChart3, Heart, Stethoscope, Brain, Bone, Smile, Search, Calendar, Clock, Star, Lightbulb, TrendingUp as TrendingFlat } from 'lucide-react';
 import { ProcedureData } from '@/features/analytics/types';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, Area, AreaChart } from 'recharts';
 
