@@ -43,9 +43,9 @@ interface SidebarProps {
 // tokens that mirror your brand
 const RAIL_WIDTH = "w-[72px]";
 const DRAWER_WIDTH = "w-72";
-const BRAND_BG = "bg-[#fefcf5]/95";
-const BRAND_BORDER = "border-[#e7e4db]/100";
-const BRAND_TINT = "bg-[#e0e3e5]/80";
+const BRAND_BG = "bg-white/95";
+const BRAND_BORDER = "border-gray-200/80";
+const BRAND_TINT = "bg-blue-50/80";
 
 const navigation = [
   {

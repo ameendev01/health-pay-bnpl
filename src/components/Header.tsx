@@ -229,12 +229,12 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
   };
 
   return (
-    <div className="sticky top-0 z-30 bg-[#fefcf5]/95 backdrop-blur-xl">
+    <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-gray-100/50">
       <div className="">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile menu button */}
           <button
-            className="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            className="lg:hidden p-2 rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-200"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="w-6 h-6" />
@@ -249,20 +249,20 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search clinics, payments, or transactions..."
+                placeholder="Search clinics, patients, or transactions..."
                 value={searchTerm}
                 onChange={handleSearchChange}
                 onFocus={() => setIsSearchFocused(true)}
                 onKeyDown={handleKeyDown}
-                className="block w-full rounded-xl pl-10 pr-3 py-2.5 text-sm placeholder-gray-500 focus:ring-[#1557f6] transition-all duration-200 bg-white border-[#d7d4ca] border-2 focus:bg-white"
+                className="block w-full rounded-2xl pl-10 pr-3 py-3 text-sm placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm"
               />
               
               {/* Search Results Dropdown */}
               {isSearchFocused && (searchResults.length > 0 || searchTerm.trim()) && (
-                <div className="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+                <div className="absolute z-50 mt-2 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 max-h-96 overflow-y-auto">
                   {searchResults.length > 0 ? (
                     <>
-                      <div className="px-4 py-3 bg-[#fefcf5] border-b border-[#e7e4db] rounded-t-xl">
+                      <div className="px-4 py-3 bg-gray-50/80 border-b border-gray-200/50 rounded-t-2xl">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                           {searchResults.length} Result{searchResults.length !== 1 ? 's' : ''}
                         </p>
@@ -286,7 +286,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
           {/* Right section */}
           <div className="flex items-center space-x-4">
             {/* Support */}
-            <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+            <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors duration-200">
               <HelpCircle className="w-6 h-6" />
             </button>
 
@@ -294,7 +294,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors duration-200"
               >
                 <Bell className="w-6 h-6" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -302,13 +302,13 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
 
               {/* Notifications Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 z-50">
                   <div className="p-4 border-b border-gray-200">
                     <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
                   </div>
                   <div className="max-h-64 overflow-y-auto">
                     {notifications.map((notification) => (
-                      <div key={notification.id} className="p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <div key={notification.id} className="p-4 border-b border-gray-100 hover:bg-gray-50/80 transition-colors">
                         <div className="flex items-start space-x-3">
                           <div className={`w-2 h-2 rounded-full mt-2 ${
                             notification.type === 'success' ? 'bg-green-500' :

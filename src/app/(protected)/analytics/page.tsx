@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { Download, BarChart3, Target, MapPin, Activity, AlertTriangle, TrendingUp } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
-import KeyMetrics from '@/components/analytics/KeyMetrics';
-import RevenueChart from '@/components/analytics/RevenueChart';
+import OverviewTab from '@/components/analytics/OverviewTab';
 import HourlyPaymentActivity from '@/components/analytics/HourlyPaymentActivity';
 import WeeklyPerformance from '@/components/analytics/WeeklyPerformance';
 import PaymentPerformanceMetrics from '@/components/analytics/PaymentPerformanceMetrics';
@@ -14,7 +13,6 @@ import ProcedureAnalytics from '@/components/analytics/ProcedureAnalytics';
 import RiskAnalysis from '@/components/analytics/RiskAnalysis';
 import Predictions from '@/components/analytics/Predictions';
 import { useAnalyticsData } from '@/features/analytics/hooks/useAnalyticsData';
-import KeyInsights from '@/components/analytics/KeyInsights';
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState('6months');
@@ -42,15 +40,7 @@ export default function AnalyticsPage() {
     switch (activeView) {
       case 'overview':
         return (
-          <div className="space-y-6">
-            <KeyInsights />
-            <KeyMetrics />
-            <RevenueChart data={data.revenue} />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <HourlyPaymentActivity data={data.hourly} />
-              <WeeklyPerformance data={data.weekly} />
-            </div>
-          </div>
+          <OverviewTab />
         );
       case 'performance':
         return (
@@ -78,7 +68,7 @@ export default function AnalyticsPage() {
         <select
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+          className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm"
         >
           <option value="1month">Last Month</option>
           <option value="3months">Last 3 Months</option>
@@ -91,7 +81,7 @@ export default function AnalyticsPage() {
         </button>
       </PageHeader>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border-0 p-6">
         <nav className="flex space-x-1 overflow-x-auto">
           {views.map((view) => {
             const Icon = view.icon;
@@ -99,10 +89,10 @@ export default function AnalyticsPage() {
               <button
                 key={view.id}
                 onClick={() => setActiveView(view.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 whitespace-nowrap ${
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200 whitespace-nowrap ${
                   activeView === view.id
-                    ? 'bg-teal-50 text-teal-700 border border-teal-200'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-blue-100 text-blue-700 shadow-sm border border-blue-200'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
                 }`}
               >
                 <Icon className="w-5 h-5" />
