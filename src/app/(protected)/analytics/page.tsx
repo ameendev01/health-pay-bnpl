@@ -14,7 +14,6 @@ import {
   Users,
   Building2
 } from 'lucide-react';
-import PageHeader from '@/components/shared/PageHeader';
 import ModernKPICards from '@/components/analytics/ModernKPICards';
 import ModernRevenueChart from '@/components/analytics/ModernRevenueChart';
 import ModernHourlyActivity from '@/components/analytics/ModernHourlyActivity';
@@ -68,7 +67,7 @@ export default function AnalyticsPage() {
       return (
         <div className="space-y-8">
           {/* Skeleton loaders */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="bg-white rounded-2xl p-6 border border-gray-200 animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
