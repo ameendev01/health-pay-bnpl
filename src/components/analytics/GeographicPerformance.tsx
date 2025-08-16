@@ -10,7 +10,7 @@ interface GeographicPerformanceProps {
 export default function GeographicPerformance({ data }: GeographicPerformanceProps) {
   return (
     <div className="space-y-6">
-      <Card className="shadow-sm border border-gray-200 bg-white">
+      <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-900">Geographic Performance</CardTitle>
           <p className="text-sm text-gray-600 mt-1">Revenue and growth by state</p>
@@ -18,7 +18,7 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
         <CardContent>
           <div className="space-y-4">
             {data.map((location, index) => (
-              <div key={index} className="flex items-center space-x-4 p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+              <div key={index} className="flex items-center space-x-4 p-3 rounded-lg">
                 <div className="flex items-center space-x-3 flex-1">
                   <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-white" />
@@ -47,7 +47,7 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-sm border border-gray-200 bg-white">
+        <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900">Revenue Distribution</CardTitle>
           </CardHeader>
@@ -58,7 +58,7 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
                   <span className="w-20 text-sm text-gray-600">{location.state}</span>
                   <div className="flex-1 bg-gray-200 rounded-full h-2">
                     <div 
-                      className="bg-teal-500 h-2 rounded-full"
+                      className="bg-blue-500 h-2 rounded-full"
                       style={{ 
                         width: `${(location.revenue / Math.max(...data.map(l => l.revenue))) * 100}%` 
                       }}
@@ -73,7 +73,7 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border border-gray-200 bg-white">
+        <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900">Clinic Distribution</CardTitle>
           </CardHeader>
@@ -84,7 +84,7 @@ export default function GeographicPerformance({ data }: GeographicPerformancePro
                   <span className="w-20 text-sm text-gray-600">{location.state}</span>
                   <div className="flex-1 bg-gray-200 rounded-full h-2">
                     <div 
-                      className="bg-blue-500 h-2 rounded-full"
+                      className="bg-green-500 h-2 rounded-full"
                       style={{ 
                         width: `${(location.clinics / Math.max(...data.map(l => l.clinics))) * 100}%` 
                       }}

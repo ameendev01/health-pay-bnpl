@@ -1,5 +1,8 @@
+
 import React from 'react';
 import { WeeklyPerformanceData } from '@/features/analytics/types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface WeeklyPerformanceProps {
   data: WeeklyPerformanceData[];
@@ -7,24 +10,19 @@ interface WeeklyPerformanceProps {
 
 export default function WeeklyPerformance({ data }: WeeklyPerformanceProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-      <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Weekly Performance</h3>
+    <Card className="bg-white/70 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold text-gray-900">Weekly Performance</CardTitle>
         <p className="text-sm text-gray-600 mt-1">Payment completion by day of week</p>
-      </div>
-      <div className="p-6">
-        <div className="space-y-3">
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
           {data.map((item, index) => (
             <div key={index} className="flex items-center space-x-4">
               <div className="w-12 text-sm font-medium text-gray-700">{item.day}</div>
               <div className="flex-1 flex items-center space-x-3">
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full transition-all duration-500" 
-                    style={{ width: `${item.completion}%` }}
-                  ></div>
-                </div>
-                <div className="text-sm text-gray-600 w-20 text-right">
+                <Progress value={item.completion} indicatorClassName="bg-green-500" />
+                <div className="text-sm text-gray-600 w-12 text-right">
                   {item.completion}%
                 </div>
               </div>
@@ -34,7 +32,8 @@ export default function WeeklyPerformance({ data }: WeeklyPerformanceProps) {
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
+
