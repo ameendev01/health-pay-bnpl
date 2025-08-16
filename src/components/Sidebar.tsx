@@ -16,6 +16,7 @@ import {
   House,
   PanelRightClose,
   PanelRightOpen,
+  Shield,
 } from "lucide-react";
 
 import Link from "next/link";
