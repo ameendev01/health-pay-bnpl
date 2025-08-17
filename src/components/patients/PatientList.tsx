@@ -1,6 +1,6 @@
 import React from 'react';
 import { Patient } from '@/features/patients/types';
-import { Eye, User, CreditCard, Calendar } from 'lucide-react';
+import { Eye, User, CreditCard, Calendar, Phone, Mail } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
