@@ -29,6 +29,21 @@ import { Progress } from "@/components/ui/progress";
 // ---- Types ----
 type Risk = "Urgent" | "Normal" | "Low";
 type Status = "In Treatment" | "Repaying" | "Delinquent";
+const STATUS_STYLES = {
+  "In Treatment": {
+    pill: "bg-blue-500/10 border-blue-500/30 border-[1.5px] text-blue-700",
+    icon: "text-blue-600",
+  },
+  Repaying: {
+    pill: "bg-emerald-500/10 border-emerald-500/30 border-[1.5px] text-emerald-700",
+    icon: "text-emerald-600",
+  },
+  Delinquent: {
+    pill: "bg-rose-500/10 border-rose-500/30 border-[1.5px] text-rose-700",
+    icon: "text-rose-600",
+  },
+} satisfies Record<Status, { pill: string; icon: string }>;
+
 type PatientRow = {
   id: string;
   name: string;
@@ -397,6 +412,8 @@ export default function PatientsTable() {
       {groups.map(({ key, label, icon: Icon }) => {
         const list = grouped[key] || [];
         const isCollapsed = collapsed[key];
+        const styles = STATUS_STYLES[key as Status];
+
         return (
           <div key={key} className="border-t border-[#ece9dd]">
             {/* Group header pill */}
@@ -409,11 +426,16 @@ export default function PatientsTable() {
               ) : (
                 <ChevronDown className="h-4 w-4 text-gray-500" />
               )}
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#e7e4db] bg-[#faf9f6] px-2.5 py-1">
-                <Icon className="h-4 w-4 text-gray-500" />
+              <span
+                className={[
+                  "inline-flex items-center gap-2 rounded-full border px-2.5 py-1",
+                  styles.pill,
+                ].join(" ")}
+              >
+                <Icon className={["h-4 w-4", styles.icon].join(" ")} />
                 <span>{label}</span>
-                <span className="text-gray-400">•</span>
-                <span className="text-gray-600">{list.length}</span>
+                <span className="opacity-50">•</span>
+                <span className="opacity-80">{list.length}</span>
               </span>
             </button>
 
