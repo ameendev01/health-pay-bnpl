@@ -64,11 +64,25 @@ const navigation = [
     description: "Manage providers",
   },
   {
+    name: "Patients",
+    id: "patients",
+    href: "/patients",
+    icon: Users,
+    description: "Patient directory",
+  },
+  {
     name: "Payments",
     id: "payments",
     href: "/payments",
     icon: CreditCard,
     description: "Payment plans",
+  },
+  {
+    name: "Claims",
+    id: "claims",
+    href: "/claims",
+    icon: FileText,
+    description: "RCM workflow",
   },
   {
     name: "Analytics",
