@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { CreditCard, Download, ArrowUpDown, Filter, Eye, Clock, CheckCircle, XCircle, AlertCircle, Calendar, Pause, Play, RefreshCw } from 'lucide-react';
+import { CreditCard, Download, ArrowUpDown, Filter, Eye, Clock, CheckCircle, XCircle, AlertCircle, Calendar, RefreshCw, DollarSign } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import FilterBar from '@/components/shared/FilterBar';
 import DataTable from '@/components/shared/DataTable';
