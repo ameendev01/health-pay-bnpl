@@ -587,7 +587,7 @@ export default function PatientsTable() {
   return (
     <div className="rounded-xl border border-[#e7e4db] bg-white shadow-sm overflow-hidden">
       {/* View Tabs + Controls */}
-      <div className="flex flex-wrap items-center gap-2 px-4 pt-3">
+      <div className="flex flex-wrap items-center gap-2 px-4 py-3">
         {/* Notion-like view tabs */}
         {/* <div className="inline-flex items-center gap-1 text-[13px]">
           <span className="px-2 py-1 rounded-md border bg-[#f8fafc] text-gray-800">Spreadsheet</span>
@@ -596,7 +596,11 @@ export default function PatientsTable() {
           <button className="px-2 py-1 rounded-md text-gray-500 hover:text-gray-700">Board</button>
         </div> */}
 
-        <div className="ml-auto flex flex-wrap items-center gap-2 pb-3">
+        <div className="inline-flex items-center gap-1 text-lg font-semibold">
+          Patients
+        </div>
+
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
             <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -790,6 +794,10 @@ export default function PatientsTable() {
             </PopoverContent>
           </Popover>
 
+          <Button variant="default" size="sm" className="h-8 gap-1">
+            <Plus className="h-4 w-4" /> Add patient
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -798,10 +806,6 @@ export default function PatientsTable() {
           >
             <Download className="h-4 w-4" />
             Export
-          </Button>
-
-          <Button variant="default" size="sm" className="h-8 gap-1">
-            <Plus className="h-4 w-4" /> Add patient
           </Button>
         </div>
       </div>

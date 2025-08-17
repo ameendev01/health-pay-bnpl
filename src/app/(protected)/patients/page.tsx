@@ -1,17 +1,16 @@
 'use client';
 
 import PatientsTable from '@/components/patients/PatientsTable';
-import PageHeader from '@/components/shared/PageHeader';
+// import PageHeader from '@/components/shared/PageHeader';
 
 export default function PatientsPage() {
   return (
     <div className="space-y-6">
-      <PageHeader
+      {/* <PageHeader
         title="Patients"
         description="All patients across clinics with plan status, repayment progress, and next actions."
       >
-        {/* INTENTIONALLY NO Search/Filter bar per request */}
-      </PageHeader>
+      </PageHeader> */}
 
       <PatientsTable />
     </div>
