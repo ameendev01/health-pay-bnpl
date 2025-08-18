@@ -56,6 +56,8 @@ import {
 type Risk = "Urgent" | "Normal" | "Low";
 type Status = "In Treatment" | "Repaying" | "Delinquent";
 
+type Opt<T extends string> = { label: string; value: T };
+
 const STATUS_STYLES = {
   "In Treatment": {
     pill: "bg-blue-500/10 border-blue-500/30 border-[1.5px] text-blue-700",
@@ -709,29 +711,38 @@ export default function PatientsTable() {
 
                 <PopoverContent
                   align="end"
-                  className="w-[640px] p-0 overflow-hidden rounded-lg border shadow-md"
+                  sideOffset={10}
+                  role="dialog"
+                  aria-label="Filters"
+                  className={[
+                    "z-50 w-full p-0 overflow-hidden",
+                    "rounded-2xl border border-black/10",
+                    "bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90",
+                    "shadow-[0_20px_70px_rgba(0,0,0,0.20)] ring-1 ring-black/5",
+                    // subtle entrance
+                    "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+                    "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+                  ].join(" ")}
                 >
                   {/* Header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b bg-[#fafafa]">
-                    <div className="font-medium text-[13px] text-gray-900">
+                  <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-black/10 bg-white/90 backdrop-blur">
+                    <div className="text-[13px] font-semibold text-gray-900">
                       Filters
                     </div>
-                    <button
-                      className="text-[12px] text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline"
-                      onClick={clearFilters}
-                    >
-                      Reset
-                    </button>
+                    <div className="flex items-center gap-3">
+                      {activeFilterCount > 0 && (
+                        <span className="text-[12px] text-gray-600">
+                          {activeFilterCount} active
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Body */}
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Body (scrolls, header & footer stay) */}
+                  <div className="px-4 max-h-[70vh] overflow-auto">
                     {/* Status */}
-                    <section>
-                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                        Status
-                      </div>
-                      <PillRow<Status | "all">
+                    <Section title="Status" defaultOpen>
+                      <PillRowV2<Status | "all">
                         value={statusFilter}
                         onChange={(v) => setStatusFilter(v)}
                         options={[
@@ -741,14 +752,11 @@ export default function PatientsTable() {
                           { label: "Delinquent", value: "Delinquent" },
                         ]}
                       />
-                    </section>
+                    </Section>
 
                     {/* Risk */}
-                    <section>
-                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                        Risk
-                      </div>
-                      <PillRow<Risk | "all">
+                    <Section title="Risk" defaultOpen>
+                      <PillRowV2<Risk | "all">
                         value={riskFilter}
                         onChange={(v) => setRiskFilter(v)}
                         options={[
@@ -758,18 +766,15 @@ export default function PatientsTable() {
                           { label: "Low", value: "Low" },
                         ]}
                       />
-                    </section>
+                    </Section>
 
                     {/* Clinic */}
-                    <section>
-                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                        Clinic
-                      </div>
+                    <Section title="Clinic" defaultOpen>
                       <Select
                         value={clinicFilter}
                         onValueChange={(v: any) => setClinicFilter(v)}
                       >
-                        <SelectTrigger className="h-8 w-full">
+                        <SelectTrigger className="h-9 w-full">
                           <SelectValue placeholder="All clinics" />
                         </SelectTrigger>
                         <SelectContent className="max-h-64">
@@ -781,19 +786,16 @@ export default function PatientsTable() {
                           ))}
                         </SelectContent>
                       </Select>
-                    </section>
+                    </Section>
 
-                    {/* Date Range */}
-                    <section>
-                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                        Next payment (date range)
-                      </div>
+                    {/* Date range */}
+                    <Section title="Next payment (date range)" defaultOpen>
                       <div className="flex items-center gap-2">
                         <input
                           type="date"
                           value={dateFrom}
                           onChange={(e) => setDateFrom(e.target.value)}
-                          className="h-8 w-full rounded-md border px-2 text-[13px]"
+                          className="h-9 w-full rounded-md border px-2 text-[13px] ring-1 ring-inset ring-black/5 focus:outline-none focus:ring-2 focus:ring-black/20"
                           aria-label="From date"
                         />
                         <span className="text-gray-400">–</span>
@@ -801,44 +803,73 @@ export default function PatientsTable() {
                           type="date"
                           value={dateTo}
                           onChange={(e) => setDateTo(e.target.value)}
-                          className="h-8 w-full rounded-md border px-2 text-[13px]"
+                          className="h-9 w-full rounded-md border px-2 text-[13px] ring-1 ring-inset ring-black/5 focus:outline-none focus:ring-2 focus:ring-black/20"
                           aria-label="To date"
                         />
                       </div>
-                      <div className="mt-2 flex gap-1 flex-wrap">
-                        <QuickRange
-                          label="Today"
+                      <div className="mt-3 flex gap-2 flex-wrap">
+                        <button
+                          className="rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer px-3 py-1.5 text-[12px] text-gray-800"
                           onClick={() =>
                             setFromToForPreset("today", setDateFrom, setDateTo)
                           }
-                        />
-                        <QuickRange
-                          label="This week"
+                        >
+                          Today
+                        </button>
+                        <button
+                          className="rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer px-3 py-1.5 text-[12px] text-gray-800"
                           onClick={() =>
                             setFromToForPreset("week", setDateFrom, setDateTo)
                           }
-                        />
-                        <QuickRange
-                          label="This month"
+                        >
+                          This week
+                        </button>
+                        <button
+                          className="rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer px-3 py-1.5 text-[12px] text-gray-800"
                           onClick={() =>
                             setFromToForPreset("month", setDateFrom, setDateTo)
                           }
-                        />
+                        >
+                          This month
+                        </button>
                       </div>
-                    </section>
+                    </Section>
                   </div>
 
-                  {/* Footer (no duplicate chips here) */}
-                  <div className="px-4 py-3 border-t bg-white flex items-center justify-end gap-2">
-                    <Button
-                      size="sm"
-                      className="h-8"
+                  {/* Footer */}
+                  <div className="sticky bottom-0 border-t border-black/10 bg-white/90 backdrop-blur px-4 py-3 flex items-center justify-between">
+                    <button
+                      className="text-[13px] text-gray-500 hover:text-gray-900"
                       onClick={() => setFilterOpen(false)}
                     >
-                      Apply
-                    </Button>
+                      Hide filters
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8"
+                        onClick={clearFilters}
+                      >
+                        Clear
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="h-8"
+                        onClick={() => setFilterOpen(false)}
+                      >
+                        Apply
+                      </Button>
+                    </div>
                   </div>
                 </PopoverContent>
+                {filterOpen && (
+                  <div
+                    className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1px]"
+                    onClick={() => setFilterOpen(false)}
+                    aria-hidden="true"
+                  />
+                )}
               </Popover>
             </div>
 
@@ -1256,6 +1287,77 @@ export default function PatientsTable() {
   );
 }
 
+// --- Helpers ---------------------------------------------------------------
+
+// Collapsible section like the Showrooms card
+
+function Section({
+  title,
+  children,
+  defaultOpen = true,
+  className = "",
+}: {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+}) {
+  const [open, setOpen] = React.useState(defaultOpen);
+  return (
+    <div className={`border-t first:border-t-0 border-[#ece9dd] ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((s) => !s)}
+        className="w-full flex items-center justify-between py-3 text-[13px] font-semibold text-gray-900"
+        aria-expanded={open}
+      >
+        <span>{title}</span>
+        <ChevronDown
+          className={`h-4 w-4 text-gray-500 transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {open && <div className="pb-3">{children}</div>}
+    </div>
+  );
+}
+
+// Showrooms-style pill row (selected = black)
+function PillRowV2<T extends string>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: Opt<T>[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((o) => {
+        const active = value === o.value;
+        return (
+          <button
+            key={String(o.value)}
+            type="button"
+            onClick={() => onChange(o.value)}
+            className={[
+              "inline-flex items-center rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-all ring-1",
+              "active:scale-[.98]",
+              active
+                ? "bg-black text-white ring-black shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]"
+                : "bg-gray-100 text-gray-800 ring-transparent hover:bg-gray-200",
+            ].join(" ")}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* -------- Notion-y helpers -------- */
 function HeaderButton({
   label,
@@ -1279,55 +1381,6 @@ function HeaderButton({
         className={`h-3.5 w-3.5 ${active ? "opacity-100" : "opacity-40"}`}
         data-dir={dir}
       />
-    </button>
-  );
-}
-
-function PillRow<T extends string>({
-  value,
-  onChange,
-  options,
-}: {
-  value: T;
-  onChange: (v: T) => void;
-  options: { label: string; value: T }[];
-}) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map((o) => {
-        const active = value === o.value;
-        return (
-          <button
-            key={String(o.value)}
-            onClick={() => onChange(o.value)}
-            className={[
-              "px-2.5 h-7 rounded-full border text-[12px]",
-              active
-                ? "bg-[#111827] text-white border-[#111827]"
-                : "bg-[#fafafa] border-[#e6e6e6] text-gray-700 hover:bg-white",
-            ].join(" ")}
-          >
-            {o.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function QuickRange({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="px-2 h-7 rounded-full border text-[12px] bg-[#fafafa] border-[#e6e6e6] text-gray-700 hover:bg-white"
-    >
-      {label}
     </button>
   );
 }
