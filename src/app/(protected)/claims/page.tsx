@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { FileText, Plus, Download, RefreshCw, HelpCircle } from 'lucide-react';
+import { Plus, Download, HelpCircle } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import ClaimsKPICards from '@/components/claims/ClaimsKPICards';
 import ClaimsFilterBar from '@/components/claims/ClaimsFilterBar';
@@ -10,7 +10,7 @@ import BulkActionBar from '@/components/claims/BulkActionBar';
 import ClaimDrawer from '@/components/claims/ClaimDrawer';
 import ClaimResubmissionModal from '@/components/claims/ClaimResubmissionModal';
 import KeyboardShortcutsHelp from '@/components/claims/KeyboardShortcutsHelp';
-import { useClaims } from '@/features/claims/hooks/useClaims';
+// import { useClaims } from '@/features/claims/hooks/useClaims';
 import { Claim, ClaimSearchFilters } from '@/features/claims/types';
 import { mockClaims } from '@/features/claims/constants';
 
@@ -39,7 +39,7 @@ export default function ClaimsPage() {
 
   // Filter and sort claims
   const filteredClaims = React.useMemo(() => {
-    let filtered = claims.filter(claim => {
+    const filtered = claims.filter(claim => {
       const matchesSearch = !filters.searchTerm || 
         claim.claimNumber.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
         claim.payerName.toLowerCase().includes(filters.searchTerm.toLowerCase());
