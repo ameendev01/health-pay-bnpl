@@ -666,235 +666,249 @@ export default function PatientsTable() {
     >
       {/* ---------- FIXED TOP: Patients toolbar + chips ---------- */}
       <div ref={headerRef} className="shrink-0">
-        {/* View Tabs + Controls */}
-        <div className="flex flex-wrap items-center gap-2 px-4 py-3">
-          <div className="inline-flex items-center gap-1 text-lg font-semibold">
+        {/* Title + Controls (desktop first) */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <h1 className="text-lg font-semibold tracking-[-0.01em] text-gray-900">
             Patients
-          </div>
+          </h1>
 
-          <div className="ml-auto flex flex-wrap items-center gap-2">
-            {/* Search */}
-            <div className="relative">
+          <div className="ml-auto flex items-center gap-3">
+            {/* FIND CLUSTER (hidden on mobile, shown on md+) */}
+            <div className="hidden md:flex items-center gap-2">
+              <div className="relative min-w-[220px] w-[320px] max-w-[360px]">
+                <label htmlFor="patient-search" className="sr-only">
+                  Search patients
+                </label>
+                <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="patient-search"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search name, ID, clinic, team…"
+                  className="h-9 pl-8 w-full"
+                />
+              </div>
+
+              <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 p-0 relative"
+                    aria-label="Open filters"
+                    aria-expanded={filterOpen}
+                  >
+                    <FilterIcon className="h-8 w-8" strokeWidth={2.1} />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-4 h-4 rounded-full bg-gray-900 text-white text-[10px] leading-4 px-1 text-center">
+                        {activeFilterCount > 9 ? "9+" : activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent
+                  align="end"
+                  className="w-[640px] p-0 overflow-hidden rounded-lg border shadow-md"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b bg-[#fafafa]">
+                    <div className="font-medium text-[13px] text-gray-900">
+                      Filters
+                    </div>
+                    <button
+                      className="text-[12px] text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline"
+                      onClick={clearFilters}
+                    >
+                      Reset
+                    </button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Status */}
+                    <section>
+                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                        Status
+                      </div>
+                      <PillRow<Status | "all">
+                        value={statusFilter}
+                        onChange={(v) => setStatusFilter(v)}
+                        options={[
+                          { label: "All", value: "all" },
+                          { label: "In Treatment", value: "In Treatment" },
+                          { label: "Repaying", value: "Repaying" },
+                          { label: "Delinquent", value: "Delinquent" },
+                        ]}
+                      />
+                    </section>
+
+                    {/* Risk */}
+                    <section>
+                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                        Risk
+                      </div>
+                      <PillRow<Risk | "all">
+                        value={riskFilter}
+                        onChange={(v) => setRiskFilter(v)}
+                        options={[
+                          { label: "All", value: "all" },
+                          { label: "Urgent", value: "Urgent" },
+                          { label: "Normal", value: "Normal" },
+                          { label: "Low", value: "Low" },
+                        ]}
+                      />
+                    </section>
+
+                    {/* Clinic */}
+                    <section>
+                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                        Clinic
+                      </div>
+                      <Select
+                        value={clinicFilter}
+                        onValueChange={(v: any) => setClinicFilter(v)}
+                      >
+                        <SelectTrigger className="h-8 w-full">
+                          <SelectValue placeholder="All clinics" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-64">
+                          <SelectItem value="all">All clinics</SelectItem>
+                          {clinics.map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {c}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </section>
+
+                    {/* Date Range */}
+                    <section>
+                      <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                        Next payment (date range)
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="date"
+                          value={dateFrom}
+                          onChange={(e) => setDateFrom(e.target.value)}
+                          className="h-8 w-full rounded-md border px-2 text-[13px]"
+                          aria-label="From date"
+                        />
+                        <span className="text-gray-400">–</span>
+                        <input
+                          type="date"
+                          value={dateTo}
+                          onChange={(e) => setDateTo(e.target.value)}
+                          className="h-8 w-full rounded-md border px-2 text-[13px]"
+                          aria-label="To date"
+                        />
+                      </div>
+                      <div className="mt-2 flex gap-1 flex-wrap">
+                        <QuickRange
+                          label="Today"
+                          onClick={() =>
+                            setFromToForPreset("today", setDateFrom, setDateTo)
+                          }
+                        />
+                        <QuickRange
+                          label="This week"
+                          onClick={() =>
+                            setFromToForPreset("week", setDateFrom, setDateTo)
+                          }
+                        />
+                        <QuickRange
+                          label="This month"
+                          onClick={() =>
+                            setFromToForPreset("month", setDateFrom, setDateTo)
+                          }
+                        />
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* Footer (no duplicate chips here) */}
+                  <div className="px-4 py-3 border-t bg-white flex items-center justify-end gap-2">
+                    <Button
+                      size="sm"
+                      className="h-8"
+                      onClick={() => setFilterOpen(false)}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Divider between clusters */}
+            <span
+              className="hidden md:block h-6 w-px bg-[#ece9dd]"
+              aria-hidden="true"
+            />
+
+            {/* ACTIONS CLUSTER */}
+            <div className="flex items-center gap-2">
+              <Button size="sm" className="h-9 gap-1">
+                <Plus className="h-4 w-4" />
+                Add patient
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1"
+                onClick={exportCSV}
+              >
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* MOBILE: show find-controls below title */}
+        <div className="px-4 pb-3 md:hidden">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 min-w-0">
+              <label htmlFor="patient-search-mobile" className="sr-only">
+                Search patients
+              </label>
               <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
+                id="patient-search-mobile"
                 value={q}
-                onChange={(e) => {
-                  setQ(e.target.value);
-                }}
+                onChange={(e) => setQ(e.target.value)}
                 placeholder="Search name, ID, clinic, team…"
-                className="pl-8 h-8 w-[220px]"
+                className="h-9 pl-8 w-full"
               />
             </div>
 
-            {/* Filters popover */}
             <Popover open={filterOpen} onOpenChange={setFilterOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 relative">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0 relative"
+                  aria-label="Open filters"
+                  aria-expanded={filterOpen}
+                >
                   <FilterIcon className="h-4 w-4" />
                   {activeFilterCount > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-4 h-4 rounded-full bg-gray-900 text-white text-[10px] leading-4 px-1 text-center">
-                      {activeFilterCount}
+                      {activeFilterCount > 9 ? "9+" : activeFilterCount}
                     </span>
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                className="w/[640px] md:w-[640px] p-0 overflow-hidden rounded-lg border shadow-md"
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b bg-[#fafafa]">
-                  <div className="font-medium text-[13px] text-gray-900">
-                    Filters
-                  </div>
-                  <button
-                    className="text-[12px] text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline"
-                    onClick={clearFilters}
-                  >
-                    Reset
-                  </button>
-                </div>
-
-                {/* Body */}
-                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Status */}
-                  <section>
-                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                      Status
-                    </div>
-                    <PillRow<Status | "all">
-                      value={statusFilter}
-                      onChange={(v) => {
-                        setStatusFilter(v);
-                      }}
-                      options={[
-                        { label: "All", value: "all" },
-                        { label: "In Treatment", value: "In Treatment" },
-                        { label: "Repaying", value: "Repaying" },
-                        { label: "Delinquent", value: "Delinquent" },
-                      ]}
-                    />
-                  </section>
-
-                  {/* Risk */}
-                  <section>
-                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                      Risk
-                    </div>
-                    <PillRow<Risk | "all">
-                      value={riskFilter}
-                      onChange={(v) => {
-                        setRiskFilter(v);
-                      }}
-                      options={[
-                        { label: "All", value: "all" },
-                        { label: "Urgent", value: "Urgent" },
-                        { label: "Normal", value: "Normal" },
-                        { label: "Low", value: "Low" },
-                      ]}
-                    />
-                  </section>
-
-                  {/* Clinic */}
-                  <section>
-                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                      Clinic
-                    </div>
-                    <Select
-                      value={clinicFilter}
-                      onValueChange={(v: any) => {
-                        setClinicFilter(v);
-                      }}
-                    >
-                      <SelectTrigger className="h-8 w-full">
-                        <SelectValue placeholder="All clinics" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-64">
-                        <SelectItem value="all">All clinics</SelectItem>
-                        {clinics.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {c}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </section>
-
-                  {/* Date Range */}
-                  <section>
-                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                      Next payment (date range)
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="date"
-                        value={dateFrom}
-                        onChange={(e) => {
-                          setDateFrom(e.target.value);
-                        }}
-                        className="h-8 w-full rounded-md border px-2 text-[13px]"
-                        aria-label="From date"
-                      />
-                      <span className="text-gray-400">–</span>
-                      <input
-                        type="date"
-                        value={dateTo}
-                        onChange={(e) => {
-                          setDateTo(e.target.value);
-                        }}
-                        className="h-8 w-full rounded-md border px-2 text-[13px]"
-                        aria-label="To date"
-                      />
-                    </div>
-                    <div className="mt-2 flex gap-1 flex-wrap">
-                      <QuickRange
-                        label="Today"
-                        onClick={() =>
-                          setFromToForPreset("today", setDateFrom, setDateTo)
-                        }
-                      />
-                      <QuickRange
-                        label="This week"
-                        onClick={() =>
-                          setFromToForPreset("week", setDateFrom, setDateTo)
-                        }
-                      />
-                      <QuickRange
-                        label="This month"
-                        onClick={() =>
-                          setFromToForPreset("month", setDateFrom, setDateTo)
-                        }
-                      />
-                    </div>
-                  </section>
-                </div>
-
-                {/* Footer */}
-                <div className="px-4 py-3 border-t bg-white flex items-center justify-end gap-2">
-                  {activeFilterCount > 0 && (
-                    <AppliedChips
-                      status={statusFilter}
-                      risk={riskFilter}
-                      clinic={clinicFilter}
-                      from={dateFrom}
-                      to={dateTo}
-                      onClearKey={(key) => {
-                        if (key === "status") setStatusFilter("all");
-                        if (key === "risk") setRiskFilter("all");
-                        if (key === "clinic") setClinicFilter("all");
-                        if (key === "from") setDateFrom("");
-                        if (key === "to") setDateTo("");
-                      }}
-                    />
-                  )}
-                  <Button
-                    size="sm"
-                    className="h-8"
-                    onClick={() => setFilterOpen(false)}
-                  >
-                    Apply
-                  </Button>
-                </div>
-              </PopoverContent>
+              {/* Reuse same PopoverContent as above via portal */}
             </Popover>
-
-            {/* Global reveal controls */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={showAllGroups}
-            >
-              Show all
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={showDefaultPerGroup}
-            >
-              Show less
-            </Button>
-
-            <Button variant="default" size="sm" className="h-8 gap-1">
-              <Plus className="h-4 w-4" /> Add patient
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1"
-              onClick={exportCSV}
-            >
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
           </div>
         </div>
 
-        {/* Active filter chips inline */}
+        {/* Applied filter chips (single place, below header) */}
         {activeFilterCount > 0 && (
-          <div className="px-4 pt-2 flex flex-wrap items-center gap-2">
+          <div className="px-4 pb-2 flex flex-wrap items-center gap-2">
             <AppliedChips
               status={statusFilter}
               risk={riskFilter}
