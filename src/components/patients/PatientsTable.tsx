@@ -397,15 +397,13 @@ export default function PatientsTable() {
 
   const [filterOpen, setFilterOpen] = useState(false);
 
-  // Sort + pagination
+  // Sort (pagination removed)
   const [sort, setSort] = useState<SortState>({
     key: "nextPayment",
     dir: "asc",
   });
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
-  // Bulk selection (per-page)
+  // Selection (now “visible scope” instead of per-page)
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
   // derived clinics for the filter
@@ -430,7 +428,6 @@ export default function PatientsTable() {
     setClinicFilter("all");
     setDateFrom("");
     setDateTo("");
-    setPage(1);
   };
 
   // filtering
@@ -504,42 +501,72 @@ export default function PatientsTable() {
     });
   }, [filtered, sort]);
 
-  // pagination
-  const total = sorted.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  useEffect(() => {
-    if (page > totalPages) setPage(1);
-  }, [totalPages, page]);
-  const paged = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return sorted.slice(start, start + pageSize);
-  }, [sorted, page, pageSize]);
-
-  // group current page
+  /* ---- GROUPING (now from full sorted array) ---- */
   const grouped = useMemo(() => {
     const by: Record<Status, PatientRow[]> = {
       "In Treatment": [],
       Repaying: [],
       Delinquent: [],
     };
-    paged.forEach((r) => by[r.status].push(r));
+    sorted.forEach((r) => by[r.status].push(r));
     return by;
-  }, [paged]);
+  }, [sorted]);
 
-  const toggleSort = (key: SortKey) => {
-    setSort((s) =>
-      s.key === key
-        ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
-        : { key, dir: "asc" }
-    );
+  /* ---- PROGRESSIVE REVEAL PER GROUP ---- */
+  const DEFAULT_GROUP_LIMIT = 15;
+  const GROUP_STEP = 15;
+
+  const [visibleByGroup, setVisibleByGroup] = useState<Record<Status, number>>({
+    "In Treatment": DEFAULT_GROUP_LIMIT,
+    Repaying: DEFAULT_GROUP_LIMIT,
+    Delinquent: DEFAULT_GROUP_LIMIT,
+  });
+
+  // Reset visible limits + selection when the dataset shape changes
+  useEffect(() => {
+    setVisibleByGroup({
+      "In Treatment": DEFAULT_GROUP_LIMIT,
+      Repaying: DEFAULT_GROUP_LIMIT,
+      Delinquent: DEFAULT_GROUP_LIMIT,
+    });
+    setSelected({});
+  }, [q, statusFilter, riskFilter, clinicFilter, dateFrom, dateTo, sort]);
+
+  // Visible IDs across all groups (used for “Select all visible”)
+  const visibleIds = useMemo(() => {
+    const ids: string[] = [];
+    (["In Treatment", "Repaying", "Delinquent"] as Status[]).forEach((s) => {
+      const list = grouped[s] || [];
+      const limit = Math.min(visibleByGroup[s], list.length);
+      for (let i = 0; i < limit; i++) ids.push(list[i].id);
+    });
+    return ids;
+  }, [grouped, visibleByGroup]);
+
+  const allVisibleSelected =
+    visibleIds.length > 0 && visibleIds.every((id) => selected[id]);
+
+  const toggleAllVisible = (checked: boolean) => {
+    const next = { ...selected };
+    visibleIds.forEach((id) => (next[id] = checked));
+    setSelected(next);
   };
 
-  const pageRowsIds = useMemo(() => paged.map((r) => r.id), [paged]);
-  const allPageSelected = pageRowsIds.every((id) => selected[id]);
-  const toggleAllOnPage = (checked: boolean) => {
-    const next = { ...selected };
-    pageRowsIds.forEach((id) => (next[id] = checked));
-    setSelected(next);
+  const showAllGroups = () => {
+    setVisibleByGroup({
+      "In Treatment": grouped["In Treatment"].length,
+      Repaying: grouped["Repaying"].length,
+      Delinquent: grouped["Delinquent"].length,
+    });
+  };
+
+  const showDefaultPerGroup = () => {
+    setVisibleByGroup({
+      "In Treatment": DEFAULT_GROUP_LIMIT,
+      Repaying: DEFAULT_GROUP_LIMIT,
+      Delinquent: DEFAULT_GROUP_LIMIT,
+    });
+    // keep selection as-is; user can clear if needed
   };
 
   const exportCSV = () => {
@@ -584,18 +611,12 @@ export default function PatientsTable() {
     URL.revokeObjectURL(url);
   };
 
+  const total = sorted.length;
+
   return (
     <div className="rounded-xl border border-[#e7e4db] bg-white shadow-sm overflow-hidden">
       {/* View Tabs + Controls */}
       <div className="flex flex-wrap items-center gap-2 px-4 py-3">
-        {/* Notion-like view tabs */}
-        {/* <div className="inline-flex items-center gap-1 text-[13px]">
-          <span className="px-2 py-1 rounded-md border bg-[#f8fafc] text-gray-800">Spreadsheet</span>
-          <button className="px-2 py-1 rounded-md text-gray-500 hover:text-gray-700">Timeline</button>
-          <button className="px-2 py-1 rounded-md text-gray-500 hover:text-gray-700">Calendar</button>
-          <button className="px-2 py-1 rounded-md text-gray-500 hover:text-gray-700">Board</button>
-        </div> */}
-
         <div className="inline-flex items-center gap-1 text-lg font-semibold">
           Patients
         </div>
@@ -608,14 +629,13 @@ export default function PatientsTable() {
               value={q}
               onChange={(e) => {
                 setQ(e.target.value);
-                setPage(1);
               }}
               placeholder="Search name, ID, clinic, team…"
               className="pl-8 h-8 w-[220px]"
             />
           </div>
 
-          {/* Single Filter Button + Popover */}
+          {/* Filters popover */}
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 relative">
@@ -655,7 +675,6 @@ export default function PatientsTable() {
                     value={statusFilter}
                     onChange={(v) => {
                       setStatusFilter(v);
-                      setPage(1);
                     }}
                     options={[
                       { label: "All", value: "all" },
@@ -675,7 +694,6 @@ export default function PatientsTable() {
                     value={riskFilter}
                     onChange={(v) => {
                       setRiskFilter(v);
-                      setPage(1);
                     }}
                     options={[
                       { label: "All", value: "all" },
@@ -695,7 +713,6 @@ export default function PatientsTable() {
                     value={clinicFilter}
                     onValueChange={(v: any) => {
                       setClinicFilter(v);
-                      setPage(1);
                     }}
                   >
                     <SelectTrigger className="h-8 w-full">
@@ -723,7 +740,6 @@ export default function PatientsTable() {
                       value={dateFrom}
                       onChange={(e) => {
                         setDateFrom(e.target.value);
-                        setPage(1);
                       }}
                       className="h-8 w-full rounded-md border px-2 text-[13px]"
                       aria-label="From date"
@@ -734,7 +750,6 @@ export default function PatientsTable() {
                       value={dateTo}
                       onChange={(e) => {
                         setDateTo(e.target.value);
-                        setPage(1);
                       }}
                       className="h-8 w-full rounded-md border px-2 text-[13px]"
                       aria-label="To date"
@@ -779,7 +794,6 @@ export default function PatientsTable() {
                       if (key === "clinic") setClinicFilter("all");
                       if (key === "from") setDateFrom("");
                       if (key === "to") setDateTo("");
-                      setPage(1);
                     }}
                   />
                 )}
@@ -793,6 +807,24 @@ export default function PatientsTable() {
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* Global reveal controls */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={showAllGroups}
+          >
+            Show all
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={showDefaultPerGroup}
+          >
+            Show less
+          </Button>
 
           <Button variant="default" size="sm" className="h-8 gap-1">
             <Plus className="h-4 w-4" /> Add patient
@@ -810,7 +842,7 @@ export default function PatientsTable() {
         </div>
       </div>
 
-      {/* Active filter chips inline (outside popover) */}
+      {/* Active filter chips inline */}
       {activeFilterCount > 0 && (
         <div className="px-4 pt-2 flex flex-wrap items-center gap-2">
           <AppliedChips
@@ -825,7 +857,6 @@ export default function PatientsTable() {
               if (key === "clinic") setClinicFilter("all");
               if (key === "from") setDateFrom("");
               if (key === "to") setDateTo("");
-              setPage(1);
             }}
           />
           <Button
@@ -843,40 +874,50 @@ export default function PatientsTable() {
       <div className="sticky top-0 z-10 bg-white notion-header grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 px-4 pt-3 pb-2 text-[12px] font-semibold text-gray-500 border-t border-[#ece9dd]">
         <div className="flex items-center">
           <Checkbox
-            checked={allPageSelected}
-            onCheckedChange={(v: boolean) => toggleAllOnPage(!!v)}
-            aria-label="Select all on page"
+            checked={allVisibleSelected}
+            onCheckedChange={(v: boolean) => toggleAllVisible(!!v)}
+            aria-label="Select all visible"
           />
         </div>
         <HeaderButton
           label="Patient"
-          onClick={() => toggleSort("name")}
+          onClick={() => setSort((s) =>
+            s.key === "name" ? { key: "name", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "name", dir: "asc" }
+          )}
           active={sort.key === "name"}
           dir={sort.dir}
         />
         <div>Description</div>
         <HeaderButton
           label="Clinic"
-          onClick={() => toggleSort("clinic")}
+          onClick={() => setSort((s) =>
+            s.key === "clinic" ? { key: "clinic", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "clinic", dir: "asc" }
+          )}
           active={sort.key === "clinic"}
           dir={sort.dir}
         />
         <HeaderButton
           label="Next Payment"
-          onClick={() => toggleSort("nextPayment")}
+          onClick={() => setSort((s) =>
+            s.key === "nextPayment" ? { key: "nextPayment", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "nextPayment", dir: "asc" }
+          )}
           active={sort.key === "nextPayment"}
           dir={sort.dir}
         />
         <div>Priority</div>
         <HeaderButton
           label="Progress"
-          onClick={() => toggleSort("progress")}
+          onClick={() => setSort((s) =>
+            s.key === "progress" ? { key: "progress", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "progress", dir: "asc" }
+          )}
           active={sort.key === "progress"}
           dir={sort.dir}
         />
         <HeaderButton
           label="Balance"
-          onClick={() => toggleSort("balance")}
+          onClick={() => setSort((s) =>
+            s.key === "balance" ? { key: "balance", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "balance", dir: "asc" }
+          )}
           active={sort.key === "balance"}
           dir={sort.dir}
         />
@@ -904,8 +945,9 @@ export default function PatientsTable() {
       {/* Groups */}
       {groups.map(({ key, label, icon: Icon }) => {
         const list = grouped[key] || [];
-        const isCollapsed = collapsed[key];
         const styles = STATUS_STYLES[key as Status];
+        const isCollapsed = collapsed[key];
+        const visible = Math.min(visibleByGroup[key], list.length);
 
         return (
           <div key={key} className="border-t border-[#ece9dd]">
@@ -934,7 +976,7 @@ export default function PatientsTable() {
 
             {/* Rows */}
             {!isCollapsed &&
-              list.map((r) => (
+              list.slice(0, visible).map((r) => (
                 <div
                   key={r.id}
                   className="notion-row grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 items-center px-4 py-3"
@@ -1064,58 +1106,47 @@ export default function PatientsTable() {
                   </div>
                 </div>
               ))}
+
+            {/* Group “Show more” control */}
+            {!isCollapsed && visible < list.length && (
+              <div className="px-4 pb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  onClick={() =>
+                    setVisibleByGroup((s) => ({
+                      ...s,
+                      [key]: Math.min(list.length, s[key] + GROUP_STEP),
+                    }))
+                  }
+                >
+                  Show {Math.min(GROUP_STEP, list.length - visible)} more
+                </Button>
+              </div>
+            )}
           </div>
         );
       })}
 
-      {/* Footer: pagination */}
+      {/* Footer: counts (pagination removed) */}
       <div className="border-t border-[#e6e6e6] px-4 py-2 text-[12px] text-gray-600 flex items-center justify-between">
-        <div>{total} results</div>
+        <div>
+          {total} results • showing {visibleIds.length} on screen
+        </div>
         <div className="flex items-center gap-2">
-          <Select
-            value={String(pageSize)}
-            onValueChange={(v: any) => {
-              setPageSize(Number(v));
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="h-8 w-[100px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10 / page</SelectItem>
-              <SelectItem value="25">25 / page</SelectItem>
-              <SelectItem value="50">50 / page</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Prev
-            </Button>
-            <span className="px-2">
-              Page {page} / {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              Next
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" className="h-8" onClick={showAllGroups}>
+            Show all
+          </Button>
+          <Button variant="outline" size="sm" className="h-8" onClick={showDefaultPerGroup}>
+            Show less
+          </Button>
         </div>
       </div>
     </div>
   );
 }
+
 
 /* -------- Notion-y helpers -------- */
 function HeaderButton({
