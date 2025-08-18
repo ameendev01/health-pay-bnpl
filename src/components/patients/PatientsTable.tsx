@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -566,7 +573,6 @@ export default function PatientsTable() {
       Repaying: DEFAULT_GROUP_LIMIT,
       Delinquent: DEFAULT_GROUP_LIMIT,
     });
-    // keep selection as-is; user can clear if needed
   };
 
   const exportCSV = () => {
@@ -613,202 +619,607 @@ export default function PatientsTable() {
 
   const total = sorted.length;
 
-  return (
-    <div className="rounded-xl border border-[#e7e4db] bg-white shadow-sm overflow-hidden">
-      {/* View Tabs + Controls */}
-      <div className="flex flex-wrap items-center gap-2 px-4 py-3">
-        <div className="inline-flex items-center gap-1 text-lg font-semibold">
-          Patients
-        </div>
+  // ---- dynamic scroll body sizing (no magic rems) ----
+  const rootRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [bodyMaxH, setBodyMaxH] = useState<number | null>(null);
 
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          {/* Search */}
-          <div className="relative">
-            <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-              }}
-              placeholder="Search name, ID, clinic, team…"
-              className="pl-8 h-8 w-[220px]"
-            />
+  // inside PatientsTable()
+
+  const recomputeBodyMaxH = useCallback(() => {
+    if (!rootRef.current) return;
+    const top = rootRef.current.getBoundingClientRect().top;
+    const headerH = headerRef.current?.offsetHeight ?? 0;
+    const footerH = footerRef.current?.offsetHeight ?? 0;
+
+    const offset =
+      parseFloat(
+        getComputedStyle(rootRef.current).getPropertyValue(
+          "--table-body-offset"
+        )
+      ) || 0;
+
+    const available = window.innerHeight - top - headerH - footerH - offset;
+    setBodyMaxH(Math.max(0, Math.floor(available)));
+  }, []);
+
+  useLayoutEffect(() => {
+    recomputeBodyMaxH();
+    const onResize = () => recomputeBodyMaxH();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [recomputeBodyMaxH]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => recomputeBodyMaxH());
+    if (headerRef.current) ro.observe(headerRef.current);
+    if (footerRef.current) ro.observe(footerRef.current);
+    return () => ro.disconnect();
+  }, [recomputeBodyMaxH, activeFilterCount]);
+
+  return (
+    <div
+      ref={rootRef}
+      style={{ "--table-body-offset": "38px" } as React.CSSProperties}
+      className="rounded-xl border border-[#e7e4db] bg-white shadow-sm overflow-hidden flex flex-col"
+    >
+      {/* ---------- FIXED TOP: Patients toolbar + chips ---------- */}
+      <div ref={headerRef} className="shrink-0">
+        {/* View Tabs + Controls */}
+        <div className="flex flex-wrap items-center gap-2 px-4 py-3">
+          <div className="inline-flex items-center gap-1 text-lg font-semibold">
+            Patients
           </div>
 
-          {/* Filters popover */}
-          <Popover open={filterOpen} onOpenChange={setFilterOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 relative">
-                <FilterIcon className="h-4 w-4" />
-                {activeFilterCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-4 h-4 rounded-full bg-gray-900 text-white text-[10px] leading-4 px-1 text-center">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-[640px] p-0 overflow-hidden rounded-lg border shadow-md"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b bg-[#fafafa]">
-                <div className="font-medium text-[13px] text-gray-900">
-                  Filters
-                </div>
-                <button
-                  className="text-[12px] text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline"
-                  onClick={clearFilters}
-                >
-                  Reset
-                </button>
-              </div>
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {/* Search */}
+            <div className="relative">
+              <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                value={q}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                }}
+                placeholder="Search name, ID, clinic, team…"
+                className="pl-8 h-8 w-[220px]"
+              />
+            </div>
 
-              {/* Body */}
-              <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Status */}
-                <section>
-                  <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                    Status
-                  </div>
-                  <PillRow<Status | "all">
-                    value={statusFilter}
-                    onChange={(v) => {
-                      setStatusFilter(v);
-                    }}
-                    options={[
-                      { label: "All", value: "all" },
-                      { label: "In Treatment", value: "In Treatment" },
-                      { label: "Repaying", value: "Repaying" },
-                      { label: "Delinquent", value: "Delinquent" },
-                    ]}
-                  />
-                </section>
-
-                {/* Risk */}
-                <section>
-                  <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                    Risk
-                  </div>
-                  <PillRow<Risk | "all">
-                    value={riskFilter}
-                    onChange={(v) => {
-                      setRiskFilter(v);
-                    }}
-                    options={[
-                      { label: "All", value: "all" },
-                      { label: "Urgent", value: "Urgent" },
-                      { label: "Normal", value: "Normal" },
-                      { label: "Low", value: "Low" },
-                    ]}
-                  />
-                </section>
-
-                {/* Clinic */}
-                <section>
-                  <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                    Clinic
-                  </div>
-                  <Select
-                    value={clinicFilter}
-                    onValueChange={(v: any) => {
-                      setClinicFilter(v);
-                    }}
-                  >
-                    <SelectTrigger className="h-8 w-full">
-                      <SelectValue placeholder="All clinics" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-64">
-                      <SelectItem value="all">All clinics</SelectItem>
-                      {clinics.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </section>
-
-                {/* Date Range */}
-                <section>
-                  <div className="text-[12px] font-semibold text-gray-600 mb-2">
-                    Next payment (date range)
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => {
-                        setDateFrom(e.target.value);
-                      }}
-                      className="h-8 w-full rounded-md border px-2 text-[13px]"
-                      aria-label="From date"
-                    />
-                    <span className="text-gray-400">–</span>
-                    <input
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => {
-                        setDateTo(e.target.value);
-                      }}
-                      className="h-8 w-full rounded-md border px-2 text-[13px]"
-                      aria-label="To date"
-                    />
-                  </div>
-                  <div className="mt-2 flex gap-1 flex-wrap">
-                    {/* quick chips (optional presets) */}
-                    <QuickRange
-                      label="Today"
-                      onClick={() =>
-                        setFromToForPreset("today", setDateFrom, setDateTo)
-                      }
-                    />
-                    <QuickRange
-                      label="This week"
-                      onClick={() =>
-                        setFromToForPreset("week", setDateFrom, setDateTo)
-                      }
-                    />
-                    <QuickRange
-                      label="This month"
-                      onClick={() =>
-                        setFromToForPreset("month", setDateFrom, setDateTo)
-                      }
-                    />
-                  </div>
-                </section>
-              </div>
-
-              {/* Footer */}
-              <div className="px-4 py-3 border-t bg-white flex items-center justify-end gap-2">
-                {activeFilterCount > 0 && (
-                  <AppliedChips
-                    status={statusFilter}
-                    risk={riskFilter}
-                    clinic={clinicFilter}
-                    from={dateFrom}
-                    to={dateTo}
-                    onClearKey={(key) => {
-                      if (key === "status") setStatusFilter("all");
-                      if (key === "risk") setRiskFilter("all");
-                      if (key === "clinic") setClinicFilter("all");
-                      if (key === "from") setDateFrom("");
-                      if (key === "to") setDateTo("");
-                    }}
-                  />
-                )}
-                <Button
-                  size="sm"
-                  className="h-8"
-                  onClick={() => setFilterOpen(false)}
-                >
-                  Apply
+            {/* Filters popover */}
+            <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 relative">
+                  <FilterIcon className="h-4 w-4" />
+                  {activeFilterCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-4 h-4 rounded-full bg-gray-900 text-white text-[10px] leading-4 px-1 text-center">
+                      {activeFilterCount}
+                    </span>
+                  )}
                 </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="w/[640px] md:w-[640px] p-0 overflow-hidden rounded-lg border shadow-md"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b bg-[#fafafa]">
+                  <div className="font-medium text-[13px] text-gray-900">
+                    Filters
+                  </div>
+                  <button
+                    className="text-[12px] text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline"
+                    onClick={clearFilters}
+                  >
+                    Reset
+                  </button>
+                </div>
 
-          {/* Global reveal controls */}
+                {/* Body */}
+                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Status */}
+                  <section>
+                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                      Status
+                    </div>
+                    <PillRow<Status | "all">
+                      value={statusFilter}
+                      onChange={(v) => {
+                        setStatusFilter(v);
+                      }}
+                      options={[
+                        { label: "All", value: "all" },
+                        { label: "In Treatment", value: "In Treatment" },
+                        { label: "Repaying", value: "Repaying" },
+                        { label: "Delinquent", value: "Delinquent" },
+                      ]}
+                    />
+                  </section>
+
+                  {/* Risk */}
+                  <section>
+                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                      Risk
+                    </div>
+                    <PillRow<Risk | "all">
+                      value={riskFilter}
+                      onChange={(v) => {
+                        setRiskFilter(v);
+                      }}
+                      options={[
+                        { label: "All", value: "all" },
+                        { label: "Urgent", value: "Urgent" },
+                        { label: "Normal", value: "Normal" },
+                        { label: "Low", value: "Low" },
+                      ]}
+                    />
+                  </section>
+
+                  {/* Clinic */}
+                  <section>
+                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                      Clinic
+                    </div>
+                    <Select
+                      value={clinicFilter}
+                      onValueChange={(v: any) => {
+                        setClinicFilter(v);
+                      }}
+                    >
+                      <SelectTrigger className="h-8 w-full">
+                        <SelectValue placeholder="All clinics" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64">
+                        <SelectItem value="all">All clinics</SelectItem>
+                        {clinics.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </section>
+
+                  {/* Date Range */}
+                  <section>
+                    <div className="text-[12px] font-semibold text-gray-600 mb-2">
+                      Next payment (date range)
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => {
+                          setDateFrom(e.target.value);
+                        }}
+                        className="h-8 w-full rounded-md border px-2 text-[13px]"
+                        aria-label="From date"
+                      />
+                      <span className="text-gray-400">–</span>
+                      <input
+                        type="date"
+                        value={dateTo}
+                        onChange={(e) => {
+                          setDateTo(e.target.value);
+                        }}
+                        className="h-8 w-full rounded-md border px-2 text-[13px]"
+                        aria-label="To date"
+                      />
+                    </div>
+                    <div className="mt-2 flex gap-1 flex-wrap">
+                      <QuickRange
+                        label="Today"
+                        onClick={() =>
+                          setFromToForPreset("today", setDateFrom, setDateTo)
+                        }
+                      />
+                      <QuickRange
+                        label="This week"
+                        onClick={() =>
+                          setFromToForPreset("week", setDateFrom, setDateTo)
+                        }
+                      />
+                      <QuickRange
+                        label="This month"
+                        onClick={() =>
+                          setFromToForPreset("month", setDateFrom, setDateTo)
+                        }
+                      />
+                    </div>
+                  </section>
+                </div>
+
+                {/* Footer */}
+                <div className="px-4 py-3 border-t bg-white flex items-center justify-end gap-2">
+                  {activeFilterCount > 0 && (
+                    <AppliedChips
+                      status={statusFilter}
+                      risk={riskFilter}
+                      clinic={clinicFilter}
+                      from={dateFrom}
+                      to={dateTo}
+                      onClearKey={(key) => {
+                        if (key === "status") setStatusFilter("all");
+                        if (key === "risk") setRiskFilter("all");
+                        if (key === "clinic") setClinicFilter("all");
+                        if (key === "from") setDateFrom("");
+                        if (key === "to") setDateTo("");
+                      }}
+                    />
+                  )}
+                  <Button
+                    size="sm"
+                    className="h-8"
+                    onClick={() => setFilterOpen(false)}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Global reveal controls */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={showAllGroups}
+            >
+              Show all
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={showDefaultPerGroup}
+            >
+              Show less
+            </Button>
+
+            <Button variant="default" size="sm" className="h-8 gap-1">
+              <Plus className="h-4 w-4" /> Add patient
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1"
+              onClick={exportCSV}
+            >
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+          </div>
+        </div>
+
+        {/* Active filter chips inline */}
+        {activeFilterCount > 0 && (
+          <div className="px-4 pt-2 flex flex-wrap items-center gap-2">
+            <AppliedChips
+              status={statusFilter}
+              risk={riskFilter}
+              clinic={clinicFilter}
+              from={dateFrom}
+              to={dateTo}
+              onClearKey={(key) => {
+                if (key === "status") setStatusFilter("all");
+                if (key === "risk") setRiskFilter("all");
+                if (key === "clinic") setClinicFilter("all");
+                if (key === "from") setDateFrom("");
+                if (key === "to") setDateTo("");
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[12px]"
+              onClick={clearFilters}
+            >
+              Clear all
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* ---------- SCROLL AREA: rows only ---------- */}
+      <div
+        className="min-h-0 grow overflow-y-auto overscroll-contain"
+        style={bodyMaxH !== null ? { maxHeight: `${bodyMaxH}px` } : undefined}
+      >
+        {/* Column header (sticky within scroll area) */}
+        <div className="sticky top-0 z-10 bg-white notion-header grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 px-4 pt-3 pb-2 text-[12px] font-semibold text-gray-500 border-t border-[#ece9dd]">
+          <div className="flex items-center">
+            <Checkbox
+              checked={allVisibleSelected}
+              onCheckedChange={(v: boolean) => toggleAllVisible(!!v)}
+              aria-label="Select all visible"
+            />
+          </div>
+          <HeaderButton
+            label="Patient"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "name"
+                  ? { key: "name", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "name", dir: "asc" }
+              )
+            }
+            active={sort.key === "name"}
+            dir={sort.dir}
+          />
+          <div>Description</div>
+          <HeaderButton
+            label="Clinic"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "clinic"
+                  ? { key: "clinic", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "clinic", dir: "asc" }
+              )
+            }
+            active={sort.key === "clinic"}
+            dir={sort.dir}
+          />
+          <HeaderButton
+            label="Next Payment"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "nextPayment"
+                  ? {
+                      key: "nextPayment",
+                      dir: s.dir === "asc" ? "desc" : "asc",
+                    }
+                  : { key: "nextPayment", dir: "asc" }
+              )
+            }
+            active={sort.key === "nextPayment"}
+            dir={sort.dir}
+          />
+          <div>Priority</div>
+          <HeaderButton
+            label="Progress"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "progress"
+                  ? { key: "progress", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "progress", dir: "asc" }
+              )
+            }
+            active={sort.key === "progress"}
+            dir={sort.dir}
+          />
+          <HeaderButton
+            label="Balance"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "balance"
+                  ? { key: "balance", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "balance", dir: "asc" }
+              )
+            }
+            active={sort.key === "balance"}
+            dir={sort.dir}
+          />
+          <div className="text-right pr-1">⋯</div>
+        </div>
+
+        {/* Bulk actions bar (scrolls with rows) */}
+        {Object.values(selected).some(Boolean) && (
+          <div className="px-4 py-2 border-t bg-[#fafafa] text-[13px] flex items-center justify-between">
+            <div>{Object.values(selected).filter(Boolean).length} selected</div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" className="h-8 gap-1">
+                <Bell className="h-4 w-4" /> Remind
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 gap-1">
+                <PauseCircle className="h-4 w-4" /> Pause
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 gap-1">
+                <PlayCircle className="h-4 w-4" /> Resume
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Groups */}
+        {groups.map(({ key, label, icon: Icon }) => {
+          const list = grouped[key] || [];
+          const styles = STATUS_STYLES[key as Status];
+          const isCollapsed = collapsed[key];
+          const visible = Math.min(visibleByGroup[key], list.length);
+
+          return (
+            <div key={key} className="border-t border-[#ece9dd]">
+              {/* Group header pill */}
+              <button
+                onClick={() => setCollapsed((s) => ({ ...s, [key]: !s[key] }))}
+                className="w-full flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50/70"
+              >
+                {isCollapsed ? (
+                  <ChevronRight className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                )}
+                <span
+                  className={[
+                    "inline-flex items-center gap-2 rounded-lg border px-2.5 py-1",
+                    styles.pill,
+                  ].join(" ")}
+                >
+                  <Icon className={["h-4 w-4", styles.icon].join(" ")} />
+                  <span>{label}</span>
+                  <span className="opacity-50">•</span>
+                  <span className="opacity-80">{list.length}</span>
+                </span>
+              </button>
+
+              {/* Rows */}
+              {!isCollapsed &&
+                list.slice(0, visible).map((r) => (
+                  <div
+                    key={r.id}
+                    className="notion-row grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 items-center px-4 py-3"
+                  >
+                    {/* Select */}
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={!!selected[r.id]}
+                        onCheckedChange={(v: boolean) =>
+                          setSelected((s) => ({ ...s, [r.id]: !!v }))
+                        }
+                        aria-label={`Select ${r.name}`}
+                      />
+                    </div>
+
+                    {/* Patient */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="h-8 w-8 rounded-md ring-1 ring-black/5">
+                        {r.avatar ? (
+                          <AvatarImage src={r.avatar} alt={r.name} />
+                        ) : (
+                          <AvatarFallback>{r.name.slice(0, 2)}</AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="truncate font-medium text-[14px] text-gray-900 leading-5">
+                          {r.name}
+                        </div>
+                        <div className="text-[12px] text-gray-500">
+                          #{r.id} • {r.procedure}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {r.team.map((t, i) => (
+                        <span
+                          key={i}
+                          className="text-[12px] px-2 py-0.5 rounded-md border border-[#e7e4db] bg-[#faf9f6] text-gray-700"
+                        >
+                          {t.initials}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Clinic */}
+                    <div className="text-[13px] text-gray-800">{r.clinic}</div>
+
+                    {/* Next Payment */}
+                    <div className="text-[13px] text-gray-800">
+                      {new Date(r.nextPayment).toLocaleDateString()}
+                    </div>
+
+                    {/* Priority */}
+                    <div>{riskBadge(r.risk)}</div>
+
+                    {/* Progress */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-full">
+                        <Progress
+                          value={r.progress}
+                          className="h-2 bg-[#ecf0f3]"
+                          indicatorClassName="bg-[#2563EB]"
+                        />
+                      </div>
+                      <span className="w-10 text-right text-[12px] text-gray-600">
+                        {r.progress}%
+                      </span>
+                    </div>
+
+                    {/* Balance */}
+                    <div className="text-[13px] text-gray-900">
+                      {money(r.balance)}
+                    </div>
+
+                    {/* Row actions */}
+                    <div className="flex justify-end">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="p-1.5 rounded-md hover:bg-gray-100"
+                            aria-label="Row actions"
+                          >
+                            <MoreHorizontal className="h-5 w-5 text-gray-500" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="min-w-[200px]"
+                        >
+                          <DropdownMenuItem className="gap-2">
+                            <Eye className="h-4 w-4" /> View plan
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Bell className="h-4 w-4" /> Send reminder
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Pencil className="h-4 w-4" /> Add note
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <PauseCircle className="h-4 w-4" /> Pause plan
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <PlayCircle className="h-4 w-4" /> Resume plan
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    {/* Mobile details */}
+                    <div className="col-span-full sm:hidden mt-2 grid grid-cols-2 gap-2 text-[12px] text-gray-600">
+                      <div>
+                        <span className="text-gray-500">Plan:</span>{" "}
+                        {money(r.planAmount)}
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Clinic:</span>{" "}
+                        {r.clinic}
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Next Pay:</span>{" "}
+                        {new Date(r.nextPayment).toLocaleDateString()}
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Status:</span>{" "}
+                        {r.status}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+              {/* Group “Show more” control */}
+              {!isCollapsed && visible < list.length && (
+                <div className="px-4 pb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={() =>
+                      setVisibleByGroup((s) => ({
+                        ...s,
+                        [key]: Math.min(list.length, s[key] + GROUP_STEP),
+                      }))
+                    }
+                  >
+                    Show {Math.min(GROUP_STEP, list.length - visible)} more
+                  </Button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ---------- FIXED BOTTOM: footer counts ---------- */}
+      <div
+        ref={footerRef}
+        className="border-t border-[#e6e6e6] px-4 py-2 text-[12px] text-gray-600 flex items-center justify-between"
+      >
+        <div>
+          {total} results • showing {visibleIds.length} on screen
+        </div>
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -825,328 +1236,11 @@ export default function PatientsTable() {
           >
             Show less
           </Button>
-
-          <Button variant="default" size="sm" className="h-8 gap-1">
-            <Plus className="h-4 w-4" /> Add patient
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1"
-            onClick={exportCSV}
-          >
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </div>
-
-      {/* Active filter chips inline */}
-      {activeFilterCount > 0 && (
-        <div className="px-4 pt-2 flex flex-wrap items-center gap-2">
-          <AppliedChips
-            status={statusFilter}
-            risk={riskFilter}
-            clinic={clinicFilter}
-            from={dateFrom}
-            to={dateTo}
-            onClearKey={(key) => {
-              if (key === "status") setStatusFilter("all");
-              if (key === "risk") setRiskFilter("all");
-              if (key === "clinic") setClinicFilter("all");
-              if (key === "from") setDateFrom("");
-              if (key === "to") setDateTo("");
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 text-[12px]"
-            onClick={clearFilters}
-          >
-            Clear all
-          </Button>
-        </div>
-      )}
-
-      {/* Column header */}
-      <div className="sticky top-0 z-10 bg-white notion-header grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 px-4 pt-3 pb-2 text-[12px] font-semibold text-gray-500 border-t border-[#ece9dd]">
-        <div className="flex items-center">
-          <Checkbox
-            checked={allVisibleSelected}
-            onCheckedChange={(v: boolean) => toggleAllVisible(!!v)}
-            aria-label="Select all visible"
-          />
-        </div>
-        <HeaderButton
-          label="Patient"
-          onClick={() => setSort((s) =>
-            s.key === "name" ? { key: "name", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "name", dir: "asc" }
-          )}
-          active={sort.key === "name"}
-          dir={sort.dir}
-        />
-        <div>Description</div>
-        <HeaderButton
-          label="Clinic"
-          onClick={() => setSort((s) =>
-            s.key === "clinic" ? { key: "clinic", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "clinic", dir: "asc" }
-          )}
-          active={sort.key === "clinic"}
-          dir={sort.dir}
-        />
-        <HeaderButton
-          label="Next Payment"
-          onClick={() => setSort((s) =>
-            s.key === "nextPayment" ? { key: "nextPayment", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "nextPayment", dir: "asc" }
-          )}
-          active={sort.key === "nextPayment"}
-          dir={sort.dir}
-        />
-        <div>Priority</div>
-        <HeaderButton
-          label="Progress"
-          onClick={() => setSort((s) =>
-            s.key === "progress" ? { key: "progress", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "progress", dir: "asc" }
-          )}
-          active={sort.key === "progress"}
-          dir={sort.dir}
-        />
-        <HeaderButton
-          label="Balance"
-          onClick={() => setSort((s) =>
-            s.key === "balance" ? { key: "balance", dir: s.dir === "asc" ? "desc" : "asc" } : { key: "balance", dir: "asc" }
-          )}
-          active={sort.key === "balance"}
-          dir={sort.dir}
-        />
-        <div className="text-right pr-1">⋯</div>
-      </div>
-
-      {/* Bulk actions bar */}
-      {Object.values(selected).some(Boolean) && (
-        <div className="px-4 py-2 border-t bg-[#fafafa] text-[13px] flex items-center justify-between">
-          <div>{Object.values(selected).filter(Boolean).length} selected</div>
-          <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" className="h-8 gap-1">
-              <Bell className="h-4 w-4" /> Remind
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 gap-1">
-              <PauseCircle className="h-4 w-4" /> Pause
-            </Button>
-            <Button size="sm" variant="outline" className="h-8 gap-1">
-              <PlayCircle className="h-4 w-4" /> Resume
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Groups */}
-      {groups.map(({ key, label, icon: Icon }) => {
-        const list = grouped[key] || [];
-        const styles = STATUS_STYLES[key as Status];
-        const isCollapsed = collapsed[key];
-        const visible = Math.min(visibleByGroup[key], list.length);
-
-        return (
-          <div key={key} className="border-t border-[#ece9dd]">
-            {/* Group header pill */}
-            <button
-              onClick={() => setCollapsed((s) => ({ ...s, [key]: !s[key] }))}
-              className="w-full flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50/70"
-            >
-              {isCollapsed ? (
-                <ChevronRight className="h-4 w-4 text-gray-500" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-gray-500" />
-              )}
-              <span
-                className={[
-                  "inline-flex items-center gap-2 rounded-lg border px-2.5 py-1",
-                  styles.pill,
-                ].join(" ")}
-              >
-                <Icon className={["h-4 w-4", styles.icon].join(" ")} />
-                <span>{label}</span>
-                <span className="opacity-50">•</span>
-                <span className="opacity-80">{list.length}</span>
-              </span>
-            </button>
-
-            {/* Rows */}
-            {!isCollapsed &&
-              list.slice(0, visible).map((r) => (
-                <div
-                  key={r.id}
-                  className="notion-row grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 items-center px-4 py-3"
-                >
-                  {/* Select */}
-                  <div className="flex items-center">
-                    <Checkbox
-                      checked={!!selected[r.id]}
-                      onCheckedChange={(v: boolean) =>
-                        setSelected((s) => ({ ...s, [r.id]: !!v }))
-                      }
-                      aria-label={`Select ${r.name}`}
-                    />
-                  </div>
-
-                  {/* Patient */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Avatar className="h-8 w-8 rounded-md ring-1 ring-black/5">
-                      {r.avatar ? (
-                        <AvatarImage src={r.avatar} alt={r.name} />
-                      ) : (
-                        <AvatarFallback>{r.name.slice(0, 2)}</AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div className="min-w-0">
-                      <div className="truncate font-medium text-[14px] text-gray-900 leading-5">
-                        {r.name}
-                      </div>
-                      <div className="text-[12px] text-gray-500">
-                        #{r.id} • {r.procedure}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <div className="flex items-center gap-1 flex-wrap">
-                    {r.team.map((t, i) => (
-                      <span
-                        key={i}
-                        className="text-[12px] px-2 py-0.5 rounded-md border border-[#e7e4db] bg-[#faf9f6] text-gray-700"
-                      >
-                        {t.initials}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Clinic */}
-                  <div className="text-[13px] text-gray-800">{r.clinic}</div>
-
-                  {/* Next Payment */}
-                  <div className="text-[13px] text-gray-800">
-                    {new Date(r.nextPayment).toLocaleDateString()}
-                  </div>
-
-                  {/* Priority */}
-                  <div>{riskBadge(r.risk)}</div>
-
-                  {/* Progress */}
-                  <div className="flex items-center gap-2">
-                    <div className="w-full">
-                      <Progress
-                        value={r.progress}
-                        className="h-2 bg-[#ecf0f3]"
-                        indicatorClassName="bg-[#2563EB]"
-                      />
-                    </div>
-                    <span className="w-10 text-right text-[12px] text-gray-600">
-                      {r.progress}%
-                    </span>
-                  </div>
-
-                  {/* Balance */}
-                  <div className="text-[13px] text-gray-900">
-                    {money(r.balance)}
-                  </div>
-
-                  {/* Row actions */}
-                  <div className="flex justify-end">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="p-1.5 rounded-md hover:bg-gray-100"
-                          aria-label="Row actions"
-                        >
-                          <MoreHorizontal className="h-5 w-5 text-gray-500" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="end"
-                        className="min-w-[200px]"
-                      >
-                        <DropdownMenuItem className="gap-2">
-                          <Eye className="h-4 w-4" /> View plan
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2">
-                          <Bell className="h-4 w-4" /> Send reminder
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2">
-                          <Pencil className="h-4 w-4" /> Add note
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2">
-                          <PauseCircle className="h-4 w-4" /> Pause plan
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2">
-                          <PlayCircle className="h-4 w-4" /> Resume plan
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  {/* Mobile details */}
-                  <div className="col-span-full sm:hidden mt-2 grid grid-cols-2 gap-2 text-[12px] text-gray-600">
-                    <div>
-                      <span className="text-gray-500">Plan:</span>{" "}
-                      {money(r.planAmount)}
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Clinic:</span> {r.clinic}
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Next Pay:</span>{" "}
-                      {new Date(r.nextPayment).toLocaleDateString()}
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Status:</span> {r.status}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-            {/* Group “Show more” control */}
-            {!isCollapsed && visible < list.length && (
-              <div className="px-4 pb-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  onClick={() =>
-                    setVisibleByGroup((s) => ({
-                      ...s,
-                      [key]: Math.min(list.length, s[key] + GROUP_STEP),
-                    }))
-                  }
-                >
-                  Show {Math.min(GROUP_STEP, list.length - visible)} more
-                </Button>
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      {/* Footer: counts (pagination removed) */}
-      <div className="border-t border-[#e6e6e6] px-4 py-2 text-[12px] text-gray-600 flex items-center justify-between">
-        <div>
-          {total} results • showing {visibleIds.length} on screen
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8" onClick={showAllGroups}>
-            Show all
-          </Button>
-          <Button variant="outline" size="sm" className="h-8" onClick={showDefaultPerGroup}>
-            Show less
-          </Button>
         </div>
       </div>
     </div>
   );
 }
-
 
 /* -------- Notion-y helpers -------- */
 function HeaderButton({
