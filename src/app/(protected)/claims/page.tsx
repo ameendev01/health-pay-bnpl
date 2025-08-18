@@ -1,42 +1,87 @@
 'use client'
 
 import React, { useState } from 'react';
-import { FileText, Plus, Filter, Download, RefreshCw, AlertTriangle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { FileText, Plus, Download, RefreshCw, HelpCircle } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
-import FilterBar from '@/components/shared/FilterBar';
-import EmptyState from '@/components/shared/EmptyState';
-import ClaimsTable from '@/components/claims/ClaimsTable';
-import ClaimDetailModal from '@/components/claims/ClaimDetailModal';
+import ClaimsKPICards from '@/components/claims/ClaimsKPICards';
+import ClaimsFilterBar from '@/components/claims/ClaimsFilterBar';
+import ClaimsDataTable from '@/components/claims/ClaimsDataTable';
+import BulkActionBar from '@/components/claims/BulkActionBar';
+import ClaimDrawer from '@/components/claims/ClaimDrawer';
 import ClaimResubmissionModal from '@/components/claims/ClaimResubmissionModal';
+import KeyboardShortcutsHelp from '@/components/claims/KeyboardShortcutsHelp';
 import { useClaims } from '@/features/claims/hooks/useClaims';
 import { Claim, ClaimSearchFilters } from '@/features/claims/types';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { mockClaims } from '@/features/claims/constants';
 
 export default function ClaimsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isResubmissionModalOpen, setIsResubmissionModalOpen] = useState(false);
   const [filters, setFilters] = useState<ClaimSearchFilters>({
     searchTerm: '',
     status: 'all',
     payer: null,
-    dateRange: {}
+    dateRange: {},
+    agingDays: undefined,
+    priorityLevel: undefined
   });
+  
+  const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
+  const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isResubmissionModalOpen, setIsResubmissionModalOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<string>('updatedAt');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  const { data: claims, isLoading, error, refetch } = useClaims(filters);
+  // Use mock data for now - replace with real hook when API is ready
+  const claims = mockClaims;
+  const isLoading = false;
+  const error = null;
 
-  const filteredClaims = claims.filter(claim => {
-    const matchesSearch = claim.claimNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         claim.payerName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || claim.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Filter and sort claims
+  const filteredClaims = React.useMemo(() => {
+    let filtered = claims.filter(claim => {
+      const matchesSearch = !filters.searchTerm || 
+        claim.claimNumber.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        claim.payerName.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      
+      const matchesStatus = filters.status === 'all' || claim.status === filters.status;
+      const matchesPayer = !filters.payer || claim.payerName === filters.payer;
+      
+      return matchesSearch && matchesStatus && matchesPayer;
+    });
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (sortBy) {
+        case 'claimNumber':
+          aValue = a.claimNumber;
+          bValue = b.claimNumber;
+          break;
+        case 'totalAmount':
+          aValue = a.totalAmount;
+          bValue = b.totalAmount;
+          break;
+        case 'updatedAt':
+          aValue = new Date(a.updatedAt);
+          bValue = new Date(b.updatedAt);
+          break;
+        default:
+          return 0;
+      }
+      
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }, [claims, filters, sortBy, sortDirection]);
 
   const handleViewClaim = (claim: Claim) => {
     setSelectedClaim(claim);
-    setIsDetailModalOpen(true);
+    setIsDrawerOpen(true);
   };
 
   const handleResubmitClaim = (claim: Claim) => {
@@ -44,48 +89,82 @@ export default function ClaimsPage() {
     setIsResubmissionModalOpen(true);
   };
 
-  const statusFilterOptions = [
-    { value: 'all', label: 'All Claims' },
-    { value: 'submitted', label: 'Submitted' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'denied', label: 'Denied' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'pending', label: 'Pending' },
-  ];
-
-  const getStatusStats = () => {
-    const stats = {
-      total: claims.length,
-      submitted: claims.filter(c => c.status === 'submitted').length,
-      denied: claims.filter(c => c.status === 'denied').length,
-      paid: claims.filter(c => c.status === 'paid').length,
-      pending: claims.filter(c => c.status === 'pending').length,
-    };
-    return stats;
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortDirection('asc');
+    }
   };
 
-  const stats = getStatusStats();
+  // Mock KPI data
+  const kpiData = {
+    awaitingAction: 23,
+    avgTimeToFund: 12.5,
+    infoNeededAmount: 45200,
+    denialRate: 8.3,
+    agingOver7Days: 15
+  };
+
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle shortcuts when not in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      
+      switch (e.key.toLowerCase()) {
+        case '?':
+          e.preventDefault();
+          setIsHelpOpen(true);
+          break;
+        case 'escape':
+          e.preventDefault();
+          setSelectedClaims([]);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   if (isLoading) {
-    return <div>Loading claims...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading claims...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error loading claims.</div>;
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">Error loading claims. Please try again.</p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Claims Management" description="Track and manage insurance claims workflow">
+      <PageHeader 
+        title="Claims Management" 
+        description="Track and manage insurance claims workflow"
+      >
         <div className="flex space-x-2">
-          <button 
-            onClick={() => refetch()}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200"
+          <button
+            onClick={() => setIsHelpOpen(true)}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors duration-200"
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
+            <HelpCircle className="w-4 h-4 mr-2" />
+            Shortcuts
           </button>
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
+          <button className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors duration-200">
             <Download className="w-4 h-4 mr-2" />
             Export
           </button>
@@ -96,106 +175,51 @@ export default function ClaimsPage() {
         </div>
       </PageHeader>
 
-      {/* Claims Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Claims</CardTitle>
-            <FileText className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-            <p className="text-xs text-gray-500">All time</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Submitted</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.submitted}</div>
-            <p className="text-xs text-gray-500">Awaiting response</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Denied</CardTitle>
-            <XCircle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.denied}</div>
-            <p className="text-xs text-gray-500">Need attention</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Paid</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats.paid}</div>
-            <p className="text-xs text-gray-500">Completed</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* KPI Cards */}
+      <ClaimsKPICards data={kpiData} />
 
-      <FilterBar
-        searchTerm={searchTerm}
-        onSearchTermChange={setSearchTerm}
-        filterOptions={statusFilterOptions}
-        selectedFilter={statusFilter}
-        onFilterChange={setStatusFilter}
-      >
-        <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-          <Filter className="w-4 h-4 mr-2" />
-          Advanced Filters
-        </button>
-      </FilterBar>
-
-      {/* Denied Claims Alert */}
-      {stats.denied > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center space-x-3">
-            <AlertTriangle className="w-6 h-6 text-red-600" />
-            <div>
-              <h4 className="font-semibold text-red-800">
-                {stats.denied} Denied Claims Need Attention
-              </h4>
-              <p className="text-sm text-red-700">
-                Review and resubmit denied claims to recover revenue. Click on any denied claim to start the resubmission process.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {filteredClaims.length > 0 ? (
-        <ClaimsTable 
-          claims={filteredClaims} 
-          onViewClaim={handleViewClaim}
-          onResubmitClaim={handleResubmitClaim}
-        />
-      ) : (
-        <EmptyState 
-          icon={FileText} 
-          title="No claims found" 
-          description="Try adjusting your search or filter criteria" 
-        />
-      )}
-
-      <ClaimDetailModal
-        isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false);
-          setSelectedClaim(null);
-        }}
-        claim={selectedClaim}
+      {/* Filter Bar */}
+      <ClaimsFilterBar
+        filters={filters}
+        onFiltersChange={setFilters}
+        onSaveView={() => console.log('Save view')}
       />
 
+      {/* Claims Table */}
+      <ClaimsDataTable
+        claims={filteredClaims}
+        selectedClaims={selectedClaims}
+        onSelectionChange={setSelectedClaims}
+        onClaimClick={handleViewClaim}
+        onResubmitClaim={handleResubmitClaim}
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        onSort={handleSort}
+      />
+
+      {/* Bulk Action Bar */}
+      <BulkActionBar
+        selectedCount={selectedClaims.length}
+        onClearSelection={() => setSelectedClaims([])}
+        onBulkAssign={() => console.log('Bulk assign')}
+        onBulkUpload={() => console.log('Bulk upload')}
+        onBulkResubmit={() => console.log('Bulk resubmit')}
+        onBulkExport={() => console.log('Bulk export')}
+      />
+
+      {/* Claim Drawer */}
+      <ClaimDrawer
+        claim={selectedClaim}
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedClaim(null);
+        }}
+        onResubmit={handleResubmitClaim}
+        onAssign={(claim) => console.log('Assign claim:', claim.id)}
+      />
+
+      {/* Resubmission Modal */}
       <ClaimResubmissionModal
         isOpen={isResubmissionModalOpen}
         onClose={() => {
@@ -205,8 +229,13 @@ export default function ClaimsPage() {
         claim={selectedClaim}
         onResubmit={(claimData) => {
           console.log('Resubmitting claim:', claimData);
-          // Implementation will be added with the hook
         }}
+      />
+
+      {/* Keyboard Shortcuts Help */}
+      <KeyboardShortcutsHelp
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
       />
     </div>
   );
