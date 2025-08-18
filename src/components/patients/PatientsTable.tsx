@@ -839,7 +839,7 @@ export default function PatientsTable() {
                   {/* Footer */}
                   <div className="sticky bottom-0 border-t border-black/10 bg-white/90 backdrop-blur px-4 py-3 flex items-center justify-between">
                     <button
-                      className="text-[13px] text-gray-500 hover:text-gray-900"
+                      className="text-[13px] text-gray-500 hover:text-gray-900 cursor-pointer"
                       onClick={() => setFilterOpen(false)}
                     >
                       Hide filters
