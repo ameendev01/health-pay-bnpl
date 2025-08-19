@@ -131,7 +131,7 @@ export default function ClaimDrawer({
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-6 bg-gray-100 border-2 border-gray-200 pb-8">
             <TabsTrigger value="timeline" className="flex items-center space-x-1">
               <Clock className="w-4 h-4" />
               <span className="hidden sm:inline">Timeline</span>
