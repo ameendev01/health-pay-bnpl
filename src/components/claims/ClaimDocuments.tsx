@@ -9,11 +9,12 @@ import {
   Download,
   Eye,
   Trash2,
-  CheckCircle,
   AlertTriangle,
-  Plus
+  Plus,
+  MoreHorizontal
 } from 'lucide-react';
 import { Claim } from '@/features/claims/types';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 interface Document {
   id: string;
