@@ -142,7 +142,7 @@ export default function ClaimTimeline({ claim }: ClaimTimelineProps) {
                 </div>
                 
                 <div className="space-y-4">
-                  {events.map((event, index) => {
+                  {events.map((event) => {
                     const Icon = event.icon;
                     const { time } = formatTimestamp(event.timestamp);
                     
