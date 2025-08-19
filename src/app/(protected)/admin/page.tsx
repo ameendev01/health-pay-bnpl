@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Shield, Users, Building2, Settings, UserPlus, Key } from 'lucide-react';
+import { Shield, Users, Settings, UserPlus, Key } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import AdminStatsCards from '@/components/admin/AdminStatsCards';
 import UserManagement from '@/components/admin/UserManagement';

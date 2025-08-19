@@ -6,7 +6,6 @@ import {
   FileText, 
   User, 
   Building2, 
-  Calendar, 
   DollarSign,
   AlertTriangle,
   CheckCircle,

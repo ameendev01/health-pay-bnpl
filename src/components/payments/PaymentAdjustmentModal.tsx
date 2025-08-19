@@ -34,7 +34,6 @@ import {
   CheckCircle,
   Loader2,
   AlertTriangle,
-  X
 } from 'lucide-react';
 
 const adjustmentSchema = z.object({

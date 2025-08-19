@@ -34,8 +34,6 @@ import {
   AlertTriangle,
   CheckCircle,
   Loader2,
-  FileText,
-  X
 } from 'lucide-react';
 import { Claim } from '@/features/claims/types';
 
