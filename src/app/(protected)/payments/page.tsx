@@ -1,12 +1,15 @@
 'use client'
 
 import React, { useState } from 'react';
-import { CreditCard, Download, ArrowUpDown, Filter, Eye, Clock, CheckCircle, XCircle, AlertCircle, Calendar } from 'lucide-react';
+import { CreditCard, Download, ArrowUpDown, Filter, Eye, Clock, CheckCircle, XCircle, AlertCircle, Calendar, RefreshCw, DollarSign } from 'lucide-react';
 import PageHeader from '@/components/shared/PageHeader';
 import FilterBar from '@/components/shared/FilterBar';
 import DataTable from '@/components/shared/DataTable';
 import EmptyState from '@/components/shared/EmptyState';
 import PaymentPlanDetailModal from '@/components/PaymentPlanDetailModal';
+import RecurringPaymentModal from '@/components/payments/RecurringPaymentModal';
+import DunningWorkflowModal from '@/components/payments/DunningWorkflowModal';
+import PaymentAdjustmentModal from '@/components/payments/PaymentAdjustmentModal';
 import { usePayments } from '@/features/payments/hooks/usePayments';
 import { PaymentPlan } from '@/features/payments/types';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +20,9 @@ export default function PaymentsPage() {
   const [procedureFilter, setProcedureFilter] = useState('all');
   const [selectedPaymentPlan, setSelectedPaymentPlan] = useState<PaymentPlan | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
+  const [isDunningModalOpen, setIsDunningModalOpen] = useState(false);
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
 
   const { data: payments, isLoading, error } = usePayments();
 
@@ -138,13 +144,39 @@ export default function PaymentsPage() {
         {payment.nextPayment ? new Date(payment.nextPayment).toLocaleDateString() : 'Completed'}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <button 
-          onClick={() => handleViewPaymentPlan(payment)}
-          className="p-2 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors duration-200"
-          title="View Details"
-        >
-          <Eye className="w-5 h-5" />
-        </button>
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => handleViewPaymentPlan(payment)}
+            className="p-2 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors duration-200"
+            title="View Details"
+          >
+            <Eye className="w-5 h-5" />
+          </button>
+          {payment.status === 'active' && (
+            <button 
+              onClick={() => {
+                setSelectedPaymentPlan(payment);
+                setIsRecurringModalOpen(true);
+              }}
+              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+              title="Manage Recurring Payments"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          )}
+          {payment.status === 'overdue' && (
+            <button 
+              onClick={() => {
+                setSelectedPaymentPlan(payment);
+                setIsDunningModalOpen(true);
+              }}
+              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+              title="Collections Workflow"
+            >
+              <AlertCircle className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </td>
     </tr>
   );
@@ -229,6 +261,13 @@ export default function PaymentsPage() {
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
+        <button 
+          onClick={() => setIsAdjustmentModalOpen(true)}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+        >
+          <DollarSign className="w-4 h-4 mr-2" />
+          Process Adjustment
+        </button>
         <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
           <ArrowUpDown className="w-4 h-4 mr-2" />
           Sort
@@ -256,6 +295,32 @@ export default function PaymentsPage() {
           setSelectedPaymentPlan(null);
         }}
         paymentPlan={selectedPaymentPlan}
+      />
+
+      <RecurringPaymentModal
+        isOpen={isRecurringModalOpen}
+        onClose={() => {
+          setIsRecurringModalOpen(false);
+          setSelectedPaymentPlan(null);
+        }}
+        paymentPlan={selectedPaymentPlan}
+      />
+
+      <DunningWorkflowModal
+        isOpen={isDunningModalOpen}
+        onClose={() => {
+          setIsDunningModalOpen(false);
+          setSelectedPaymentPlan(null);
+        }}
+        paymentPlan={selectedPaymentPlan}
+      />
+
+      <PaymentAdjustmentModal
+        isOpen={isAdjustmentModalOpen}
+        onClose={() => setIsAdjustmentModalOpen(false)}
+        onSubmit={(adjustmentData) => {
+          console.log('Processing adjustment:', adjustmentData);
+        }}
       />
     </div>
   );

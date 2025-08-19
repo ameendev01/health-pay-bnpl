@@ -1,0 +1,1470 @@
+"use client";
+
+import React, {
+  useMemo,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
+import {
+  ChevronDown,
+  ChevronRight,
+  MoreHorizontal,
+  FileText,
+  AlertTriangle,
+  Shield,
+  Pencil,
+  Eye,
+  Bell,
+  PauseCircle,
+  PlayCircle,
+  Plus,
+  Search as SearchIcon,
+  Download,
+  ArrowUpDown,
+  Filter as FilterIcon,
+  X,
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+
+/* ---------------- Types ---------------- */
+type Risk = "Urgent" | "Normal" | "Low";
+type Status = "In Treatment" | "Repaying" | "Delinquent";
+
+type Opt<T extends string> = { label: string; value: T };
+
+const STATUS_STYLES = {
+  "In Treatment": {
+    pill: "bg-blue-500/10 border-blue-500/30 border-[1.5px] text-blue-700",
+    icon: "text-blue-600",
+  },
+  Repaying: {
+    pill: "bg-emerald-500/10 border-emerald-500/30 border-[1.5px] text-emerald-700",
+    icon: "text-emerald-600",
+  },
+  Delinquent: {
+    pill: "bg-rose-500/10 border-rose-500/30 border-[1.5px] text-rose-700",
+    icon: "text-rose-600",
+  },
+} satisfies Record<Status, { pill: string; icon: string }>;
+
+type TeamMember = { name: string; avatar?: string; initials: string };
+
+type PatientRow = {
+  id: string;
+  name: string;
+  avatar?: string;
+  clinic: string;
+  procedure: string;
+  planAmount: number;
+  balance: number;
+  nextPayment: string; // ISO
+  risk: Risk;
+  progress: number; // 0-100
+  status: Status;
+  team: TeamMember[];
+};
+
+/* ---------------- Mock data (replace with API) ---------------- */
+const rows: PatientRow[] = [
+  {
+    id: "HP-0005",
+    name: "Omar Hassan",
+    avatar:
+      "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "City Vision",
+    procedure: "LASIK",
+    planAmount: 2600,
+    balance: 1100,
+    nextPayment: "2025-08-23",
+    risk: "Normal",
+    progress: 72,
+    status: "Repaying",
+    team: [
+      { name: "Dr. Noor", initials: "DN" },
+      { name: "Care: Sana", initials: "SN" },
+    ],
+  },
+  {
+    id: "HP-0006",
+    name: "Priya Singh",
+    avatar:
+      "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "OrthoPlus",
+    procedure: "Knee Replacement (Pre-Op)",
+    planAmount: 6800,
+    balance: 6800,
+    nextPayment: "2025-08-25",
+    risk: "Low",
+    progress: 8,
+    status: "In Treatment",
+    team: [
+      { name: "Dr. Arora", initials: "DA" },
+      { name: "CM: Bilal", initials: "BL" },
+    ],
+  },
+  {
+    id: "HP-0007",
+    name: "Ahmed Bukhari",
+    avatar:
+      "https://images.pexels.com/photos/937481/pexels-photo-937481.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "SmileWorks East",
+    procedure: "Root Canal",
+    planAmount: 1800,
+    balance: 400,
+    nextPayment: "2025-08-21",
+    risk: "Low",
+    progress: 60,
+    status: "Repaying",
+    team: [{ name: "Dr. Saeed", initials: "DS" }],
+  },
+  {
+    id: "HP-0008",
+    name: "Noor Fatima",
+    avatar:
+      "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "Heart Health Specialists",
+    procedure: "Hypertension Management",
+    planAmount: 2400,
+    balance: 1400,
+    nextPayment: "2025-08-27",
+    risk: "Normal",
+    progress: 35,
+    status: "In Treatment",
+    team: [
+      { name: "Care: Zara", initials: "ZA" },
+      { name: "Dr. Patel", initials: "DP" },
+    ],
+  },
+  {
+    id: "HP-0009",
+    name: "Daniel Kim",
+    avatar:
+      "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "Metro Ortho",
+    procedure: "Shoulder Arthroscopy",
+    planAmount: 5200,
+    balance: 5200,
+    nextPayment: "2025-09-01",
+    risk: "Urgent",
+    progress: 5,
+    status: "Delinquent",
+    team: [{ name: "Dr. Lee", initials: "DL" }],
+  },
+  {
+    id: "HP-0010",
+    name: "Aisha Khan",
+    avatar:
+      "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "Sunrise Dental Care",
+    procedure: "Crowns & Bridges",
+    planAmount: 3400,
+    balance: 900,
+    nextPayment: "2025-08-24",
+    risk: "Low",
+    progress: 78,
+    status: "Repaying",
+    team: [
+      { name: "Dr. Chen", initials: "MC" },
+      { name: "CM: Hira", initials: "HR" },
+    ],
+  },
+  {
+    id: "HP-0011",
+    name: "Jacob Miller",
+    avatar:
+      "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "City Vision",
+    procedure: "Cataract Surgery",
+    planAmount: 4300,
+    balance: 2500,
+    nextPayment: "2025-08-30",
+    risk: "Normal",
+    progress: 41,
+    status: "In Treatment",
+    team: [
+      { name: "Dr. Noor", initials: "DN" },
+      { name: "Nurse: Haleema", initials: "HA" },
+    ],
+  },
+  {
+    id: "HP-0012",
+    name: "Sofia Alvarez",
+    avatar:
+      "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "SmileWorks",
+    procedure: "Veneers",
+    planAmount: 6200,
+    balance: 3100,
+    nextPayment: "2025-08-26",
+    risk: "Normal",
+    progress: 54,
+    status: "Repaying",
+    team: [{ name: "Dr. Ray", initials: "DR" }],
+  },
+  {
+    id: "HP-0013",
+    name: "Hasan Raza",
+    avatar:
+      "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "CardioCare Clinic",
+    procedure: "Stent Follow-up",
+    planAmount: 7500,
+    balance: 6200,
+    nextPayment: "2025-08-20",
+    risk: "Urgent",
+    progress: 18,
+    status: "Delinquent",
+    team: [
+      { name: "Dr. Patel", initials: "DP" },
+      { name: "Care: Omar", initials: "OM" },
+    ],
+  },
+  {
+    id: "HP-0014",
+    name: "Emily Johnson",
+    avatar:
+      "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "Metro Ortho",
+    procedure: "Ankle Rehab",
+    planAmount: 2100,
+    balance: 600,
+    nextPayment: "2025-09-02",
+    risk: "Low",
+    progress: 66,
+    status: "In Treatment",
+    team: [{ name: "Physio: Zara", initials: "ZA" }],
+  },
+  {
+    id: "HP-0015",
+    name: "Zainab Ali",
+    avatar:
+      "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "DermaCare",
+    procedure: "Acne Treatment",
+    planAmount: 1200,
+    balance: 300,
+    nextPayment: "2025-08-23",
+    risk: "Low",
+    progress: 78,
+    status: "Repaying",
+    team: [{ name: "Dr. Farah", initials: "DF" }],
+  },
+  {
+    id: "HP-0016",
+    name: "Michael Brown",
+    avatar:
+      "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "Metro Ortho",
+    procedure: "Spinal Physiotherapy",
+    planAmount: 3500,
+    balance: 3500,
+    nextPayment: "2025-08-21",
+    risk: "Urgent",
+    progress: 6,
+    status: "Delinquent",
+    team: [{ name: "Dr. Lee", initials: "DL" }],
+  },
+  {
+    id: "HP-0017",
+    name: "Hira Saeed",
+    avatar:
+      "https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+
+    clinic: "Sunrise Dental Care",
+    procedure: "Wisdom Tooth Extraction",
+    planAmount: 900,
+    balance: 450,
+    nextPayment: "2025-08-31",
+    risk: "Normal",
+    progress: 40,
+    status: "Repaying",
+    team: [
+      { name: "Dr. Chen", initials: "MC" },
+      { name: "CM: Hira", initials: "HR" },
+    ],
+  },
+  {
+    id: "HP-0018",
+    name: "Thomas Nguyen",
+    avatar:
+      "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "City Vision",
+    procedure: "PRK",
+    planAmount: 2800,
+    balance: 2100,
+    nextPayment: "2025-09-05",
+    risk: "Normal",
+    progress: 25,
+    status: "In Treatment",
+    team: [
+      { name: "Dr. Noor", initials: "DN" },
+      { name: "Care: Sana", initials: "SN" },
+    ],
+  },
+  {
+    id: "HP-0019",
+    name: "Fatima Zahra",
+    avatar:
+      "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
+    clinic: "Heart Health Specialists",
+    procedure: "Diabetes Management",
+    planAmount: 3000,
+    balance: 600,
+    nextPayment: "2025-08-22",
+    risk: "Urgent",
+    progress: 80,
+    status: "Repaying",
+    team: [
+      { name: "Care: Omar", initials: "OM" },
+      { name: "Dr. Patel", initials: "DP" },
+    ],
+  },
+];
+
+/* ---------------- Helpers ---------------- */
+const riskBadge = (r: Risk) => {
+  switch (r) {
+    case "Urgent":
+      return (
+        <Badge className="rounded-md bg-[#fee2e2] text-[#991b1b] border border-[#fecaca]">
+          Urgent
+        </Badge>
+      );
+    case "Normal":
+      return (
+        <Badge className="rounded-md bg-[#e0f2fe] text-[#075985] border border-[#bae6fd]">
+          Normal
+        </Badge>
+      );
+    case "Low":
+      return (
+        <Badge className="rounded-md bg-[#f1f5f9] text-[#334155] border border-[#e2e8f0]">
+          Low
+        </Badge>
+      );
+  }
+};
+
+const money = (n: number) =>
+  Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
+
+type SortKey = "name" | "nextPayment" | "balance" | "progress" | "clinic";
+type SortState = { key: SortKey; dir: "asc" | "desc" };
+
+/* ---------------- Component ---------------- */
+const groups: { label: Status; icon: React.ElementType; key: Status }[] = [
+  { label: "In Treatment", icon: Shield, key: "In Treatment" },
+  { label: "Repaying", icon: FileText, key: "Repaying" },
+  { label: "Delinquent", icon: AlertTriangle, key: "Delinquent" },
+];
+
+export default function PatientsTable() {
+  /* ---- table view state ---- */
+  const [collapsed, setCollapsed] = useState<Record<Status, boolean>>({
+    "In Treatment": false,
+    Repaying: false,
+    Delinquent: false,
+  });
+
+  // Facets (all live in one popover)
+  const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
+  const [riskFilter, setRiskFilter] = useState<Risk | "all">("all");
+  const [clinicFilter, setClinicFilter] = useState<string | "all">("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  // Sort (pagination removed)
+  const [sort, setSort] = useState<SortState>({
+    key: "nextPayment",
+    dir: "asc",
+  });
+
+  // Selection (now “visible scope” instead of per-page)
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+
+  // derived clinics for the filter
+  const clinics = useMemo(
+    () => Array.from(new Set(rows.map((r) => r.clinic))).sort(),
+    []
+  );
+
+  // active filters count for badge
+  const activeFilterCount = useMemo(() => {
+    let n = 0;
+    if (statusFilter !== "all") n++;
+    if (riskFilter !== "all") n++;
+    if (clinicFilter !== "all") n++;
+    if (dateFrom || dateTo) n++;
+    return n;
+  }, [statusFilter, riskFilter, clinicFilter, dateFrom, dateTo]);
+
+  const clearFilters = () => {
+    setStatusFilter("all");
+    setRiskFilter("all");
+    setClinicFilter("all");
+    setDateFrom("");
+    setDateTo("");
+  };
+
+  // filtering
+  const filtered = useMemo(() => {
+    const lower = q.trim().toLowerCase();
+    return rows.filter((r) => {
+      const matchesText =
+        !lower ||
+        r.name.toLowerCase().includes(lower) ||
+        r.id.toLowerCase().includes(lower) ||
+        r.clinic.toLowerCase().includes(lower) ||
+        r.procedure.toLowerCase().includes(lower) ||
+        r.team.some(
+          (t) =>
+            t.name.toLowerCase().includes(lower) ||
+            t.initials.toLowerCase().includes(lower)
+        );
+
+      const matchesStatus = statusFilter === "all" || r.status === statusFilter;
+      const matchesRisk = riskFilter === "all" || r.risk === riskFilter;
+      const matchesClinic = clinicFilter === "all" || r.clinic === clinicFilter;
+
+      const time = new Date(r.nextPayment).getTime();
+      const after = dateFrom ? time >= new Date(dateFrom).getTime() : true;
+      const before = dateTo ? time <= new Date(dateTo).getTime() : true;
+
+      return (
+        matchesText &&
+        matchesStatus &&
+        matchesRisk &&
+        matchesClinic &&
+        after &&
+        before
+      );
+    });
+  }, [q, statusFilter, riskFilter, clinicFilter, dateFrom, dateTo]);
+
+  // sorting
+  const sorted = useMemo(() => {
+    const dir = sort.dir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      let va: string | number = "";
+      let vb: string | number = "";
+
+      switch (sort.key) {
+        case "name":
+          va = a.name;
+          vb = b.name;
+          break;
+        case "clinic":
+          va = a.clinic;
+          vb = b.clinic;
+          break;
+        case "balance":
+          va = a.balance;
+          vb = b.balance;
+          break;
+        case "progress":
+          va = a.progress;
+          vb = b.progress;
+          break;
+        case "nextPayment":
+        default:
+          va = new Date(a.nextPayment).getTime();
+          vb = new Date(b.nextPayment).getTime();
+          break;
+      }
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+  }, [filtered, sort]);
+
+  /* ---- GROUPING (now from full sorted array) ---- */
+  const grouped = useMemo(() => {
+    const by: Record<Status, PatientRow[]> = {
+      "In Treatment": [],
+      Repaying: [],
+      Delinquent: [],
+    };
+    sorted.forEach((r) => by[r.status].push(r));
+    return by;
+  }, [sorted]);
+
+  /* ---- PROGRESSIVE REVEAL PER GROUP ---- */
+  const DEFAULT_GROUP_LIMIT = 15;
+  const GROUP_STEP = 15;
+
+  const [visibleByGroup, setVisibleByGroup] = useState<Record<Status, number>>({
+    "In Treatment": DEFAULT_GROUP_LIMIT,
+    Repaying: DEFAULT_GROUP_LIMIT,
+    Delinquent: DEFAULT_GROUP_LIMIT,
+  });
+
+  // Reset visible limits + selection when the dataset shape changes
+  useEffect(() => {
+    setVisibleByGroup({
+      "In Treatment": DEFAULT_GROUP_LIMIT,
+      Repaying: DEFAULT_GROUP_LIMIT,
+      Delinquent: DEFAULT_GROUP_LIMIT,
+    });
+    setSelected({});
+  }, [q, statusFilter, riskFilter, clinicFilter, dateFrom, dateTo, sort]);
+
+  // Visible IDs across all groups (used for “Select all visible”)
+  const visibleIds = useMemo(() => {
+    const ids: string[] = [];
+    (["In Treatment", "Repaying", "Delinquent"] as Status[]).forEach((s) => {
+      const list = grouped[s] || [];
+      const limit = Math.min(visibleByGroup[s], list.length);
+      for (let i = 0; i < limit; i++) ids.push(list[i].id);
+    });
+    return ids;
+  }, [grouped, visibleByGroup]);
+
+  const allVisibleSelected =
+    visibleIds.length > 0 && visibleIds.every((id) => selected[id]);
+
+  const toggleAllVisible = (checked: boolean) => {
+    const next = { ...selected };
+    visibleIds.forEach((id) => (next[id] = checked));
+    setSelected(next);
+  };
+
+  const showAllGroups = () => {
+    setVisibleByGroup({
+      "In Treatment": grouped["In Treatment"].length,
+      Repaying: grouped["Repaying"].length,
+      Delinquent: grouped["Delinquent"].length,
+    });
+  };
+
+  const showDefaultPerGroup = () => {
+    setVisibleByGroup({
+      "In Treatment": DEFAULT_GROUP_LIMIT,
+      Repaying: DEFAULT_GROUP_LIMIT,
+      Delinquent: DEFAULT_GROUP_LIMIT,
+    });
+  };
+
+  const exportCSV = () => {
+    const header = [
+      "ID",
+      "Name",
+      "Clinic",
+      "Procedure",
+      "Plan Amount",
+      "Balance",
+      "Next Payment",
+      "Risk",
+      "Progress",
+      "Status",
+      "Team",
+    ];
+    const lines = [header.join(",")];
+    sorted.forEach((r) => {
+      const row = [
+        r.id,
+        r.name,
+        r.clinic,
+        r.procedure,
+        r.planAmount.toString(),
+        r.balance.toString(),
+        r.nextPayment,
+        r.risk,
+        r.progress.toString(),
+        r.status,
+        r.team.map((t) => t.initials).join("|"),
+      ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
+      lines.push(row.join(","));
+    });
+    const blob = new Blob([lines.join("\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "patients_view.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const total = sorted.length;
+
+  // ---- dynamic scroll body sizing (no magic rems) ----
+  const rootRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [bodyMaxH, setBodyMaxH] = useState<number | null>(null);
+
+  // inside PatientsTable()
+
+  const recomputeBodyMaxH = useCallback(() => {
+    if (!rootRef.current) return;
+    const top = rootRef.current.getBoundingClientRect().top;
+    const headerH = headerRef.current?.offsetHeight ?? 0;
+    const footerH = footerRef.current?.offsetHeight ?? 0;
+
+    const offset =
+      parseFloat(
+        getComputedStyle(rootRef.current).getPropertyValue(
+          "--table-body-offset"
+        )
+      ) || 0;
+
+    const available = window.innerHeight - top - headerH - footerH - offset;
+    setBodyMaxH(Math.max(0, Math.floor(available)));
+  }, []);
+
+  useLayoutEffect(() => {
+    recomputeBodyMaxH();
+    const onResize = () => recomputeBodyMaxH();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [recomputeBodyMaxH]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => recomputeBodyMaxH());
+    if (headerRef.current) ro.observe(headerRef.current);
+    if (footerRef.current) ro.observe(footerRef.current);
+    return () => ro.disconnect();
+  }, [recomputeBodyMaxH, activeFilterCount]);
+
+  return (
+    <div
+      ref={rootRef}
+      style={{ "--table-body-offset": "38px" } as React.CSSProperties}
+      className="rounded-xl border border-[#e7e4db] bg-white shadow-sm overflow-hidden flex flex-col"
+    >
+      {/* ---------- FIXED TOP: Patients toolbar + chips ---------- */}
+      <div ref={headerRef} className="shrink-0">
+        {/* Title + Controls (desktop first) */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <h1 className="text-lg font-semibold tracking-[-0.01em] text-gray-900">
+            Patients
+          </h1>
+
+          <div className="ml-auto flex items-center gap-3">
+            {/* FIND CLUSTER (hidden on mobile, shown on md+) */}
+            <div className="hidden md:flex items-center gap-2">
+              <div className="relative min-w-[220px] w-[320px] max-w-[360px]">
+                <label htmlFor="patient-search" className="sr-only">
+                  Search patients
+                </label>
+                <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="patient-search"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search name, ID, clinic, team…"
+                  className="h-9 pl-8 w-full"
+                />
+              </div>
+
+              <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-9 p-0 relative"
+                    aria-label="Open filters"
+                    aria-expanded={filterOpen}
+                  >
+                    <FilterIcon className="h-8 w-8" strokeWidth={2.1} />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-1 -right-1 min-w-4 h-4 rounded-full bg-gray-900 text-white text-[10px] leading-4 px-1 text-center">
+                        {activeFilterCount > 9 ? "9+" : activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent
+                  align="end"
+                  sideOffset={10}
+                  role="dialog"
+                  aria-label="Filters"
+                  className={[
+                    "z-50 w-full p-0 overflow-hidden",
+                    "rounded-2xl border border-black/10",
+                    "bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90",
+                    "shadow-[0_20px_70px_rgba(0,0,0,0.20)] ring-1 ring-black/5",
+                    // subtle entrance
+                    "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+                    "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+                  ].join(" ")}
+                >
+                  {/* Header */}
+                  <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-black/10 bg-white/90 backdrop-blur">
+                    <div className="text-[13px] font-semibold text-gray-900">
+                      Filters
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {activeFilterCount > 0 && (
+                        <span className="text-[12px] text-gray-600">
+                          {activeFilterCount} active
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Body (scrolls, header & footer stay) */}
+                  <div className="px-4 max-h-[70vh] overflow-auto">
+                    {/* Status */}
+                    <Section title="Status" defaultOpen>
+                      <PillRowV2<Status | "all">
+                        value={statusFilter}
+                        onChange={(v) => setStatusFilter(v)}
+                        options={[
+                          { label: "All", value: "all" },
+                          { label: "In Treatment", value: "In Treatment" },
+                          { label: "Repaying", value: "Repaying" },
+                          { label: "Delinquent", value: "Delinquent" },
+                        ]}
+                      />
+                    </Section>
+
+                    {/* Risk */}
+                    <Section title="Risk" defaultOpen>
+                      <PillRowV2<Risk | "all">
+                        value={riskFilter}
+                        onChange={(v) => setRiskFilter(v)}
+                        options={[
+                          { label: "All", value: "all" },
+                          { label: "Urgent", value: "Urgent" },
+                          { label: "Normal", value: "Normal" },
+                          { label: "Low", value: "Low" },
+                        ]}
+                      />
+                    </Section>
+
+                    {/* Clinic */}
+                    <Section title="Clinic" defaultOpen>
+                      <Select
+                        value={clinicFilter}
+                        onValueChange={(v: any) => setClinicFilter(v)}
+                      >
+                        <SelectTrigger className="h-9 w-full">
+                          <SelectValue placeholder="All clinics" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-64">
+                          <SelectItem value="all">All clinics</SelectItem>
+                          {clinics.map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {c}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Section>
+
+                    {/* Date range */}
+                    <Section title="Next payment (date range)" defaultOpen>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="date"
+                          value={dateFrom}
+                          onChange={(e) => setDateFrom(e.target.value)}
+                          className="h-9 w-full rounded-md border px-2 text-[13px] ring-1 ring-inset ring-black/5 focus:outline-none focus:ring-2 focus:ring-black/20"
+                          aria-label="From date"
+                        />
+                        <span className="text-gray-400">–</span>
+                        <input
+                          type="date"
+                          value={dateTo}
+                          onChange={(e) => setDateTo(e.target.value)}
+                          className="h-9 w-full rounded-md border px-2 text-[13px] ring-1 ring-inset ring-black/5 focus:outline-none focus:ring-2 focus:ring-black/20"
+                          aria-label="To date"
+                        />
+                      </div>
+                      <div className="mt-3 flex gap-2 flex-wrap">
+                        <button
+                          className="rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer px-3 py-1.5 text-[12px] text-gray-800"
+                          onClick={() =>
+                            setFromToForPreset("today", setDateFrom, setDateTo)
+                          }
+                        >
+                          Today
+                        </button>
+                        <button
+                          className="rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer px-3 py-1.5 text-[12px] text-gray-800"
+                          onClick={() =>
+                            setFromToForPreset("week", setDateFrom, setDateTo)
+                          }
+                        >
+                          This week
+                        </button>
+                        <button
+                          className="rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer px-3 py-1.5 text-[12px] text-gray-800"
+                          onClick={() =>
+                            setFromToForPreset("month", setDateFrom, setDateTo)
+                          }
+                        >
+                          This month
+                        </button>
+                      </div>
+                    </Section>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="sticky bottom-0 border-t border-black/10 bg-white/90 backdrop-blur px-4 py-3 flex items-center justify-between">
+                    <button
+                      className="text-[13px] text-gray-500 hover:text-gray-900 cursor-pointer"
+                      onClick={() => setFilterOpen(false)}
+                    >
+                      Hide filters
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8"
+                        onClick={clearFilters}
+                      >
+                        Clear
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="h-8"
+                        onClick={() => setFilterOpen(false)}
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+                {filterOpen && (
+                  <div
+                    className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1px]"
+                    onClick={() => setFilterOpen(false)}
+                    aria-hidden="true"
+                  />
+                )}
+              </Popover>
+            </div>
+
+            {/* Divider between clusters */}
+            <span
+              className="hidden md:block h-6 w-px bg-[#ece9dd]"
+              aria-hidden="true"
+            />
+
+            {/* ACTIONS CLUSTER */}
+            <div className="flex items-center gap-2">
+              <Button size="sm" className="h-9 gap-1">
+                <Plus className="h-4 w-4" />
+                Add patient
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1"
+                onClick={exportCSV}
+              >
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* MOBILE: show find-controls below title */}
+        <div className="px-4 pb-3 md:hidden">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 min-w-0">
+              <label htmlFor="patient-search-mobile" className="sr-only">
+                Search patients
+              </label>
+              <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                id="patient-search-mobile"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search name, ID, clinic, team…"
+                className="h-9 pl-8 w-full"
+              />
+            </div>
+
+            <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-9 p-0 relative"
+                  aria-label="Open filters"
+                  aria-expanded={filterOpen}
+                >
+                  <FilterIcon className="h-4 w-4" />
+                  {activeFilterCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-4 h-4 rounded-full bg-gray-900 text-white text-[10px] leading-4 px-1 text-center">
+                      {activeFilterCount > 9 ? "9+" : activeFilterCount}
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              {/* Reuse same PopoverContent as above via portal */}
+            </Popover>
+          </div>
+        </div>
+
+        {/* Applied filter chips (single place, below header) */}
+        {activeFilterCount > 0 && (
+          <div className="px-4 pb-2 flex flex-wrap items-center gap-2">
+            <AppliedChips
+              status={statusFilter}
+              risk={riskFilter}
+              clinic={clinicFilter}
+              from={dateFrom}
+              to={dateTo}
+              onClearKey={(key) => {
+                if (key === "status") setStatusFilter("all");
+                if (key === "risk") setRiskFilter("all");
+                if (key === "clinic") setClinicFilter("all");
+                if (key === "from") setDateFrom("");
+                if (key === "to") setDateTo("");
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-[12px]"
+              onClick={clearFilters}
+            >
+              Clear all
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* ---------- SCROLL AREA: rows only ---------- */}
+      <div
+        className="min-h-0 grow overflow-y-auto overscroll-contain"
+        style={bodyMaxH !== null ? { maxHeight: `${bodyMaxH}px` } : undefined}
+      >
+        {/* Column header (sticky within scroll area) */}
+        <div className="sticky top-0 z-10 bg-white notion-header grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 px-4 pt-3 pb-2 text-[12px] font-semibold text-gray-500 border-t border-[#ece9dd]">
+          <div className="flex items-center">
+            <Checkbox
+              checked={allVisibleSelected}
+              onCheckedChange={(v: boolean) => toggleAllVisible(!!v)}
+              aria-label="Select all visible"
+            />
+          </div>
+          <HeaderButton
+            label="Patient"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "name"
+                  ? { key: "name", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "name", dir: "asc" }
+              )
+            }
+            active={sort.key === "name"}
+            dir={sort.dir}
+          />
+          <div>Description</div>
+          <HeaderButton
+            label="Clinic"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "clinic"
+                  ? { key: "clinic", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "clinic", dir: "asc" }
+              )
+            }
+            active={sort.key === "clinic"}
+            dir={sort.dir}
+          />
+          <HeaderButton
+            label="Next Payment"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "nextPayment"
+                  ? {
+                      key: "nextPayment",
+                      dir: s.dir === "asc" ? "desc" : "asc",
+                    }
+                  : { key: "nextPayment", dir: "asc" }
+              )
+            }
+            active={sort.key === "nextPayment"}
+            dir={sort.dir}
+          />
+          <div>Priority</div>
+          <HeaderButton
+            label="Progress"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "progress"
+                  ? { key: "progress", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "progress", dir: "asc" }
+              )
+            }
+            active={sort.key === "progress"}
+            dir={sort.dir}
+          />
+          <HeaderButton
+            label="Balance"
+            onClick={() =>
+              setSort((s) =>
+                s.key === "balance"
+                  ? { key: "balance", dir: s.dir === "asc" ? "desc" : "asc" }
+                  : { key: "balance", dir: "asc" }
+              )
+            }
+            active={sort.key === "balance"}
+            dir={sort.dir}
+          />
+          <div className="text-right pr-1">⋯</div>
+        </div>
+
+        {/* Bulk actions bar (scrolls with rows) */}
+        {Object.values(selected).some(Boolean) && (
+          <div className="px-4 py-2 border-t bg-[#fafafa] text-[13px] flex items-center justify-between">
+            <div>{Object.values(selected).filter(Boolean).length} selected</div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" className="h-8 gap-1">
+                <Bell className="h-4 w-4" /> Remind
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 gap-1">
+                <PauseCircle className="h-4 w-4" /> Pause
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 gap-1">
+                <PlayCircle className="h-4 w-4" /> Resume
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Groups */}
+        {groups.map(({ key, label, icon: Icon }) => {
+          const list = grouped[key] || [];
+          const styles = STATUS_STYLES[key as Status];
+          const isCollapsed = collapsed[key];
+          const visible = Math.min(visibleByGroup[key], list.length);
+
+          return (
+            <div key={key} className="border-t border-[#ece9dd]">
+              {/* Group header pill */}
+              <button
+                onClick={() => setCollapsed((s) => ({ ...s, [key]: !s[key] }))}
+                className="w-full flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-gray-700 hover:bg-gray-50/70"
+              >
+                {isCollapsed ? (
+                  <ChevronRight className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                )}
+                <span
+                  className={[
+                    "inline-flex items-center gap-2 rounded-lg border px-2.5 py-1",
+                    styles.pill,
+                  ].join(" ")}
+                >
+                  <Icon className={["h-4 w-4", styles.icon].join(" ")} />
+                  <span>{label}</span>
+                  <span className="opacity-50">•</span>
+                  <span className="opacity-80">{list.length}</span>
+                </span>
+              </button>
+
+              {/* Rows */}
+              {!isCollapsed &&
+                list.slice(0, visible).map((r) => (
+                  <div
+                    key={r.id}
+                    className="notion-row grid grid-cols-[24px_minmax(220px,1.3fr)_1fr_.9fr_.9fr_.9fr_.7fr_.9fr_48px] gap-3 items-center px-4 py-3"
+                  >
+                    {/* Select */}
+                    <div className="flex items-center">
+                      <Checkbox
+                        checked={!!selected[r.id]}
+                        onCheckedChange={(v: boolean) =>
+                          setSelected((s) => ({ ...s, [r.id]: !!v }))
+                        }
+                        aria-label={`Select ${r.name}`}
+                      />
+                    </div>
+
+                    {/* Patient */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="h-8 w-8 rounded-md ring-1 ring-black/5">
+                        {r.avatar ? (
+                          <AvatarImage src={r.avatar} alt={r.name} />
+                        ) : (
+                          <AvatarFallback>{r.name.slice(0, 2)}</AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="truncate font-medium text-[14px] text-gray-900 leading-5">
+                          {r.name}
+                        </div>
+                        <div className="text-[12px] text-gray-500">
+                          #{r.id} • {r.procedure}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {r.team.map((t, i) => (
+                        <span
+                          key={i}
+                          className="text-[12px] px-2 py-0.5 rounded-md border border-[#e7e4db] bg-[#faf9f6] text-gray-700"
+                        >
+                          {t.initials}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Clinic */}
+                    <div className="text-[13px] text-gray-800">{r.clinic}</div>
+
+                    {/* Next Payment */}
+                    <div className="text-[13px] text-gray-800">
+                      {new Date(r.nextPayment).toLocaleDateString()}
+                    </div>
+
+                    {/* Priority */}
+                    <div>{riskBadge(r.risk)}</div>
+
+                    {/* Progress */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-full">
+                        <Progress
+                          value={r.progress}
+                          className="h-2 bg-[#ecf0f3]"
+                          indicatorClassName="bg-[#2563EB]"
+                        />
+                      </div>
+                      <span className="w-10 text-right text-[12px] text-gray-600">
+                        {r.progress}%
+                      </span>
+                    </div>
+
+                    {/* Balance */}
+                    <div className="text-[13px] text-gray-900">
+                      {money(r.balance)}
+                    </div>
+
+                    {/* Row actions */}
+                    <div className="flex justify-end">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="p-1.5 rounded-md hover:bg-gray-100"
+                            aria-label="Row actions"
+                          >
+                            <MoreHorizontal className="h-5 w-5 text-gray-500" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="min-w-[200px]"
+                        >
+                          <DropdownMenuItem className="gap-2">
+                            <Eye className="h-4 w-4" /> View plan
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Bell className="h-4 w-4" /> Send reminder
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <Pencil className="h-4 w-4" /> Add note
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <PauseCircle className="h-4 w-4" /> Pause plan
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2">
+                            <PlayCircle className="h-4 w-4" /> Resume plan
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    {/* Mobile details */}
+                    <div className="col-span-full sm:hidden mt-2 grid grid-cols-2 gap-2 text-[12px] text-gray-600">
+                      <div>
+                        <span className="text-gray-500">Plan:</span>{" "}
+                        {money(r.planAmount)}
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Clinic:</span>{" "}
+                        {r.clinic}
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Next Pay:</span>{" "}
+                        {new Date(r.nextPayment).toLocaleDateString()}
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Status:</span>{" "}
+                        {r.status}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+              {/* Group “Show more” control */}
+              {!isCollapsed && visible < list.length && (
+                <div className="px-4 pb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={() =>
+                      setVisibleByGroup((s) => ({
+                        ...s,
+                        [key]: Math.min(list.length, s[key] + GROUP_STEP),
+                      }))
+                    }
+                  >
+                    Show {Math.min(GROUP_STEP, list.length - visible)} more
+                  </Button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ---------- FIXED BOTTOM: footer counts ---------- */}
+      <div
+        ref={footerRef}
+        className="border-t border-[#e6e6e6] px-4 py-2 text-[12px] text-gray-600 flex items-center justify-between"
+      >
+        <div>
+          {total} results • showing {visibleIds.length} on screen
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={showAllGroups}
+          >
+            Show all
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={showDefaultPerGroup}
+          >
+            Show less
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Helpers ---------------------------------------------------------------
+
+// Collapsible section like the Showrooms card
+
+function Section({
+  title,
+  children,
+  defaultOpen = true,
+  className = "",
+}: {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+}) {
+  const [open, setOpen] = React.useState(defaultOpen);
+  return (
+    <div className={`border-t first:border-t-0 border-[#ece9dd] ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((s) => !s)}
+        className="w-full flex items-center justify-between py-3 text-[13px] font-semibold text-gray-900"
+        aria-expanded={open}
+      >
+        <span>{title}</span>
+        <ChevronDown
+          className={`h-4 w-4 text-gray-500 transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {open && <div className="pb-3">{children}</div>}
+    </div>
+  );
+}
+
+// Showrooms-style pill row (selected = black)
+function PillRowV2<T extends string>({
+  value,
+  options,
+  onChange,
+}: {
+  value: T;
+  options: Opt<T>[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((o) => {
+        const active = value === o.value;
+        return (
+          <button
+            key={String(o.value)}
+            type="button"
+            onClick={() => onChange(o.value)}
+            className={[
+              "inline-flex items-center rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-all ring-1",
+              "active:scale-[.98]",
+              active
+                ? "bg-black text-white ring-black shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]"
+                : "bg-gray-100 text-gray-800 ring-transparent hover:bg-gray-200",
+            ].join(" ")}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* -------- Notion-y helpers -------- */
+function HeaderButton({
+  label,
+  onClick,
+  active,
+  dir,
+}: {
+  label: string;
+  onClick: () => void;
+  active?: boolean;
+  dir?: "asc" | "desc";
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1 text-left hover:text-gray-700"
+      aria-label={`Sort by ${label}`}
+    >
+      <span>{label}</span>
+      <ArrowUpDown
+        className={`h-3.5 w-3.5 ${active ? "opacity-100" : "opacity-40"}`}
+        data-dir={dir}
+      />
+    </button>
+  );
+}
+
+function AppliedChips({
+  status,
+  risk,
+  clinic,
+  from,
+  to,
+  onClearKey,
+}: {
+  status: Status | "all";
+  risk: Risk | "all";
+  clinic: string | "all";
+  from: string;
+  to: string;
+  onClearKey: (k: "status" | "risk" | "clinic" | "from" | "to") => void;
+}) {
+  const chips: { key: any; label: string }[] = [];
+  if (status !== "all")
+    chips.push({ key: "status", label: `Status: ${status}` });
+  if (risk !== "all") chips.push({ key: "risk", label: `Risk: ${risk}` });
+  if (clinic !== "all")
+    chips.push({ key: "clinic", label: `Clinic: ${clinic}` });
+  if (from) chips.push({ key: "from", label: `From: ${from}` });
+  if (to) chips.push({ key: "to", label: `To: ${to}` });
+
+  if (!chips.length) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1.5 mr-auto">
+      {chips.map((c) => (
+        <span
+          key={c.key}
+          className="inline-flex items-center gap-1 px-2 h-7 rounded-full border text-[12px] bg-[#fafafa] border-[#e6e6e6] text-gray-700"
+        >
+          {c.label}
+          <button
+            onClick={() => onClearKey(c.key)}
+            aria-label={`Clear ${c.label}`}
+            className="hover:text-gray-900"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* Quick date presets */
+function setFromToForPreset(
+  preset: "today" | "week" | "month",
+  setFrom: (v: string) => void,
+  setTo: (v: string) => void
+) {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const toISODate = (x: Date) =>
+    `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`;
+
+  if (preset === "today") {
+    const t = new Date();
+    setFrom(toISODate(t));
+    setTo(toISODate(t));
+    return;
+  }
+  if (preset === "week") {
+    const day = d.getDay(); // 0-6, Sun=0
+    const diffToMonday = (day + 6) % 7;
+    const start = new Date(d);
+    start.setDate(d.getDate() - diffToMonday);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    setFrom(toISODate(start));
+    setTo(toISODate(end));
+    return;
+  }
+  if (preset === "month") {
+    const start = new Date(d.getFullYear(), d.getMonth(), 1);
+    const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    setFrom(toISODate(start));
+    setTo(toISODate(end));
+    return;
+  }
+}
