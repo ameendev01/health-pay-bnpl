@@ -9,7 +9,8 @@ import {
   User,
   Calendar,
   Plus,
-  MoreHorizontal
+  MoreHorizontal,
+  CheckCircle
 } from 'lucide-react';
 import {
   DropdownMenu,

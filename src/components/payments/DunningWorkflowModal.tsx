@@ -11,7 +11,6 @@ import {
   CheckCircle,
   Send,
   Pause,
-  Play
 } from 'lucide-react';
 import { PaymentPlan } from '@/features/payments/types';
 

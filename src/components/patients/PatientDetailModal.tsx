@@ -4,10 +4,7 @@ import React, { useState } from 'react';
 import { 
   X, 
   User, 
-  Phone, 
-  Mail, 
   MapPin, 
-  Calendar,
   CreditCard,
   FileText,
   Edit3,

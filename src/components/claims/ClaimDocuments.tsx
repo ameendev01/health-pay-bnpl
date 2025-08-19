@@ -58,6 +58,19 @@ export default function ClaimDocuments({ claim }: ClaimDocumentsProps) {
     }
   ]);
 
+  // placeholder
+  setDocuments(prev => [...prev, {
+    id: 'doc-3',
+    name: 'Insurance Card.jpg',
+    type: 'optional',
+    category: 'administrative',
+    size: 102400,
+    uploadedAt: '2024-01-22T09:00:00Z',
+    uploadedBy: 'Patient',
+    status: 'uploaded',
+    virusScanStatus: 'clean'
+  }]);
+
   const [isDragOver, setIsDragOver] = useState(false);
 
   const formatFileSize = (bytes: number) => {

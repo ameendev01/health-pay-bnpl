@@ -7,7 +7,6 @@ import {
   RefreshCw,
   Download,
   X,
-  FileText
 } from 'lucide-react';
 
 interface BulkActionBarProps {

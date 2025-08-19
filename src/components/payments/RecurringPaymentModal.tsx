@@ -10,7 +10,6 @@ import {
   Settings,
   CheckCircle,
   AlertTriangle,
-  Clock
 } from 'lucide-react';
 import { PaymentPlan } from '@/features/payments/types';
 

@@ -9,7 +9,9 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
-  Building2
+  Building2,
+  Upload,
+  FileText
 } from 'lucide-react';
 import { Claim } from '@/features/claims/types';
 import ReconcilePill from './ReconcilePill';

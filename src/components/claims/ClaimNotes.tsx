@@ -5,7 +5,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
   MessageSquare,
-  Plus,
   User,
   Clock,
   Lock,
@@ -55,6 +54,9 @@ export default function ClaimNotes({ claim }: ClaimNotesProps) {
 
   const [newNote, setNewNote] = useState('');
   const [isInternal, setIsInternal] = useState(true);
+
+  //placeholder
+  console.log('claim', claim)
 
   const handleAddNote = () => {
     if (!newNote.trim()) return;

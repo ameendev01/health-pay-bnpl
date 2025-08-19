@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ClaimSearchFilters } from '@/features/claims/types';
-import { CLAIM_STATUS_CONFIG, PRIORITY_LEVELS, AGING_BUCKETS } from '@/features/claims/constants';
+import { CLAIM_STATUS_CONFIG, PRIORITY_LEVELS } from '@/features/claims/constants';
 
 interface ClaimsFilterBarProps {
   filters: ClaimSearchFilters;
