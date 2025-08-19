@@ -70,7 +70,7 @@ export default function ClaimDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+      <SheetContent className="w-full sm:max-w-2xl overflow-y-auto rounded-xl">
         <SheetHeader className="pb-6">
           <div className="flex items-start justify-between">
             <div>
