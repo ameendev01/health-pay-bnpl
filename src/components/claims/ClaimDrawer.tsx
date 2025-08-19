@@ -7,7 +7,6 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Tabs,
   TabsContent,
@@ -15,7 +14,6 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import {
-  FileText,
   Clock,
   CheckSquare,
   Upload,
