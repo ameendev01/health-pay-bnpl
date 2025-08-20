@@ -68,7 +68,7 @@ const SheetContent = React.forwardRef<
       <SheetPrimitive.Close
         className="
         cursor-pointer
-    absolute right-8 top-6.5
+    absolute right-6 top-6.5
     inline-flex h-9 w-9 items-center justify-center
     rounded-md
     text-gray-600 opacity-70
