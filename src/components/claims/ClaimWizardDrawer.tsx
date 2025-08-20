@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -105,10 +106,7 @@ export default function ClaimWizardDrawer({
       setDirty(false);
       setJustSaved(true);
       if (savedTimerRef.current) window.clearTimeout(savedTimerRef.current);
-      savedTimerRef.current = window.setTimeout(
-        () => setJustSaved(false),
-        1500
-      );
+      savedTimerRef.current = window.setTimeout(() => setJustSaved(false), 1500);
     }, 10000);
     return () => {
       clearInterval(interval);
@@ -142,24 +140,9 @@ export default function ClaimWizardDrawer({
 
   // steps meta
   const STEPS = [
-    {
-      key: "patient",
-      title: "Patient",
-      valid: !!draft.patientId && !!draft.dateOfServiceFrom,
-      icon: UserPlus,
-    },
-    {
-      key: "coverage",
-      title: "Coverage",
-      valid: !!draft.payerName && !!draft.memberId,
-      icon: Shield,
-    },
-    {
-      key: "services",
-      title: "Services",
-      valid: draft.lines.length > 0 && draft.diagnosisCodes.length > 0,
-      icon: DollarSign,
-    },
+    { key: "patient", title: "Patient", valid: !!draft.patientId && !!draft.dateOfServiceFrom, icon: UserPlus },
+    { key: "coverage", title: "Coverage", valid: !!draft.payerName && !!draft.memberId, icon: Shield },
+    { key: "services", title: "Services", valid: draft.lines.length > 0 && draft.diagnosisCodes.length > 0, icon: DollarSign },
     { key: "attachments", title: "Docs", valid: true, icon: Upload },
     { key: "review", title: "Review", valid: true, icon: CheckSquare },
   ] as const;
@@ -190,31 +173,21 @@ export default function ClaimWizardDrawer({
     const errs = validateForSubmit(draft);
     if (errs.length) {
       const first = errs[0];
-      if (
-        first.field?.startsWith("patientId") ||
-        first.field?.includes("dateOfService")
-      )
+      if (first.field?.startsWith("patientId") || first.field?.includes("dateOfService"))
         setActiveTab("patient");
-      else if (
-        first.field?.includes("payer") ||
-        first.field?.includes("member")
-      )
+      else if (first.field?.includes("payer") || first.field?.includes("member"))
         setActiveTab("coverage");
-      else if (
-        first.field?.startsWith("lines") ||
-        first.field?.startsWith("diagnosis")
-      )
+      else if (first.field?.startsWith("lines") || first.field?.startsWith("diagnosis"))
         setActiveTab("services");
       else if (first.field?.startsWith("attachments"))
         setActiveTab("attachments");
       else setActiveTab("review");
       return;
     }
-    // optional: save before submit
-    if (dirtyRef.current) await handleManualSave();
+    if (dirtyRef.current) await handleManualSave(); // save before submit
     await new Promise((r) => setTimeout(r, 600)); // mock API
     onSubmitted?.(draft);
-    onClose();
+    onClose(); // Radix will animate out, then parent can clear state if needed
   }
 
   // helpers
@@ -225,26 +198,27 @@ export default function ClaimWizardDrawer({
       maximumFractionDigits: 0,
     }).format(amount ?? 0);
 
-  if (!open) return null;
+  // ❗️Do NOT early-return null; keep the Sheet mounted for exit animations
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
       <SheetContent
+        forceMount
+        side="right"
         className="
           top-4 bottom-4 right-4
           h-auto max-h-[calc(100vh-2rem)]
           w-[min(calc(100vw-2rem),40rem)]
           max-w-none sm:!max-w-none
-          overflow-y-auto rounded-xl"
+          overflow-y-auto rounded-xl
+        "
       >
         {/* Header */}
         <SheetHeader className="pb-6">
           <div className="flex items-start justify-between">
             <div>
               <SheetTitle className="text-xl font-semibold text-gray-900">
-                {mode === "create"
-                  ? "New Claim"
-                  : `Edit Claim ${draft.id ?? ""}`}
+                {mode === "create" ? "New Claim" : `Edit Claim ${draft.id ?? ""}`}
               </SheetTitle>
               <SheetDescription className="text-gray-600 mt-1">
                 BNPL-aware claim submission
@@ -314,11 +288,7 @@ export default function ClaimWizardDrawer({
         >
           <TabsList className="grid w-full grid-cols-5 bg-gray-100 border-2 border-gray-200 pb-8">
             {STEPS.map(({ key, title, valid, icon: Icon }) => (
-              <TabsTrigger
-                key={key}
-                value={key}
-                className="flex items-center space-x-1"
-              >
+              <TabsTrigger key={key} value={key} className="flex items-center space-x-1">
                 <Icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{title}</span>
                 {!valid && (
@@ -363,8 +333,7 @@ export default function ClaimWizardDrawer({
                   <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 text-[13px] text-orange-800">
                     <div className="font-medium">Action Required</div>
                     <div className="mt-1 opacity-90">
-                      {issues.length} {issues.length === 1 ? "issue" : "issues"}{" "}
-                      must be fixed before submission.
+                      {issues.length} {issues.length === 1 ? "issue" : "issues"} must be fixed before submission.
                     </div>
                   </div>
                 )}
@@ -382,8 +351,7 @@ export default function ClaimWizardDrawer({
         <div className="sticky bottom-0 mt-6 border-t border-gray-200 bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/75">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="text-[12px] text-gray-600">
-              Step {STEPS.findIndex((s) => s.key === activeTab) + 1} of{" "}
-              {STEPS.length}
+              Step {STEPS.findIndex((s) => s.key === activeTab) + 1} of {STEPS.length}
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -392,33 +360,32 @@ export default function ClaimWizardDrawer({
                 onClick={() => {
                   const i = STEPS.findIndex((s) => s.key === activeTab);
                   const next = Math.max(0, i - 1);
-                  setActiveTab(STEPS[next].key);
+                  setActiveTab(STEPS[next].key as any);
                 }}
                 disabled={STEPS.findIndex((s) => s.key === activeTab) === 0}
               >
                 Back
               </Button>
-              {STEPS.findIndex((s) => s.key === activeTab) <
-              STEPS.length - 1 ? (
+
+              {/* Cancel closes via Radix → plays exit animation */}
+              <SheetClose asChild>
+                <Button variant="outline" className="h-8">Cancel</Button>
+              </SheetClose>
+
+              {STEPS.findIndex((s) => s.key === activeTab) < STEPS.length - 1 ? (
                 <Button
                   className="h-8"
                   onClick={() => {
                     const i = STEPS.findIndex((s) => s.key === activeTab);
                     const next = Math.min(STEPS.length - 1, i + 1);
-                    setActiveTab(STEPS[next].key);
+                    setActiveTab(STEPS[next].key as any);
                   }}
                 >
                   Next <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               ) : (
-                <Button
-                  className="h-8"
-                  onClick={handleSubmit}
-                  disabled={saving || issues.length > 0}
-                >
-                  {issues.length > 0
-                    ? `${issues.length} issue(s) remaining`
-                    : "Submit claim"}
+                <Button className="h-8" onClick={handleSubmit} disabled={saving || issues.length > 0}>
+                  {issues.length > 0 ? `${issues.length} issue(s) remaining` : "Submit claim"}
                 </Button>
               )}
             </div>

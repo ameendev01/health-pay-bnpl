@@ -847,7 +847,7 @@ export default function ClaimsTable({
                   return (
                     <div
                       key={c.id}
-                      className="grid grid-cols-[24px_minmax(220px,1.2fr)_1fr_.9fr_.9fr_.8fr_.8fr_.7fr_.8fr_48px] gap-3 items-center px-4 py-3"
+                      className="grid grid-cols-[24px_minmax(220px,1.2fr)_1fr_.9fr_.9fr_.8fr_.8fr_.7fr_.8fr_48px] gap-3 items-center px-4 py-3 hover:bg-gray-50/70 border-t first:border-t-0 border-[#ece9dd]"
                     >
                       {/* select */}
                       <div className="flex items-center">
