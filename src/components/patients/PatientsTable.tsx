@@ -51,7 +51,6 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import PaymentPlanDetailModal from "@/components/PaymentPlanDetailModal";
 
 /* ---------------- Types ---------------- */
 type Risk = "Urgent" | "Normal" | "Low";
@@ -416,9 +415,6 @@ export default function PatientsTable() {
   // Selection (now “visible scope” instead of per-page)
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
-  // Selected payment plan drawer
-  const [selectedPlan, setSelectedPlan] = useState<PatientRow | null>(null);
-
   // derived clinics for the filter
   const clinics = useMemo(
     () => Array.from(new Set(rows.map((r) => r.clinic))).sort(),
@@ -665,19 +661,18 @@ export default function PatientsTable() {
   }, [recomputeBodyMaxH, activeFilterCount]);
 
   return (
-    <>
-      <div
-        ref={rootRef}
-        style={{ "--table-body-offset": "38px" } as React.CSSProperties}
-        className="rounded-xl border border-[#e7e4db] bg-white shadow-sm overflow-hidden flex flex-col"
-      >
-        {/* ---------- FIXED TOP: Patients toolbar + chips ---------- */}
-        <div ref={headerRef} className="shrink-0">
-          {/* Title + Controls (desktop first) */}
-          <div className="flex items-center gap-3 px-4 py-3">
-            <h1 className="text-lg font-semibold tracking-[-0.01em] text-gray-900">
-              Patients
-            </h1>
+    <div
+      ref={rootRef}
+      style={{ "--table-body-offset": "38px" } as React.CSSProperties}
+      className="rounded-xl border border-[#e7e4db] bg-white shadow-sm overflow-hidden flex flex-col"
+    >
+      {/* ---------- FIXED TOP: Patients toolbar + chips ---------- */}
+      <div ref={headerRef} className="shrink-0">
+        {/* Title + Controls (desktop first) */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <h1 className="text-lg font-semibold tracking-[-0.01em] text-gray-900">
+            Patients
+          </h1>
 
           <div className="ml-auto flex items-center gap-3">
             {/* FIND CLUSTER (hidden on mobile, shown on md+) */}
@@ -1197,10 +1192,7 @@ export default function PatientsTable() {
                           align="end"
                           className="min-w-[200px]"
                         >
-                          <DropdownMenuItem
-                            className="gap-2"
-                            onSelect={() => setSelectedPlan(r)}
-                          >
+                          <DropdownMenuItem className="gap-2">
                             <Eye className="h-4 w-4" /> View plan
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2">
@@ -1264,41 +1256,34 @@ export default function PatientsTable() {
         })}
       </div>
 
-        {/* ---------- FIXED BOTTOM: footer counts ---------- */}
-        <div
-          ref={footerRef}
-          className="border-t border-[#e6e6e6] px-4 py-2 text-[12px] text-gray-600 flex items-center justify-between"
-        >
-          <div>
-            {total} results • showing {visibleIds.length} on screen
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={showAllGroups}
-            >
-              Show all
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={showDefaultPerGroup}
-            >
-              Show less
-            </Button>
-          </div>
+      {/* ---------- FIXED BOTTOM: footer counts ---------- */}
+      <div
+        ref={footerRef}
+        className="border-t border-[#e6e6e6] px-4 py-2 text-[12px] text-gray-600 flex items-center justify-between"
+      >
+        <div>
+          {total} results • showing {visibleIds.length} on screen
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={showAllGroups}
+          >
+            Show all
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8"
+            onClick={showDefaultPerGroup}
+          >
+            Show less
+          </Button>
         </div>
       </div>
-
-      <PaymentPlanDetailModal
-        isOpen={!!selectedPlan}
-        onClose={() => setSelectedPlan(null)}
-        paymentPlan={selectedPlan as any}
-      />
-    </>
+    </div>
   );
 }
 
