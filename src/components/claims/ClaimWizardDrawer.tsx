@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { X, Save, Send, UserPlus, Shield, DollarSign, Upload, CheckSquare, ChevronRight } from "lucide-react";
+import { Save, Send, UserPlus, Shield, DollarSign, Upload, CheckSquare, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -172,9 +172,9 @@ export default function ClaimWizardDrawer({
                 BNPL-aware claim submission
               </SheetDescription>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            {/* <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="w-4 h-4" />
-            </Button>
+            </Button> */}
           </div>
 
           {/* Quick Info Bar (mirrors ClaimDrawer rhythm) */}
