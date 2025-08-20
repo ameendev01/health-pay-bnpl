@@ -15,7 +15,6 @@ import {
   DollarSign,
   Shield,
   MessageSquare,
-  X,
   Download,
   RefreshCw,
   UserPlus,
@@ -88,9 +87,6 @@ export default function ClaimDrawer({
                 {new Date(claim.serviceDate).toLocaleDateString()}
               </SheetDescription>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
           </div>
 
           {/* Quick Info Bar */}
