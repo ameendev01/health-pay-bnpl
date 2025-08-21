@@ -51,6 +51,8 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { PatientDetailsDrawer } from "./PatientDetailsDrawer";
+import { AddPatientDrawer, NewPatientDraft } from "./AddPatientDrawer";
 
 /* ---------------- Types ---------------- */
 type Risk = "Urgent" | "Normal" | "Low";
@@ -75,7 +77,7 @@ const STATUS_STYLES = {
 
 type TeamMember = { name: string; avatar?: string; initials: string };
 
-type PatientRow = {
+export type Patient = {
   id: string;
   name: string;
   avatar?: string;
@@ -88,10 +90,21 @@ type PatientRow = {
   progress: number; // 0-100
   status: Status;
   team: TeamMember[];
+
+  // Optional extended details for tabs
+  phone?: string;
+  email?: string;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  notes?: string;
+  documents?: { id: string; name: string; uploadedAt: string }[];
+  payments?: { id: string; date: string; amount: number; method?: string }[];
+  activity?: { id: string; at: string; text: string }[];
 };
 
 /* ---------------- Mock data (replace with API) ---------------- */
-const rows: PatientRow[] = [
+const INITIAL_ROWS: Patient[] = [
   {
     id: "HP-0005",
     name: "Omar Hassan",
@@ -347,6 +360,20 @@ const rows: PatientRow[] = [
   },
 ];
 
+const rowToPatient = (r: Patient): Patient => ({
+  ...r,
+  // provide optional extended fields for the details tabs
+  phone: undefined,
+  email: undefined,
+  dob: undefined,
+  gender: undefined,
+  address: undefined,
+  notes: "",
+  documents: [],
+  payments: [],
+  activity: [],
+});
+
 /* ---------------- Helpers ---------------- */
 const riskBadge = (r: Risk) => {
   switch (r) {
@@ -414,11 +441,71 @@ export default function PatientsTable() {
 
   // Selection (now “visible scope” instead of per-page)
   const [selected, setSelected] = useState<Record<string, boolean>>({});
+  // NEW: local source of truth instead of const rows
+  const [patients, setPatients] = useState<Patient[]>(() =>
+    INITIAL_ROWS.map(rowToPatient)
+  );
+
+  // NEW: drawers
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [current, setCurrent] = useState<Patient | null>(null);
+
+  // NEW: open details for a row
+  const openDetails = (r: Patient) => {
+    setCurrent(r);
+    setDetailOpen(true);
+  };
+
+  // NEW: actions passed into the details drawer (stub your API here)
+  const handleAssign = (p: Patient) => console.log("Assign", p.id);
+  const handleRemind = (p: Patient) => console.log("Remind", p.id);
+  const handlePause = (p: Patient) => console.log("Pause", p.id);
+  const handleResume = (p: Patient) => console.log("Resume", p.id);
+  const handleExport = (p: Patient) => console.log("Export", p.id);
+  const handleAddNote = (p: Patient) => console.log("Save note", p.id);
+  const handleUploadDocs = (p: Patient) => console.log("Upload docs", p.id);
+
+  // NEW: create flow → add to list → close create → open details
+  const nextId = () => {
+    // simple unique-ish id; swap with your backend id after API call
+    const num = Math.floor(1000 + Math.random() * 9000);
+    return `HP-${num}`;
+  };
+  async function handleCreate(draft: NewPatientDraft) {
+    const newPatient: Patient = {
+      id: nextId(),
+      name: draft.name,
+      clinic: draft.clinic,
+      procedure: draft.procedure,
+      avatar: undefined,
+      planAmount: draft.planAmount ?? 0,
+      balance: Math.max(0, (draft.planAmount ?? 0) - (draft.deposit ?? 0)),
+      nextPayment:
+        draft.firstPaymentDate ?? new Date().toISOString().slice(0, 10),
+      risk: draft.risk,
+      progress: 0,
+      status: draft.status,
+      team: [],
+      // phone: draft.phone,
+      // email: draft.email,
+      // address: draft.address,
+      // notes: "",
+      // documents: [],
+      // payments: [],
+      // activity: [],
+    };
+    // TODO: call API, then reconcile with server id if needed
+    setPatients((prev) => [...prev, newPatient]);
+    setCreateOpen(false);
+    setCurrent(newPatient);
+    setDetailOpen(true);
+  }
 
   // derived clinics for the filter
   const clinics = useMemo(
-    () => Array.from(new Set(rows.map((r) => r.clinic))).sort(),
-    []
+    () => Array.from(new Set(patients.map((r) => r.clinic))).sort(),
+    [patients]
   );
 
   // active filters count for badge
@@ -442,7 +529,7 @@ export default function PatientsTable() {
   // filtering
   const filtered = useMemo(() => {
     const lower = q.trim().toLowerCase();
-    return rows.filter((r) => {
+    return patients.filter((r) => {
       const matchesText =
         !lower ||
         r.name.toLowerCase().includes(lower) ||
@@ -472,7 +559,7 @@ export default function PatientsTable() {
         before
       );
     });
-  }, [q, statusFilter, riskFilter, clinicFilter, dateFrom, dateTo]);
+  }, [q, statusFilter, riskFilter, clinicFilter, dateFrom, dateTo, patients]);
 
   // sorting
   const sorted = useMemo(() => {
@@ -512,7 +599,7 @@ export default function PatientsTable() {
 
   /* ---- GROUPING (now from full sorted array) ---- */
   const grouped = useMemo(() => {
-    const by: Record<Status, PatientRow[]> = {
+    const by: Record<Status, Patient[]> = {
       "In Treatment": [],
       Repaying: [],
       Delinquent: [],
@@ -881,7 +968,11 @@ export default function PatientsTable() {
 
             {/* ACTIONS CLUSTER */}
             <div className="flex items-center gap-2">
-              <Button size="sm" className="h-9 gap-1">
+              <Button
+                size="sm"
+                className="h-9 gap-1"
+                onClick={() => setCreateOpen(true)}
+              >
                 <Plus className="h-4 w-4" />
                 Add patient
               </Button>
@@ -966,7 +1057,7 @@ export default function PatientsTable() {
         )}
       </div>
 
-      {/* ---------- SCROLL AREA: rows only ---------- */}
+      {/* ---------- SCROLL AREA: patients only ---------- */}
       <div
         className="min-h-0 grow overflow-y-auto overscroll-contain"
         style={bodyMaxH !== null ? { maxHeight: `${bodyMaxH}px` } : undefined}
@@ -1048,7 +1139,7 @@ export default function PatientsTable() {
           <div className="text-right pr-1">⋯</div>
         </div>
 
-        {/* Bulk actions bar (scrolls with rows) */}
+        {/* Bulk actions bar (scrolls with patients) */}
         {Object.values(selected).some(Boolean) && (
           <div className="px-4 py-2 border-t bg-[#fafafa] text-[13px] flex items-center justify-between">
             <div>{Object.values(selected).filter(Boolean).length} selected</div>
@@ -1126,9 +1217,13 @@ export default function PatientsTable() {
                         )}
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-[14px] text-gray-900 leading-5">
+                        <button
+                          className="truncate font-medium text-[14px] text-gray-900 leading-5 cursor-pointer"
+                          onClick={() => openDetails(r)}
+                          title="View patient details"
+                        >
                           {r.name}
-                        </div>
+                        </button>
                         <div className="text-[12px] text-gray-500">
                           #{r.id} • {r.procedure}
                         </div>
@@ -1192,7 +1287,10 @@ export default function PatientsTable() {
                           align="end"
                           className="min-w-[200px]"
                         >
-                          <DropdownMenuItem className="gap-2">
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => openDetails(r)}
+                          >
                             <Eye className="h-4 w-4" /> View plan
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2">
@@ -1283,6 +1381,25 @@ export default function PatientsTable() {
           </Button>
         </div>
       </div>
+      <PatientDetailsDrawer
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        patient={current}
+        onAssign={handleAssign}
+        onRemind={handleRemind}
+        onPause={handlePause}
+        onResume={handleResume}
+        onExport={handleExport}
+        onAddNote={handleAddNote}
+        onUploadDocs={handleUploadDocs}
+      />
+
+      <AddPatientDrawer
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        clinics={clinics}
+        onCreate={handleCreate}
+      />
     </div>
   );
 }

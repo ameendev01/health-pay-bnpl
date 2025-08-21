@@ -32,8 +32,11 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   // }
 
   // If the user is logged in and the route is protected, let them view.
-  if (userId && !isPublicRoute(req)) return NextResponse.next();
-
+if (!userId && !isPublicRoute(req)) {
+  const loginUrl = new URL("/login", req.url);
+  loginUrl.searchParams.set("redirect_url", req.nextUrl.pathname + req.nextUrl.search);
+  return NextResponse.redirect(loginUrl);
+}
   // return NextResponse.next();
 });
 

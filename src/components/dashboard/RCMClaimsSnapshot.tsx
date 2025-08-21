@@ -32,7 +32,6 @@ import {
   AlertTriangle,
   Search,
   SlidersHorizontal,
-  ArrowUpRight,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -434,7 +433,7 @@ export default function RevenueCycleManagement() {
   const sortDir: SortDir = "desc";
 
   // map direction -> multiplier
-  
+
   const sorted = React.useMemo(() => {
     const DIR_FACTOR: Record<SortDir, 1 | -1> = { asc: 1, desc: -1 };
     if (!sortKey) return filtered;
@@ -496,9 +495,7 @@ export default function RevenueCycleManagement() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <CardTitle className="flex items-center gap-2 text-lg font-semibold leading-tight text-neutral-900">
-              <span
-                className="inline-grid h-5 w-5 place-items-center rounded-md"
-              >
+              <span className="inline-grid h-5 w-5 place-items-center rounded-md">
                 <Workflow className="w-5 h-5 text-blue-600" />
               </span>
               Revenue Cycle Management
@@ -736,67 +733,43 @@ export default function RevenueCycleManagement() {
 
             {/* Table container */}
             <div className="rounded-lg border border-neutral-200 flex-1 flex flex-col max-h-[480px] min-h-[480px]">
-              {/* Sticky header with fixed column grid */}
-              <div className="sticky top-[64px] z-10 bg-white">
-                <Table>
-                  <colgroup>
-                    <col style={{ width: "2rem" }} /> {/* checkbox */}
-                    <col style={{ width: "28%" }} />
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "22%" }} />
-                    <col style={{ width: "15%" }} /> {/* Amount */}
-                    <col style={{ width: "9%" }} /> {/* Aging */}
-                    <col style={{ width: "8%" }} />
-                  </colgroup>
+              <div className="flex-1 overflow-auto">
+                <Table className="w-full">
                   <TableHeader>
-                    <TableRow className="hover:bg-transparent border-b border-neutral-200">
-                      <TableHead className="px-4 py-2.5 text-[12px] font-medium text-neutral-600" />
-                      <TableHead className="px-4 py-2.5 text-[12px] font-medium text-neutral-600">
+                    <TableRow className="border-b border-neutral-200">
+                      {/* Make each header cell sticky so the whole row sticks */}
+                      <TableHead className="sticky top-0 z-10 bg-white px-4 py-2.5" />
+                      <TableHead className="sticky top-0 z-10 bg-white px-4 py-2.5">
                         Patient
                       </TableHead>
-                      <TableHead className="px-4 py-2.5 text-[12px] font-medium text-neutral-600">
+                      <TableHead className="sticky top-0 z-10 bg-white px-4 py-2.5">
                         Reason
                       </TableHead>
-                      <TableHead className="px-4 py-2.5 text-[12px] font-medium text-neutral-600">
+                      <TableHead className="sticky top-0 z-10 bg-white px-4 py-2.5">
                         Payer
                       </TableHead>
-                      <TableHead className="px-5 py-2.5 text-right text-[12px] font-medium text-neutral-600">
+                      <TableHead className="sticky top-0 z-10 bg-white px-5 py-2.5 text-right">
                         Amount
                       </TableHead>
-                      <TableHead className="px-5 py-2.5 text-right text-[12px] font-medium text-neutral-600">
+                      <TableHead className="sticky top-0 z-10 bg-white px-5 py-2.5 text-right">
                         Aging
                       </TableHead>
-                      <TableHead className="px-4 py-2.5 text-right text-[12px] font-medium text-neutral-600">
+                      <TableHead className="sticky top-0 z-10 bg-white px-4 py-2.5 text-right">
                         Action
                       </TableHead>
                     </TableRow>
                   </TableHeader>
-                </Table>
-              </div>
 
-              {/* Body uses the SAME padding & a true right edge */}
-              <div className="flex-1 overflow-auto">
-                <Table>
-                  <colgroup>
-                    <col style={{ width: "2rem" }} />
-                    <col style={{ width: "28%" }} />
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "22%" }} />
-                    <col style={{ width: "15%" }} />
-                    <col style={{ width: "9%" }} />
-                    <col style={{ width: "8%" }} />
-                  </colgroup>
                   <TableBody>
                     {rows.map((r) => (
                       <TableRow
                         key={r.id}
-                        className="group border-b last:border-0 border-neutral-100 hover:bg-neutral-50/60"
+                        className="border-b last:border-0 border-neutral-100 hover:bg-neutral-50/60"
                       >
                         <TableCell className="px-4 py-4">
                           <Checkbox aria-label={`Select ${r.id}`} />
                         </TableCell>
-
-                        <TableCell className="px-4 py-4">
+                        <TableCell className="px-4 py-4 whitespace-nowrap">
                           <div className="text-[14px] font-semibold leading-5 text-neutral-900">
                             {r.patient}
                           </div>
@@ -804,7 +777,6 @@ export default function RevenueCycleManagement() {
                             {r.id}
                           </div>
                         </TableCell>
-
                         <TableCell className="px-4 py-4">
                           <Badge
                             variant="outline"
@@ -813,64 +785,31 @@ export default function RevenueCycleManagement() {
                             {r.reason}
                           </Badge>
                         </TableCell>
-
                         <TableCell className="px-4 py-4 text-[13px] text-neutral-700">
                           {r.payer}
                         </TableCell>
-
-                        {/* Amount: hard right edge */}
-                        <TableCell className="px-5 py-4">
-                          <div className="flex w-full justify-end">
-                            <span className="text-[14px] font-semibold text-neutral-900 [font-variant-numeric:tabular-nums_lining-nums]">
-                              {fmtUSD.format(r.amount)}
-                            </span>
-                          </div>
+                        <TableCell className="px-5 py-4 text-right whitespace-nowrap">
+                          <span className="text-[14px] font-semibold text-neutral-900 [font-variant-numeric:tabular-nums_lining-nums]">
+                            {fmtUSD.format(r.amount)}
+                          </span>
                         </TableCell>
-
-                        {/* Aging: chip locked to right edge */}
-                        <TableCell className="px-5 py-4">
-                          <div className="flex w-full justify-end">
-                            <AgingBadge days={r.aging} />
-                          </div>
+                        <TableCell className="px-5 py-4 text-right">
+                          <AgingBadge days={r.aging} />
                         </TableCell>
-
                         <TableCell className="px-4 py-4 text-right">
                           <Button
                             size="sm"
                             variant="outline"
                             className="h-8 px-2 text-neutral-700 hover:text-neutral-900"
                           >
-                            Fix <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
+                            Fix
                           </Button>
                         </TableCell>
                       </TableRow>
                     ))}
-
-                    {rows.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={7}>
-                          <div className="p-8 text-center text-neutral-500">
-                            No rows match your filters.&nbsp;
-                            <button
-                              className="underline"
-                              onClick={() => {
-                                setQ("");
-                                setPayer("All");
-                                setReason("All");
-                                setAging("Any");
-                              }}
-                            >
-                              Clear filters
-                            </button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
                   </TableBody>
                 </Table>
               </div>
-
-              {/* Pagination */}
               <div className="flex flex-wrap items-center gap-3 justify-between border-t border-neutral-200 px-3 py-2">
                 {/* left: range summary */}
                 <div className="text-xs text-neutral-500">
