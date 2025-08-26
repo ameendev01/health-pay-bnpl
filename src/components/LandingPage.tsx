@@ -374,7 +374,9 @@ export default function LandingPage() {
               >
                 Log in
               </a>
-            <InteractiveHoverButton className="text-sm font-medium py-1.5">Sign Up</InteractiveHoverButton>
+              <InteractiveHoverButton className="text-sm font-medium py-1.5">
+                Sign Up
+              </InteractiveHoverButton>
             </div>
 
             <button
@@ -494,7 +496,9 @@ export default function LandingPage() {
                   Book a demo
                 </a>
               </Button> */}
-              <InteractiveHoverButton className="border-2">Book a Demo</InteractiveHoverButton>
+              <InteractiveHoverButton className="border-2">
+                Book a Demo
+              </InteractiveHoverButton>
             </div>
 
             {/* Image */}
@@ -526,13 +530,17 @@ export default function LandingPage() {
           {/* Header */}
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight">
-              When patients can't afford care,{' '}
+              When patients can't afford care,{" "}
               <span className="inline-flex items-center gap-2">
-                <svg className="w-8 h-8 text-emerald-600" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <svg
+                  className="w-8 h-8 text-emerald-600"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
                 everyone loses,
-              </span>{' '}
+              </span>{" "}
               delayed treatments, and a zillion small problems.
             </h2>
           </div>
@@ -546,14 +554,27 @@ export default function LandingPage() {
               </h3>
               <div className="flex items-start gap-3 mb-4">
                 <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-emerald-600 font-medium text-sm mb-1">+ Creating anxiety from sticker shock</p>
+                  <p className="text-emerald-600 font-medium text-sm mb-1">
+                    + Creating anxiety from sticker shock
+                  </p>
                   <p className="text-slate-600 text-sm leading-relaxed">
-                    Patients see large bills and immediately worry about affording care. This creates stress that affects their decision-making and delays necessary treatments, leading to worse health outcomes and emergency situations.
+                    Patients see large bills and immediately worry about
+                    affording care. This creates stress that affects their
+                    decision-making and delays necessary treatments, leading to
+                    worse health outcomes and emergency situations.
                   </p>
                 </div>
               </div>
@@ -584,10 +605,17 @@ export default function LandingPage() {
                 Stuck? Get solutions based on your current pain points.
               </h3>
               <div className="bg-white rounded-lg p-4 mb-4">
-                <p className="text-sm text-slate-600 mb-2">What's your biggest challenge?</p>
-                <p className="text-blue-600 text-sm underline cursor-pointer">Ask me something</p>
+                <p className="text-sm text-slate-600 mb-2">
+                  What's your biggest challenge?
+                </p>
+                <p className="text-blue-600 text-sm underline cursor-pointer">
+                  Ask me something
+                </p>
                 <p className="text-slate-700 text-sm mt-2">
-                  <strong>Patients declining expensive procedures during your consultation?</strong>
+                  <strong>
+                    Patients declining expensive procedures during your
+                    consultation?
+                  </strong>
                 </p>
               </div>
             </div>
@@ -600,15 +628,21 @@ export default function LandingPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3 bg-white rounded-lg p-3">
                   <span className="text-lg">🇺🇸</span>
-                  <span className="text-slate-700 font-medium">Dental (US)</span>
+                  <span className="text-slate-700 font-medium">
+                    Dental (US)
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 bg-white rounded-lg p-3">
                   <span className="text-lg">🇪🇸</span>
-                  <span className="text-slate-700 font-medium">Cosmetic Surgery</span>
+                  <span className="text-slate-700 font-medium">
+                    Cosmetic Surgery
+                  </span>
                 </div>
                 <div className="flex items-center gap-3 bg-white rounded-lg p-3">
                   <span className="text-lg">🇯🇵</span>
-                  <span className="text-slate-700 font-medium">Orthopedics</span>
+                  <span className="text-slate-700 font-medium">
+                    Orthopedics
+                  </span>
                 </div>
               </div>
             </div>
@@ -637,16 +671,21 @@ export default function LandingPage() {
                 Revenue tracking for accountability (and growth opportunities)
               </h3>
               <div className="bg-white rounded-lg p-4">
-                <p className="text-sm text-slate-600 mb-3">You rank #23 out of 2376 practices</p>
+                <p className="text-sm text-slate-600 mb-3">
+                  You rank #23 out of 2376 practices
+                </p>
                 <div className="grid grid-cols-12 gap-1 h-16">
                   {Array.from({ length: 84 }, (_, i) => (
                     <div
                       key={i}
                       className={`rounded-sm ${
-                        i < 20 ? 'bg-emerald-500' : 
-                        i < 40 ? 'bg-emerald-400' : 
-                        i < 60 ? 'bg-emerald-300' : 
-                        'bg-gray-200'
+                        i < 20
+                          ? "bg-emerald-500"
+                          : i < 40
+                          ? "bg-emerald-400"
+                          : i < 60
+                          ? "bg-emerald-300"
+                          : "bg-gray-200"
                       }`}
                       style={{ height: `${Math.random() * 100}%` }}
                     ></div>
