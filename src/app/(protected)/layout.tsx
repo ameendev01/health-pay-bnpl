@@ -25,7 +25,7 @@ export default function ProtectedLayout({
       </div>
 
       <div
-        className={`transition-all duration-500 ease-in-out ${
+        className={`transition-all duration-500 ease-in-out scrollbar-none [scrollbar-gutter:stable] ${
           sidebarCollapsed ? "col-span-38" : "col-span-33"
         } min-w-0 rounded-2xl bg-[#fefcf5] overflow-y-auto flex flex-col shadow-xl border border-[#e7e4db]/50 px-4 sm:px-6 lg:px-6 pb-6 pt-3`}
       >

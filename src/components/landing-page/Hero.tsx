@@ -60,12 +60,13 @@ export const Hero = () => {
 
           {/* Image */}
           <div className="relative pt-1">
-            <Image
+            
+				<Image
               src="/assets/image.png"
               alt="Breeze healthcare payment platform interface"
               width={9000}
               height={4000}
-			  className="border-none rounded-2xl"
+			  className="border-18 border-[#d5f9fb] rounded-2xl shadow-2xl"
             />
 
             {/* Glow Effect */}
