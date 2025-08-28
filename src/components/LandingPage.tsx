@@ -13,7 +13,8 @@ import React from "react";
 import Footer from "./landing-page/Footer";
 // import dynamic from "next/dynamic";
 import HealthcareBNPLBento from "./landing-page/Benefits";
-import { ProofSection } from "./landing-page/Proof";
+import ProofSection from "./landing-page/Proof";
+// import { ProofSection } from "./landing-page/Proof";
 
 // const HealthcareBNPLBento = dynamic(
 //   () => import("./landing-page/Benefits"), // your file with "use client"
