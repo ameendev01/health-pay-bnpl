@@ -104,24 +104,27 @@ export default function BreezeBentoSection() {
 
       <div className="mx-auto max-w-7xl px-6 md:px-8 py-16 md:py-24">
         {/* Header */}
-        <div className="mb-10 md:mb-14 flex flex-col items-start gap-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/5 px-3 py-1.5 ring-1 ring-black/5">
-            <Wallet className="h-4 w-4 text-slate-700" aria-hidden />
-            <span className="text-xs font-medium text-slate-700">
-              Breeze • Healthcare BNPL
-            </span>
-          </div>
-          <h2 className="text-3xl md:text-5xl tracking-tight font-semibold text-slate-900">
-            Finance care patients trust. Built for clinics.
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight">
+            Purpose-built features that{" "}
+            <span className="inline-flex items-center gap-2">
+              <svg
+                className="w-8 h-8 text-emerald-600"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              address the unique challenges,
+            </span>{" "}
+            healthcare providers face with patient financing.
           </h2>
-          <p className="max-w-2xl text-[15px] md:text-[16px] leading-6 text-slate-600">
-            Offer flexible plans, instant approvals, and next-day funding — all
-            with bank-level security and a mobile-first flow.
-          </p>
         </div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 auto-rows-[minmax(190px,auto)] md:auto-rows-[minmax(210px,auto)] gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 auto-rows-[minmax(190px,auto)] md:auto-rows-[minmax(210px,auto)] gap-4 md:gap-6 mt-12">
           {/* A. Flexible payment plans */}
           <div className="col-span-1 md:col-span-4 row-span-2 relative rounded-2xl bg-white ring-1 ring-black/5 shadow-sm overflow-hidden">
             <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-cyan-300/10 blur-2xl" />

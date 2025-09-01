@@ -100,7 +100,7 @@ export default function HealthcareBNPLProcess() {
             <article className="group">
               <div className="rounded-3xl bg-white/70 backdrop-blur-sm ring-1 ring-slate-900/5 shadow-sm p-5 md:p-6 relative overflow-hidden">
                 <h3 className="text-[17px] md:text-[18px] font-semibold tracking-tight text-slate-900">
-                  3. Flexible payment options
+                  3. Flexible options for payment
                 </h3>
                 <div className="mt-4">
                   {/* Support SVG (Offer cards) */}

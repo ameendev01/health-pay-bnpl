@@ -10,12 +10,12 @@ export const Hero = () => {
         <div className="flex flex-col items-center gap-6 text-center sm:gap-12">
           {/* Badge */}
           <RainbowButton variant={"outline"} className="rounded-full">
-            <span className="text-slate-600">
+            <span className="text-slate-700 font-medium">
               BNPL for Healthcare Providers
             </span>
             <a
               href="#problem"
-              className="flex items-center gap-1 text-slate-900"
+              className="flex items-center gap-1 text-slate-900 font-semibold"
             >
               Learn more
               <ArrowRight className="h-3 w-3" />
@@ -39,10 +39,10 @@ export const Hero = () => {
             {/* Description */}
             <p
               className="
-    relative z-10 mx-auto text-center text-slate-600
+    relative z-10 mx-auto text-center text-slate-700
     text-base md:text-lg font-normal
     max-w-[60ch] md:max-w-[55ch]
-    text-pretty
+    text-balance leading-relaxed
   "
             >
               Breeze empowers clinics and hospitals to offer responsible
