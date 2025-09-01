@@ -6,7 +6,6 @@ import Stats from "./landing-page/Stats";
 import FAQSection from "./landing-page/Faq";
 import { FinalCta } from "./landing-page/FinalCta";
 import { Hero } from "./landing-page/Hero";
-import { NavBar } from "./landing-page/Navbar";
 import React from "react";
 import Footer from "./landing-page/Footer";
 // import dynamic from "next/dynamic";
@@ -14,6 +13,7 @@ import ProofSection from "./landing-page/Proof";
 import ProblemsSection from "./landing-page/Problems";
 import Solution from "./landing-page/Solution";
 import FeaturesSectionMini from "./landing-page/FeaturesSectionMini";
+import NavBar from "./landing-page/Navbar";
 // import { ProofSection } from "./landing-page/Proof";
 
 // const HealthcareBNPLBento = dynamic(
@@ -39,7 +39,7 @@ export default function LandingPage() {
 
       {/* Solution Section */}
       <Solution/>
-      
+
       {/* Features Section */}
       <FeaturesSectionMini/>
 
