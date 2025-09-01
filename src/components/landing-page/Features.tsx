@@ -98,9 +98,9 @@ export default function BreezeBentoSection() {
   return (
     <section className="relative antialiased">
       {/* Subtle backdrop accents */}
-      <div className="pointer-events-none absolute inset-x-0 -top-24 flex justify-center">
+      {/* <div className="pointer-events-none absolute inset-x-0 -top-24 flex justify-center">
         <div className="h-40 w-[60rem] rounded-full bg-gradient-to-r from-cyan-300/10 via-emerald-300/10 to-indigo-300/10 blur-3xl" />
-      </div>
+      </div> */}
 
       <div className="mx-auto max-w-7xl px-6 md:px-8 py-16 md:py-24">
         {/* Header */}

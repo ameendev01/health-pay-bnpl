@@ -27,7 +27,7 @@ const Solution = () => {
         </div>
 
         {/* How It Works Steps */}
-        <div className="mb-20">
+        <div className="">
           <HealthcareBNPLProcess />
         </div>
 
