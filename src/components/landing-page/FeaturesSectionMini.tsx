@@ -4,7 +4,7 @@ import { Body, Footnote, Surface, TileAsset, Title } from "../SoftCard";
 const FeaturesSectionMini = () => {
   return (
     <section className="">
-      <div className="mx-auto max-w-7xl px-6 py-16 md:px-8 md:py-20">
+      <div className="mx-auto max-w-7xl px-4 py-16 md:px-2 md:py-20">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight">
             Patient-preferred plans{" "}

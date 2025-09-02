@@ -50,7 +50,7 @@ export default function Testimonials() {
                   </svg>
                   boost approvals,
                 </span>{" "}
-                start treatments faster, and delight patients.
+                start treatments faster, and delight patients
               </h2>
             </div>
 
@@ -275,7 +275,7 @@ export default function Testimonials() {
                   />
                 </div>
                 <p className="text-[15px] text-neutral-300">
-                  1500 satisfied clients love our services
+                  In a nutshell - Higher acceptance. Faster treatment starts. Happier patients. Zero AR drag.
                 </p>
                 <div className="hidden sm:block h-5 w-px bg-neutral-700/40" />
                 <div className="flex items-center gap-1.5">

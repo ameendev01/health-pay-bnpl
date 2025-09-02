@@ -45,9 +45,7 @@ export const Hero = () => {
     text-balance leading-relaxed
   "
             >
-              Breeze empowers clinics and hospitals to offer responsible
-              installment plans at checkout—instant approvals, guaranteed
-              funding, and seamless EHR integrations.
+              Breeze pays your clinic in full up front and handles patient installments. Patients see 0% APR; you pay a simple per-plan fee. No new AR. No collections work.
             </p>
           </div>
 

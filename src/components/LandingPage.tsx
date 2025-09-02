@@ -13,7 +13,7 @@ import ProofSection from "./landing-page/Proof";
 import ProblemsSection from "./landing-page/Problems";
 import Solution from "./landing-page/Solution";
 import FeaturesSectionMini from "./landing-page/FeaturesSectionMini";
-import NavBar from "./landing-page/Navbar";
+import {NavBar} from "./landing-page/Navbar";
 // import { ProofSection } from "./landing-page/Proof";
 
 // const HealthcareBNPLBento = dynamic(
@@ -34,20 +34,23 @@ export default function LandingPage() {
       {/* Hero Section */}
       <Hero />
 
+      <Stats />
+
       {/* Problem Section */}
       <ProblemsSection />
 
       {/* Solution Section */}
       <Solution/>
 
-      {/* Features Section */}
-      <FeaturesSectionMini/>
+      <Testimonials />
 
       <Features />
 
-      <Testimonials />
+      {/* Features Section */}
+      <FeaturesSectionMini/>
 
-      <Stats />
+
+
 
       {/* Proof Section */}
       <ProofSection/>

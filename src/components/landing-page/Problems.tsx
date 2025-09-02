@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export default function ProblemsSection() {
   return (
-    <section className="py-16 sm:py-20 md:py-24">
+    <section className="py-16 sm:py-20 md:py-24 mt-20">
       {/* Headline */}
       <div className="text-center mb-12 sm:mb-16 px-4">
         <h2
@@ -50,8 +50,8 @@ export default function ProblemsSection() {
           >
             <Title tall>Cost stops care</Title>
             <Body tall>
-              ~1 in 3 adults delayed or skipped needed care due to cost.
-              Up-front-only policies reduce visits and increase write-offs.
+              ~1 in 3 adults delay or skip care due to cost. Up-front-only
+              policies turn “maybe” into “not today.”
             </Body>
 
             {/* Decorative asset — fluid size, bottom-right anchored */}
@@ -75,10 +75,9 @@ export default function ProblemsSection() {
             ariaLabel="Interest is not an option"
           >
             <FullText>
-              Interest-based financing adds cost and—importantly for
-              many—conflicts with values. For Muslim patients and clinics,
-              interest (riba) is unacceptable. So any plan tied to interest is a
-              non-starter.
+              Interest-based financing inflates costs and clashes with core
+              values. Patients and clinics want care, not interest or penalties.
+              If financing includes interest, the plan is unacceptable, period.
             </FullText>
             <Footnote href="https://halaltimes.com/">
               Islamic finance (riba)
@@ -106,9 +105,8 @@ export default function ProblemsSection() {
           >
             <Title tall>Slow pay blocks cash flow</Title>
             <Body tall>
-              In-house plans tie up revenue for months. Third-party models
-              typically pay clinics in a few days—freeing cash for payroll,
-              rent, and growth.
+              Revenue trickles in for months while payroll, rent, and supplies
+              are due now.
             </Body>
             <TileAsset
               src="/assets/hourglasss.png"
@@ -131,9 +129,8 @@ export default function ProblemsSection() {
           >
             <Title tall>Collections drain the team</Title>
             <Body tall>
-              Contracts, credit checks, invoicing, chasing late payers—running
-              plans in-house turns a clinic into a lender and steals time from
-              care.
+              Running plans in-house makes you a lender—calls, statements,
+              chasing late payers—all outside your core work.
             </Body>
             <TileAsset
               src="/assets/cost-cut.png"
