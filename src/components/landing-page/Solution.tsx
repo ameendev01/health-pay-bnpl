@@ -4,7 +4,7 @@ import HealthcareBNPLProcess from "./Process";
 const Solution = () => {
   return (
     <section id="solution" className="py-24">
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight  text-balance">

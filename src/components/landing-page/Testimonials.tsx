@@ -24,7 +24,7 @@ function StarSolid({
 
 export default function Testimonials() {
   return (
-    <section className="px-4 py-14 sm:py-16 md:py-20 text-neutral-900">
+    <section className="px-4 sm:px-6 lg:px-8 py-14 sm:py-16 md:py-20 text-neutral-900">
       <div className="mx-auto max-w-7xl">
         {/* Framed surface — now owns all interior spacing */}
         <div

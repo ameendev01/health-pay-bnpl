@@ -4,7 +4,7 @@ import { Body, Surface, TileAsset, Title } from "../SoftCard";
 const FeaturesSectionMini = () => {
   return (
     <section className="">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-2 md:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight">
             Patient-preferred plans{" "}
@@ -28,8 +28,8 @@ const FeaturesSectionMini = () => {
           className="
             mt-12 grid gap-6
             sm:grid-cols-3
-            [--row:400px]
-            [grid-auto-rows:var(--row)]
+            [grid-auto-rows:auto]
+            sm:[--row:400px] sm:[grid-auto-rows:var(--row)]
           "
         >
           <Surface ariaLabel="More patients say yes">

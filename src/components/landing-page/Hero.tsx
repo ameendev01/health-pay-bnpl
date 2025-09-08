@@ -5,7 +5,7 @@ import { RainbowButton } from "../magicui/rainbow-button";
 
 export const Hero = () => {
   return (
-    <section className=" text-slate-900 py-12 sm:py-24 md:py-28 px-4 overflow-hidden pb-0">
+    <section className="text-slate-900 py-12 sm:py-24 md:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden pb-0">
       <div className="mx-auto flex max-w-7xl flex-col gap-12 pt-0 sm:gap-24">
         <div className="flex flex-col items-center gap-6 text-center sm:gap-12">
           {/* Badge */}

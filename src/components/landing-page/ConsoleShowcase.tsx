@@ -202,7 +202,7 @@ export default function ConsoleShowcase() {
       <div className="sticky top-0 w-full h-screen flex flex-col justify-center bg-black overflow-hidden">
         {/* Header */}
         <div className="absolute top-10 left-0 right-0 z-20 pt-16 pb-8">
-          <div className="w-full px-8">
+          <div className="w-full px-4 sm:px-6 lg:px-8">
             <header className="text-center">
               <h3 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white">
                 The Breeze Console
@@ -216,7 +216,7 @@ export default function ConsoleShowcase() {
         </div>
 
         {/* Cards */}
-        <div className="flex-1 flex items-center justify-center px-8">
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <div className="relative w-full h-[90vh] max-w-8xl">
             {SHOTS.map((shot, index) => {
               if (!renderSet.has(index)) return null;

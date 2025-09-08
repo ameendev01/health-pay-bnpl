@@ -8,7 +8,7 @@ export default function ProblemsSection() {
   return (
     <section className="py-16 sm:py-20 md:py-24 mt-20">
       {/* Headline */}
-      <div className="text-center mb-12 sm:mb-16 px-4">
+      <div className="text-center mb-12 sm:mb-16 px-4 sm:px-6 lg:px-8">
         <h2
           className="mx-auto max-w-6xl font-semibold tracking-tight text-slate-800 text-pretty leading-[1.05]
                      text-[clamp(32px,6vw,64px)]"
@@ -29,7 +29,7 @@ export default function ProblemsSection() {
         </h2>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           className={cn(
             // Responsive grid: stack → 2 cols → 6 cols w/ fixed rows
@@ -251,41 +251,41 @@ function Surface({
   );
 }
 
-/** --- FOOTNOTE LINKS --- */
-function Footnote({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={cn(
-        "relative z-[2] mt-auto inline-flex items-center gap-1 text-[11px] tracking-wide",
-        "text-slate-400 hover:text-slate-600 transition-colors underline decoration-slate-200/60 hover:decoration-slate-400"
-      )}
-    >
-      {children}
-      <ExternalIcon />
-    </a>
-  );
-}
-
-function ExternalIcon() {
-  return (
-    <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" aria-hidden>
-      <path
-        d="M11 3h6v6h-2V6.41l-6.3 6.3-1.4-1.42 6.3-6.3H11V3Z"
-        fill="currentColor"
-      />
-      <path d="M5 5h4v2H7v6h6v-2h2v4H5V5Z" fill="currentColor" />
-    </svg>
-  );
-}
+// /** --- FOOTNOTE LINKS --- */
+// function Footnote({
+//   href,
+//   children,
+// }: {
+//   href: string;
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <a
+//       href={href}
+//       target="_blank"
+//       rel="noopener noreferrer"
+//       className={cn(
+//         "relative z-[2] mt-auto inline-flex items-center gap-1 text-[11px] tracking-wide",
+//         "text-slate-400 hover:text-slate-600 transition-colors underline decoration-slate-200/60 hover:decoration-slate-400"
+//       )}
+//     >
+//       {children}
+//       <ExternalIcon />
+//     </a>
+//   );
+// }
+// 
+// function ExternalIcon() {
+//   return (
+//     <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" aria-hidden>
+//       <path
+//         d="M11 3h6v6h-2V6.41l-6.3 6.3-1.4-1.42 6.3-6.3H11V3Z"
+//         fill="currentColor"
+//       />
+//       <path d="M5 5h4v2H7v6h6v-2h2v4H5V5Z" fill="currentColor" />
+//     </svg>
+//   );
+// }
 
 /** --- DECORATIVE ASSET --- */
 function TileAsset({

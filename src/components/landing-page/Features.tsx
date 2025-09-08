@@ -8,7 +8,7 @@ import { Body, Surface, TileAsset, Title } from "../SoftCard";
 export default function BreezeBentoSection() {
   return (
     <section className="relative antialiased">
-      <div className="mx-auto max-w-7xl px-6 md:px-8 py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         {/* Header */}
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight">
@@ -31,11 +31,8 @@ export default function BreezeBentoSection() {
         {/* Bento grid */}
         <div
           className={cn(
-            "mt-12 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-4",
-            // fixed row units
-            "[--row:92px] md:[--row:100px]",
-            // auto rows + explicit template for stability
-            "[grid-auto-rows:var(--row)] md:[grid-template-rows:repeat(6,var(--row))]"
+            "mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-4 sm:gap-6",
+            "[grid-auto-rows:auto] md:[--row:100px] md:[grid-auto-rows:var(--row)] md:[grid-template-rows:repeat(6,var(--row))]"
           )}
         >
           {/* 1 — tall left */}

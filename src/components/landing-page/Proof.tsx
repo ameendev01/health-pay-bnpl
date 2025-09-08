@@ -3,7 +3,7 @@ import { ShieldCheck, CreditCard, FileCheck } from "lucide-react";
 
 export default function ProofSection() {
   return (
-    <section className="px-4 py-14 sm:py-16 md:py-20">
+    <section className="px-4 sm:px-6 lg:px-8 py-14 sm:py-16 md:py-20">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {/* HIPAA */}
