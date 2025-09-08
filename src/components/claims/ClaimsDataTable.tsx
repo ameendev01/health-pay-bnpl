@@ -687,7 +687,7 @@ export default function ClaimsTable({
 
       {/* Body (rows-only scroll) */}
       <div
-        className="min-h-0 grow overflow-y-auto overscroll-contain"
+        className="min-h-0 grow overflow-y-auto overscroll-contain scrollbar-breeze"
         style={bodyMaxH !== null ? { maxHeight: `${bodyMaxH}px` } : undefined}
       >
         {/* sticky column header */}

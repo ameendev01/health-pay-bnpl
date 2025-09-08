@@ -27,7 +27,10 @@ export default function Testimonials() {
     <section className="px-4 py-14 sm:py-16 md:py-20 text-neutral-900">
       <div className="mx-auto max-w-7xl">
         {/* Framed surface — now owns all interior spacing */}
-        <div className="relative rounded-[32px] bg-gray-900  shadow-[0_1px_0_0_rgba(15,23,42,0.03),0_20px_40px_-20px_rgba(15,23,42,0.15)]">
+        <div
+          data-nav-ink="light"
+          className="relative rounded-[32px] bg-gray-900  shadow-[0_1px_0_0_rgba(15,23,42,0.03),0_20px_40px_-20px_rgba(15,23,42,0.15)]"
+        >
           {/* subtle inset frame */}
           <div className="pointer-events-none absolute inset-0 rounded-[32px]" />
 
@@ -36,9 +39,8 @@ export default function Testimonials() {
             {/* Header */}
             <div className="mx-auto max-w-4xl text-center">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-[#fefcf5] leading-tight">
-                Find out how healthcare providers use our flexible pay-over-time
-                experience to{" "}
-                <span className="inline-flex items-center gap-2 ">
+                Clinics on Breeze{" "}
+                <span className="inline-flex items-center gap-2">
                   <svg
                     className="w-8 h-8 text-emerald-600"
                     viewBox="0 0 24 24"
@@ -48,9 +50,9 @@ export default function Testimonials() {
                   >
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
-                  boost approvals,
+                  more approvals,
                 </span>{" "}
-                start treatments faster, and delight patients
+                faster starts, upfront pay
               </h2>
             </div>
 
@@ -268,14 +270,15 @@ export default function Testimonials() {
                 <div className="hidden sm:block h-10 w-10 rounded-full overflow-hidden">
                   <Image
                     width={9}
-					height={9}
+                    height={9}
                     src="https://images.unsplash.com/photo-1621619856624-42fd193a0661?w=1080&q=80"
                     alt="Decor"
                     className="h-full w-full"
                   />
                 </div>
                 <p className="text-[15px] text-neutral-300">
-                  In a nutshell - Higher acceptance. Faster treatment starts. Happier patients. Zero AR drag.
+                  In a nutshell - Higher acceptance. Faster treatment starts.
+                  Happier patients. Zero AR drag.
                 </p>
                 <div className="hidden sm:block h-5 w-px bg-neutral-700/40" />
                 <div className="flex items-center gap-1.5">

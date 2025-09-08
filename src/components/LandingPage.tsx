@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Features from "./landing-page/Features";
 import Testimonials from "./landing-page/Testimonials";
@@ -13,7 +13,8 @@ import ProofSection from "./landing-page/Proof";
 import ProblemsSection from "./landing-page/Problems";
 import Solution from "./landing-page/Solution";
 import FeaturesSectionMini from "./landing-page/FeaturesSectionMini";
-import {NavBar} from "./landing-page/Navbar";
+import { NavBar } from "./landing-page/Navbar";
+import ConsoleShowcase from "./landing-page/ConsoleShowcase";
 // import { ProofSection } from "./landing-page/Proof";
 
 // const HealthcareBNPLBento = dynamic(
@@ -40,20 +41,19 @@ export default function LandingPage() {
       <ProblemsSection />
 
       {/* Solution Section */}
-      <Solution/>
+      <Solution />
 
       <Testimonials />
+
+      <ConsoleShowcase />
 
       <Features />
 
       {/* Features Section */}
-      <FeaturesSectionMini/>
-
-
-
+      <FeaturesSectionMini />
 
       {/* Proof Section */}
-      <ProofSection/>
+      <ProofSection />
 
       {/* FAQ Section */}
       <FAQSection />

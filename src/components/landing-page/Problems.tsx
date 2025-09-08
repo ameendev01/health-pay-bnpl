@@ -65,8 +65,8 @@ export default function ProblemsSection() {
   "
             />
 
-            <Footnote href="https://www.kff.org/">KFF</Footnote>
-            <Footnote href="https://www.webpt.com/blog/">WebPT</Footnote>
+            {/* <Footnote href="https://www.kff.org/">KFF</Footnote>
+            <Footnote href="https://www.webpt.com/blog/">WebPT</Footnote> */}
           </Surface>
 
           {/* 2 — left short (rows 5–6): full-bleed text */}
@@ -79,9 +79,9 @@ export default function ProblemsSection() {
               values. Patients and clinics want care, not interest or penalties.
               If financing includes interest, the plan is unacceptable, period.
             </FullText>
-            <Footnote href="https://halaltimes.com/">
+            {/* <Footnote href="https://halaltimes.com/">
               Islamic finance (riba)
-            </Footnote>
+            </Footnote> */}
           </Surface>
 
           {/* 3 — middle short (rows 1–2): full-bleed text */}
@@ -93,9 +93,9 @@ export default function ProblemsSection() {
               Bank-sponsored plans favor higher credit scores. Patients who
               don’t fit the model are declined—even when care is necessary.
             </FullText>
-            <Footnote href="https://www.webpt.com/blog/">
+            {/* <Footnote href="https://www.webpt.com/blog/">
               Approval norms
-            </Footnote>
+            </Footnote> */}
           </Surface>
 
           {/* 4 — middle tall (rows 3–6) */}
@@ -117,9 +117,9 @@ export default function ProblemsSection() {
     lg:translate-x-[22%] lg:translate-y-[20%]
   "
             />
-            <Footnote href="https://www.finturf.com/for-providers/">
+            {/* <Footnote href="https://www.finturf.com/for-providers/">
               Finturf
-            </Footnote>
+            </Footnote> */}
           </Surface>
 
           {/* 6 — right tall (rows 1–4) */}
@@ -141,7 +141,7 @@ export default function ProblemsSection() {
     lg:translate-x-[15%] lg:translate-y-[20%]
   "
             />
-            <Footnote href="https://withcherry.com/">WithCherry</Footnote>
+            {/* <Footnote href="https://withcherry.com/">WithCherry</Footnote> */}
           </Surface>
 
           {/* 7 — right short (rows 5–6): full-bleed text */}
@@ -153,9 +153,9 @@ export default function ProblemsSection() {
               Without risk-sharing, a few large defaults can wipe out profit.
               Bad for business every single day.
             </FullText>
-            <Footnote href="https://www.finturf.com/for-providers/">
+            {/* <Footnote href="https://www.finturf.com/for-providers/">
               Financing risk
-            </Footnote>
+            </Footnote> */}
           </Surface>
         </div>
       </div>

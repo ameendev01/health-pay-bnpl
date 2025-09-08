@@ -1,5 +1,5 @@
 import React from "react";
-import { Body, Footnote, Surface, TileAsset, Title } from "../SoftCard";
+import { Body, Surface, TileAsset, Title } from "../SoftCard";
 
 const FeaturesSectionMini = () => {
   return (
@@ -46,7 +46,7 @@ const FeaturesSectionMini = () => {
                 lg:translate-x-[15%] lg:translate-y-[20%]
               "
             />
-            <Footnote href="#">Breeze</Footnote>
+            {/* <Footnote href="#">Breeze</Footnote> */}
           </Surface>
 
           <Surface ariaLabel="Real-time approvals">
@@ -55,22 +55,22 @@ const FeaturesSectionMini = () => {
               Apply at checkout. Decisions in real time keep schedules moving.
             </Body>
             <TileAsset
-              src="/assets/cost-cut.png"
+              src="/assets/realtime-approvals.png"
               alt="Real-time approvals"
               className="
                 w-[180%] sm:w-[210%] lg:w-[280%]
                 translate-x-[6%] translate-y-[6%]
-                lg:translate-x-[15%] lg:translate-y-[20%]
+                lg:translate-x-[16%] lg:translate-y-[19%]
               "
             />
-            <Footnote href="#">Breeze</Footnote>
+            {/* <Footnote href="#">Breeze</Footnote> */}
           </Surface>
 
           <Surface ariaLabel="Next-day funding">
             <Title tall>Next-day funding</Title>
             <Body tall>T+1 payouts. Cash flow stays smooth.</Body>
             <TileAsset
-              src="/assets/cost-cut.png"
+              src="/assets/funding.png"
               alt="Next-day funding"
               className="
                 w-[180%] sm:w-[210%] lg:w-[280%]
@@ -78,7 +78,7 @@ const FeaturesSectionMini = () => {
                 lg:translate-x-[15%] lg:translate-y-[20%]
               "
             />
-            <Footnote href="#">Breeze</Footnote>
+            {/* <Footnote href="#">Breeze</Footnote> */}
           </Surface>
         </div>
       </div>
