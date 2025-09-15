@@ -99,15 +99,15 @@ const CardSlide = memo(function CardSlide({
       transition={CARD_TRANSITION}
       style={{ pointerEvents: isActive ? "auto" : "none" }}
     >
-      <div className="relative w-full h-full overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+      <div className="relative w-full h-full overflow-hidden rounded-3xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.4)] max-sm:right-13">
         <Image
           src={shot.src || "/placeholder.svg"}
           alt={shot.alt}
           fill
           sizes="100vw"
-          className="object-cover"
+          className="object-cover max-sm:object-bottom-right"
           priority={index === 0}
-          quality={85} // lighter decode; visually fine here
+          quality={100}
         />
 
         {/* Global bottom gradient */}

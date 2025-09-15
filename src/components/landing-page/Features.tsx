@@ -1,62 +1,92 @@
 // app/components/BreezeBentoSection.tsx
-// Server component — pure markup + Tailwind.
-// Uses your Surface/Title/Body utilities.
-
 import { cn } from "@/lib/utils";
 import { Body, Surface, TileAsset, Title } from "../SoftCard";
+import Image from "next/image";
+
+/** Mobile thumbnail — same treatment as Problems section */
+function MobileThumb({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="lg:hidden -mx-1 -mt-1 mb-3">
+      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl bg-neutral-100">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="(max-width:1023px) 100vw"
+          className="object-contain p-2"
+          priority={false}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function BreezeBentoSection() {
   return (
     <section className="relative antialiased">
       <div className="mx-auto max-w-7xl px-6 md:px-8 py-16 md:py-24">
-        {/* Header */}
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight">
-            Purpose-built features for{" "}
-            <span className="inline-flex items-center gap-2">
-              <svg
-                className="w-8 h-8 text-emerald-600"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-              clinic managers, removing
-            </span>{" "}
-            friction from checkout to close
-          </h2>
-        </div>
+    {/* Header */}
+<div className="mx-auto max-w-4xl px-4 text-center">
+  <h2
+    className="
+      font-semibold tracking-tight text-slate-800 text-pretty text-balance
+      leading-[1.06]
+      text-[clamp(28px,8vw,40px)] sm:text-5xl lg:text-6xl
+      max-w-[24ch] sm:max-w-none mx-auto
+    "
+  >
+    <span className="block">Purpose-built features for</span>
+
+    {/* star stays glued to “clinic managers,” and centers as a unit */}
+    <span className="mt-1 inline-flex items-center gap-2 w-fit mx-auto">
+      <svg
+        className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 flex-none"
+        viewBox="0 0 24 24" fill="currentColor" aria-hidden
+      >
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+      <span>clinic managers,</span>
+    </span>
+
+    {/* break “removing …” onto its own lines for mobile sanity */}
+    <span className="block">removing friction from</span>
+    <span className="block">checkout to close</span>
+  </h2>
+</div>
+
+
 
         {/* Bento grid */}
         <div
           className={cn(
             "mt-12 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-4",
-            // fixed row units
-            "[--row:92px] md:[--row:100px]",
-            // auto rows + explicit template for stability
-            "[grid-auto-rows:var(--row)] md:[grid-template-rows:repeat(6,var(--row))]"
+            // fixed rows only from md+ so mobile flows naturally
+            "md:[--row:100px] md:[grid-template-rows:repeat(6,var(--row))]"
           )}
         >
           {/* 1 — tall left */}
           <Surface
-            className="md:col-span-4 md:row-span-4"
+            className={cn("md:col-span-4 md:row-span-4", "lg:pb-24")}
             ariaLabel="Flexible payment plans"
           >
+            {/* Mobile image */}
+            <MobileThumb
+              src="/assets/flexible.png"
+              alt="Treatment acceptance"
+            />
             <Title tall>Flexible payment plans</Title>
             <Body tall>
               Offer 4, 8, or 12-month installments with transparent pricing to
               increase acceptance while keeping care affordable.
             </Body>
-            <TileAsset
-              src="/assets/flexible.png"
-              alt="Treatment acceptance"
-              className="
-                    w-[180%] sm:w-[210%] lg:w-[280%]
-                    translate-x-[6%] translate-y-[6%]
-                    lg:translate-x-[12%] lg:translate-y-[16%]
-                  "
-            />
+            {/* Desktop decorative asset */}
+            <div className="hidden lg:block">
+              <TileAsset
+                src="/assets/flexible.png"
+                alt="Treatment acceptance"
+                className="lg:w-[260%] lg:translate-x-[12%] lg:translate-y-[16%]"
+              />
+            </div>
           </Surface>
 
           {/* 2 — top middle */}
@@ -64,8 +94,12 @@ export default function BreezeBentoSection() {
             className="md:col-span-4 md:row-span-2"
             ariaLabel="Instant approvals"
           >
-            <Title>Instant approvals in &lt;60s</Title>
-            <Body>
+            <MobileThumb
+              src="/assets/patient-mobile.png"
+              alt="Patient mobile flow"
+            />
+            <Title tall>Instant approvals in &lt;60s</Title>
+            <Body tall>
               Most patients receive a decision in under a minute, keeping
               scheduling on track.
             </Body>
@@ -73,23 +107,25 @@ export default function BreezeBentoSection() {
 
           {/* 3 — tall right */}
           <Surface
-            className="md:col-span-4 md:row-span-4"
+            className={cn("md:col-span-4 md:row-span-4", "lg:pb-24")}
             ariaLabel="Patient-friendly mobile process"
           >
+            <MobileThumb
+              src="/assets/patient-mobile.png"
+              alt="Patient mobile flow"
+            />
             <Title tall>Patient-friendly mobile process</Title>
             <Body tall>
               Patients complete financing on their phone—in-office or at home.
               No paperwork, no friction.
             </Body>
-            <TileAsset
-              src="/assets/patient-mobile.png"
-              alt="Treatment acceptance"
-              className="
-                w-[180%] sm:w-[210%] lg:w-[280%]
-                translate-x-[6%] translate-y-[6%]
-                lg:translate-x-[15%] lg:translate-y-[18%]
-              "
-            />
+            <div className="hidden lg:block">
+              <TileAsset
+                src="/assets/patient-mobile.png"
+                alt="Patient mobile flow"
+                className="lg:w-[260%] lg:translate-x-[15%] lg:translate-y-[18%]"
+              />
+            </div>
           </Surface>
 
           {/* 4 — middle-left single */}
@@ -97,32 +133,40 @@ export default function BreezeBentoSection() {
             className="md:col-span-4 md:row-span-2"
             ariaLabel="Bank-level security and compliance"
           >
-            <Title>Bank-level security &amp; compliance</Title>
-            <Body>
+            <MobileThumb
+              src="/assets/patient-mobile.png"
+              alt="Patient mobile flow"
+            />
+            <Title tall>Bank-level security &amp; compliance</Title>
+            <Body tall>
               PCI DSS compliant with full encryption and robust fraud
               protection—safeguarding PHI while staying audit-ready.
             </Body>
           </Surface>
 
-          {/* 5 — wide bottom-left (now exactly 2 row units, no saggy space) */}
+          {/* 5 — wide bottom-left */}
           <Surface
             className="md:col-span-8 md:row-span-2"
             ariaLabel="+67% treatment acceptance"
           >
-            <Title>Up to +67% treatment acceptance</Title>
-            <Body>
+            <Title tall>Up to +67% treatment acceptance</Title>
+            <Body tall>
               Clear terms and instant decisions boost plan approvals and
               completed treatments.
             </Body>
           </Surface>
 
-          {/* 6 — bottom-right single (matches +67% height) */}
+          {/* 6 — bottom-right single */}
           <Surface
             className="md:col-span-4 md:row-span-2"
             ariaLabel="EHR integration"
           >
-            <Title>Seamless EHR integration</Title>
-            <Body>
+            <MobileThumb
+              src="/assets/patient-mobile.png"
+              alt="Patient mobile flow"
+            />
+            <Title tall>Seamless EHR integration</Title>
+            <Body tall>
               Works with your practice systems for minimal disruption and faster
               staff adoption.
             </Body>

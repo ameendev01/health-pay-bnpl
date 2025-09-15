@@ -1,42 +1,204 @@
 // TestimonialsSection.tsx
 import { Activity, Quote, ShieldCheck, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+/* ---------------- MOBILE: ACCORDION ---------------- */
 
-function StarSolid({
-  className = "",
-  "aria-hidden": ariaHidden = true,
-}: {
-  className?: string;
-  "aria-hidden"?: boolean;
-}) {
+type MobileItem = {
+  stat: string | null;
+  label: string;
+  quote: string;
+  name: string;
+  role: string;
+  avatar: string;
+  dark?: boolean;
+  withIcon?: boolean;
+};
+
+function MobileAccordion() {
+  const items: MobileItem[] = [
+    {
+      stat: "8X",
+      label: "Increase in treatment approvals",
+      quote:
+        "We needed a seamless way to offer pay-over-time for dental and cosmetic procedures. The team went above and beyond—implementation took days, not weeks—and our approval rate increased by 800% in just two weeks. Highly recommended for any clinic.",
+      name: "David Callahan",
+      role: "COO, BrightSmile Clinics",
+      avatar:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=120&auto=format&fit=crop",
+      withIcon: true,
+    },
+    {
+      stat: "2X",
+      label: "More lead conversion",
+      quote:
+        "From landing page to in-clinic signage, every detail was handled meticulously. Patients now discover flexible payment options earlier, and our inbound requests have doubled.",
+      name: "Sarah Mitchel",
+      role: "Marketing Director, NovaDerm",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=120&auto=format&fit=crop",
+    },
+    {
+      stat: null,
+      label: "“Our orthopedics videos convert far better.”",
+      quote:
+        "Our orthopedics videos and pre-op explanations now convert far better. Financing is presented clearly at the right moment, and patients feel in control.",
+      name: "Tom Becker",
+      role: "Founder, PulseCare",
+      avatar:
+        "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=120&auto=format&fit=crop",
+    },
+    {
+      stat: null,
+      label: "“Polished, on-brand, under a minute.”",
+      quote:
+        "The team shipped our MVP checkout in days with an elegant on-brand flow. Patients complete applications in under a minute. The product feels polished and professional.",
+      name: "Sara Minchel",
+      role: "Director, MedGrowth",
+      avatar:
+        "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?q=80&w=120&auto=format&fit=crop",
+      dark: true,
+    },
+  ];
+
+  const [open, setOpen] = useState<number | null>(0); // first open by default
+
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      aria-hidden={ariaHidden}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
-    >
-      <path d="M12 2.5l2.78 5.63 6.22.9-4.5 4.38 1.06 6.19L12 16.9l-5.56 2.7 1.06-6.19-4.5-4.38 6.22-.9L12 2.5z" />
-    </svg>
+    <ul className="md:hidden flex flex-col gap-3">
+      {items.map((it, i) => (
+        <li key={i}>
+          <AccordionCard
+            item={it}
+            open={open === i}
+            onToggle={() => setOpen(open === i ? null : i)}
+          />
+        </li>
+      ))}
+    </ul>
   );
 }
+
+function AccordionCard({
+  item,
+  open,
+  onToggle,
+}: {
+  item: MobileItem;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const { stat, label, quote, name, role, avatar, dark, withIcon } = item;
+
+  const shell =
+    "rounded-3xl p-4 ring-1 transition-shadow";
+  const light =
+    "bg-[#fefcf5] text-neutral-900 ring-black/5 shadow-[0_14px_36px_-18px_rgba(2,6,23,0.35)]";
+  const darkCls =
+    "bg-neutral-900 text-neutral-100 ring-white/10 border border-neutral-800/60 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)]";
+
+  const headerId = `t-head-${label.replace(/\W+/g, "-").toLowerCase()}`;
+  const panelId = `t-panel-${label.replace(/\W+/g, "-").toLowerCase()}`;
+
+  return (
+    <article className={`${shell} ${dark ? darkCls : light}`}>
+      {/* Header */}
+      <button
+        id={headerId}
+        aria-controls={panelId}
+        aria-expanded={open}
+        type="button"
+        onClick={onToggle}
+        className="w-full text-left flex items-start justify-between gap-3"
+      >
+        <div className="min-w-0">
+          {stat ? (
+            <div className="flex items-baseline gap-2">
+              <span className="text-[24px] font-semibold tracking-tight">
+                {stat}
+              </span>
+              <span className="text-[14px] font-medium opacity-80">
+                {label}
+              </span>
+            </div>
+          ) : (
+            <div className="text-[15px] font-semibold">{label}</div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {withIcon && (
+            <div className="h-8 w-8 rounded-full bg-neutral-50/80 border border-neutral-200/60 grid place-items-center">
+              <Activity className="h-4 w-4 text-neutral-600" aria-hidden />
+            </div>
+          )}
+          <ChevronRight
+            className={`h-5 w-5 opacity-70 transition-transform ${
+              open ? "rotate-90" : ""
+            }`}
+            aria-hidden
+          />
+        </div>
+      </button>
+
+      {/* Collapsible content */}
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={headerId}
+        className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="mt-3 flex items-center gap-2 text-rose-600">
+            <Quote className="h-4 w-4" aria-hidden />
+          </div>
+
+          <p
+            className={`mt-2 text-[14.5px] leading-[1.6] ${
+              dark ? "text-neutral-100/90" : "text-neutral-700"
+            }`}
+          >
+            {quote}
+          </p>
+
+          <div className="mt-4 pt-1 flex items-center gap-3">
+            <Image
+              height={36}
+              width={36}
+              src={avatar}
+              alt={`${name} avatar`}
+              className={`h-9 w-9 rounded-full object-cover ${
+                dark ? "ring-2 ring-neutral-800" : "ring-2 ring-white"
+              }`}
+            />
+            <div className="leading-tight">
+              <p className="text-sm font-medium">{name}</p>
+              <p className={`text-[12.5px] ${dark ? "text-neutral-400" : "text-neutral-500"}`}>
+                {role}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/* ---------------- SECTION ---------------- */
 
 export default function Testimonials() {
   return (
     <section className="px-4 py-14 sm:py-16 md:py-20 text-neutral-900">
       <div className="mx-auto max-w-7xl">
-        {/* Framed surface — now owns all interior spacing */}
         <div
           data-nav-ink="light"
-          className="relative rounded-[32px] bg-gray-900  shadow-[0_1px_0_0_rgba(15,23,42,0.03),0_20px_40px_-20px_rgba(15,23,42,0.15)]"
+          className="relative rounded-[32px] bg-gray-900 shadow-[0_1px_0_0_rgba(15,23,42,0.03),0_20px_40px_-20px_rgba(15,23,42,0.15)]"
         >
-          {/* subtle inset frame */}
           <div className="pointer-events-none absolute inset-0 rounded-[32px]" />
 
-          {/* Content stack uses a single rhythm */}
           <div className="flex flex-col gap-10 sm:gap-12 md:gap-14 p-5 sm:p-8 md:p-12 lg:p-12">
-            {/* Header */}
+            {/* Header — unchanged */}
             <div className="mx-auto max-w-4xl text-center">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-[#fefcf5] leading-tight">
                 Clinics on Breeze{" "}
@@ -56,8 +218,11 @@ export default function Testimonials() {
               </h2>
             </div>
 
-            {/* Cards Grid — responsive; xl snaps to 8×6 layout */}
-            <div className="grid grid-cols-1 gap-6 md:gap-7 lg:gap-4 md:grid-cols-2 xl:grid-cols-8 xl:grid-rows-6">
+            {/* MOBILE: accordion list */}
+            <MobileAccordion />
+
+            {/* DESKTOP/TABLET GRID — unchanged */}
+            <div className="hidden md:grid grid-cols-1 gap-6 md:gap-7 lg:gap-4 md:grid-cols-2 xl:grid-cols-8 xl:grid-rows-6">
               {/* 1 — Big Left */}
               <article
                 className="
@@ -81,10 +246,7 @@ export default function Testimonials() {
                     </p>
                   </div>
                   <div className="shrink-0 hidden sm:flex items-center justify-center h-9 w-9 rounded-full bg-neutral-50 border border-neutral-200/60">
-                    <Activity
-                      className="h-4 w-4 text-neutral-600"
-                      aria-hidden
-                    />
+                    <Activity className="h-4 w-4 text-neutral-600" aria-hidden />
                   </div>
                 </div>
 
@@ -93,15 +255,12 @@ export default function Testimonials() {
                     <Quote className="h-5 w-5" aria-hidden />
                   </div>
                   <p className="mt-3 text-[15px] sm:text-base leading-relaxed text-neutral-700">
-                    “We needed a seamless way to offer pay-over-time for dental
-                    and cosmetic procedures. The team went above and
-                    beyond—implementation took days, not weeks—and our approval
-                    rate increased by 800% in just two weeks. Highly recommended
-                    for any clinic.”
+                    “We needed a seamless way to offer pay-over-time for dental and cosmetic procedures.
+                    The team went above and beyond—implementation took days, not weeks—and our approval
+                    rate increased by 800% in just two weeks. Highly recommended for any clinic.”
                   </p>
                 </div>
 
-                {/* Reviewer pinned to bottom */}
                 <div className="mt-auto pt-8 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Image
@@ -112,12 +271,8 @@ export default function Testimonials() {
                       className="h-10 w-10 rounded-full ring-2 ring-white object-cover"
                     />
                     <div className="leading-tight">
-                      <p className="text-sm font-medium text-neutral-900">
-                        David Callahan
-                      </p>
-                      <p className="text-[13px] text-neutral-500">
-                        COO, BrightSmile Clinics
-                      </p>
+                      <p className="text-sm font-medium text-neutral-900">David Callahan</p>
+                      <p className="text-[13px] text-neutral-500">COO, BrightSmile Clinics</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-neutral-400">
@@ -138,12 +293,8 @@ export default function Testimonials() {
                 "
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900">
-                    2X
-                  </span>
-                  <p className="text-neutral-700 font-medium">
-                    Increase in lead generation
-                  </p>
+                  <span className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900">2X</span>
+                  <p className="text-neutral-700 font-medium">Increase in lead generation</p>
                 </div>
 
                 <div className="mt-5">
@@ -151,13 +302,11 @@ export default function Testimonials() {
                     <Quote className="h-4 w-4" aria-hidden />
                   </div>
                   <p className="mt-3 text-[15px] leading-relaxed text-neutral-700">
-                    “From landing page to in-clinic signage, every detail was
-                    handled meticulously. Patients now discover flexible payment
-                    options earlier, and our inbound requests have doubled.”
+                    “From landing page to in-clinic signage, every detail was handled meticulously.
+                    Patients now discover flexible payment options earlier, and our inbound requests have doubled.”
                   </p>
                 </div>
 
-                {/* Reviewer pinned to bottom */}
                 <div className="mt-auto pt-6 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Image
@@ -168,12 +317,8 @@ export default function Testimonials() {
                       className="h-9 w-9 rounded-full ring-2 ring-[#fefcf5] object-cover"
                     />
                     <div className="leading-tight">
-                      <p className="text-sm font-medium text-neutral-900">
-                        Sarah Mitchel
-                      </p>
-                      <p className="text-[13px] text-neutral-500">
-                        Marketing Director, NovaDerm
-                      </p>
+                      <p className="text-sm font-medium text-neutral-900">Sarah Mitchel</p>
+                      <p className="text-[13px] text-neutral-500">Marketing Director, NovaDerm</p>
                     </div>
                   </div>
                   <div className="h-8 w-8 flex items-center justify-center rounded-full border border-neutral-200/60 text-neutral-400">
@@ -197,12 +342,9 @@ export default function Testimonials() {
                   <Quote className="h-4 w-4" aria-hidden />
                 </div>
                 <p className="mt-3 text-[15px] leading-relaxed text-neutral-700">
-                  “Our orthopedics videos and pre-op explanations now convert
-                  far better. Financing is presented clearly at the right
-                  moment, and patients feel in control.”
+                  “Our orthopedics videos and pre-op explanations now convert far better. Financing is
+                  presented clearly at the right moment, and patients feel in control.”
                 </p>
-
-                {/* Reviewer pinned to bottom */}
                 <div className="mt-auto pt-6 flex items-center gap-3">
                   <Image
                     height={9}
@@ -212,12 +354,8 @@ export default function Testimonials() {
                     className="h-9 w-9 rounded-full ring-2 ring-[#fefcf5] object-cover"
                   />
                   <div className="leading-tight">
-                    <p className="text-sm font-medium text-neutral-900">
-                      Tom Becker
-                    </p>
-                    <p className="text-[13px] text-neutral-500">
-                      Founder, PulseCare
-                    </p>
+                    <p className="text-sm font-medium text-neutral-900">Tom Becker</p>
+                    <p className="text-[13px] text-neutral-500">Founder, PulseCare</p>
                   </div>
                 </div>
               </article>
@@ -238,12 +376,9 @@ export default function Testimonials() {
                   <Quote className="h-4 w-4" aria-hidden />
                 </div>
                 <p className="mt-3 text-[15px] leading-relaxed text-neutral-100/90">
-                  “The team shipped our MVP checkout in days with an elegant
-                  on-brand flow. Patients complete applications in under a
-                  minute. The product feels polished and professional.”
+                  “The team shipped our MVP checkout in days with an elegant on-brand flow. Patients
+                  complete applications in under a minute. The product feels polished and professional.”
                 </p>
-
-                {/* Reviewer pinned to bottom */}
                 <div className="mt-auto pt-6 flex items-center gap-3">
                   <Image
                     height={9}
@@ -253,61 +388,14 @@ export default function Testimonials() {
                     className="h-9 w-9 rounded-full ring-2 ring-neutral-800 object-cover"
                   />
                   <div className="leading-tight">
-                    <p className="text-sm font-medium text-white">
-                      Sara Minchel
-                    </p>
-                    <p className="text-[13px] text-neutral-400">
-                      Director, MedGrowth
-                    </p>
+                    <p className="text-sm font-medium text-white">Sara Minchel</p>
+                    <p className="text-[13px] text-neutral-400">Director, MedGrowth</p>
                   </div>
                 </div>
               </article>
             </div>
 
             {/* Footer Row */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="hidden sm:block h-10 w-10 rounded-full overflow-hidden">
-                  <Image
-                    width={9}
-                    height={9}
-                    src="https://images.unsplash.com/photo-1621619856624-42fd193a0661?w=1080&q=80"
-                    alt="Decor"
-                    className="h-full w-full"
-                  />
-                </div>
-                <p className="text-[15px] text-neutral-300">
-                  In a nutshell - Higher acceptance. Faster treatment starts.
-                  Happier patients. Zero AR drag.
-                </p>
-                <div className="hidden sm:block h-5 w-px bg-neutral-700/40" />
-                <div className="flex items-center gap-1.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <StarSolid
-                      key={i}
-                      className="h-4 w-4 text-amber-400"
-                      aria-hidden
-                    />
-                  ))}
-                  <span className="ml-2 text-sm font-medium text-[#fefcf5]">
-                    4.9
-                  </span>
-                  <span className="text-sm text-neutral-400">
-                    Based on 1.5k reviews
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex justify-start sm:justify-end">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full border border-neutral-200/70 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-[0_8px_20px_-10px_rgba(2,6,23,0.25)] hover:shadow-[0_14px_30px_-12px_rgba(2,6,23,0.35)] hover:border-neutral-300 transition"
-                >
-                  <span>View all reviews</span>
-                  <ChevronRight className="h-4 w-4" aria-hidden />
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>

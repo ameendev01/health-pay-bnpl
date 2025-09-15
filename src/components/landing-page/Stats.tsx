@@ -31,7 +31,6 @@ const trustMetrics: Stat[] = [
   },
 ];
 
-
 // isolate digits for the ticker; keep prefix/suffix static
 function decompose(raw: string) {
   const m = raw.trim().match(/^([^\d\-+]*)([+\-]?\d[\d,]*(?:\.\d+)?)(.*)$/);
@@ -67,31 +66,35 @@ export default function Stats({
 
             return (
               <li key={i} className="p-6 sm:p-8 lg:p-10">
-                {/* SIMPLE FLEX: two columns */}
-                <div className="flex items-stretch gap-6 lg:gap-8 min-w-0">
-                  {/* LEFT: icon top, value+label bottom */}
-                  <div className="flex-shrink-0 flex flex-col items-start justify-between">
-                    <Glyph aria-hidden className="h-6 w-6 text-neutral-900" />
-                    <div className="pt-4">
+                {/* MOBILE: vertical stack; DESKTOP: split row */}
+                <div className="flex flex-col md:flex-row md:items-start md:gap-6 min-w-0 text-left">
+                  {/* LEFT block: icon → value → label */}
+                  <div className="flex items-start gap-3 md:flex-col md:justify-between md:gap-0 flex-shrink-0">
+                    <Glyph aria-hidden className="h-16 w-16 sm:h-6 sm:w-6 text-neutral-900 max-sm:opacity-70" />
+
+                    <div className="md:pt-4">
                       <div
                         className="inline-flex items-baseline font-semibold tracking-tight text-neutral-900 leading-[0.9]
-                                   text-[44px] sm:text-[56px] lg:text-5xl tabular-nums"
+                                   text-[40px] sm:text-[48px] lg:text-5xl tabular-nums"
                         aria-label={announced}
                       >
                         {prefix && <span aria-hidden>{prefix}</span>}
                         <NumberTicker value={num} className="leading-[0.9] tracking-tighter" />
                         {suffix && <span aria-hidden>{suffix}</span>}
                       </div>
-                      <div className="mt-2 text-[15px] sm:text-sm text-neutral-800/95">{label}</div>
+
+                      <div className="mt-2 text-[15px] sm:text-sm text-neutral-800/95">
+                        {label}
+                      </div>
                     </div>
                   </div>
 
-                  {/* RIGHT: description (grows, wraps, never overlaps) */}
-                  <div className=" flex items-center justify-start">
-					<p className="flex-1 min-w-0 text-[14px] sm:text-[15px] leading-6 md:leading-relaxed text-neutral-800/95">
+                  {/* Description: under headline on mobile; to the right on md+ */}
+                  <p
+                    className="mt-3 md:mt-0 md:pl-2 flex-1 min-w-0 text-[14px] sm:text-[15px] leading-6 md:leading-relaxed text-neutral-800/95"
+                  >
                     {description}
                   </p>
-				  </div>
                 </div>
               </li>
             );

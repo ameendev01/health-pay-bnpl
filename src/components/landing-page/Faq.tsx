@@ -36,47 +36,54 @@ const faqs = [
 
 export default function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggleFAQ = (index: number) => {
+  const toggleFAQ = (index: number) =>
     setOpenIndex(openIndex === index ? null : index);
-  };
 
   return (
-    <section className="w-full py-16 px-4">
+    <section className="w-full py-12 sm:py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mx-auto max-w-4xl text-center mb-14">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-800 leading-tight">
-            Here’s{" "}
-            <span className="inline-flex items-center gap-2">
+        {/* Header (your fixed version kept as-is) */}
+        <div className="mx-auto max-w-4xl px-4 text-center mb-10 sm:mb-14">
+          <h2 className="font-semibold tracking-tight text-slate-800 leading-[1.1]">
+            <span className="block mx-auto text-[clamp(28px,7.2vw,36px)] sm:text-5xl lg:text-6xl max-w-[22ch]">
+              Here’s
+            </span>
+            <span
+              className="
+                mt-1 inline-grid grid-cols-[auto_1fr] items-baseline gap-1.5
+                mx-auto text-left
+                text-[clamp(28px,7.2vw,36px)] sm:text-5xl lg:text-6xl
+                max-w-[30ch]
+              "
+            >
               <svg
-                className="w-8 h-8 text-emerald-600"
+                className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 translate-y-[0.12em] shrink-0"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
+                aria-hidden
               >
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
-              everything you need to know
-            </span>{" "}
-            about our financing program
+              <span className="-ml-0.5 sm:-ml-1">
+                everything you need to know about our financing program
+              </span>
+            </span>
           </h2>
         </div>
 
-        {/* FAQ Items */}
-        <div className="space-y-4">
+        {/* FAQ Items — compact on mobile */}
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, index) => (
             <motion.div
               key={index}
-              className="bg-white rounded-3xl border border-stone-200 overflow-hidden"
+              className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200 overflow-hidden"
               initial={false}
             >
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full px-8 py-7 text-left flex items-center justify-between hover:bg-stone-50 transition-colors duration-200"
+                className="w-full px-5 py-5 sm:px-8 sm:py-7 text-left flex items-center justify-between hover:bg-stone-50 transition-colors duration-200"
               >
-                <h3 className="text-lg md:text-xl text-stone-700 font-medium pr-4 text-balance">
+                <h3 className="text-[15.5px] sm:text-lg md:text-xl leading-[1.3] text-stone-700 font-medium pr-4 text-balance">
                   {faq.question}
                 </h3>
                 <motion.div
@@ -84,9 +91,9 @@ export default function FAQSection() {
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                   className="flex-shrink-0"
                 >
-                  <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center cursor-pointer">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-400 rounded-full grid place-items-center">
                     <Plus
-                      className="w-4 h-4 text-stone-800"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-800"
                       strokeWidth={2.5}
                     />
                   </div>
@@ -99,12 +106,12 @@ export default function FAQSection() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ duration: 0.28, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
-                    <div className="px-8 pb-6">
+                    <div className="px-5 sm:px-8 pb-5 sm:pb-6">
                       <div className="pt-2 border-t border-stone-100">
-                        <p className="text-stone-600 leading-relaxed text-pretty mt-4">
+                        <p className="mt-3 sm:mt-4 text-[14.5px] sm:text-[15.5px] leading-[1.6] text-stone-600 text-pretty">
                           {faq.answer}
                         </p>
                       </div>

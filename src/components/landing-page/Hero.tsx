@@ -5,11 +5,11 @@ import { RainbowButton } from "../magicui/rainbow-button";
 
 export const Hero = () => {
   return (
-    <section className=" text-slate-900 py-12 sm:py-24 md:py-28 px-4 overflow-hidden pb-0">
+    <section className=" text-slate-900 py-12 sm:py-24 md:py-28 px-4 overflow-hidden pb-0 max-sm:pb-22">
       <div className="mx-auto flex max-w-7xl flex-col gap-12 pt-0 sm:gap-24">
         <div className="flex flex-col items-center gap-6 text-center sm:gap-12">
           {/* Badge */}
-          <RainbowButton variant={"outline"} className="rounded-full">
+          <RainbowButton variant={"outline"} size={'sm'} className="rounded-full">
             <span className="text-slate-700 font-medium">
               BNPL for Healthcare Providers
             </span>
@@ -45,7 +45,9 @@ export const Hero = () => {
     text-balance leading-relaxed
   "
             >
-              Breeze pays your clinic in full up front and handles patient installments. Patients see 0% APR; you pay a simple per-plan fee. No new AR. No collections work.
+              Breeze pays your clinic in full up front and handles patient
+              installments. Patients see 0% APR; you pay a simple per-plan fee.
+              No new AR. No collections work.
             </p>
           </div>
 
@@ -58,13 +60,12 @@ export const Hero = () => {
 
           {/* Image */}
           <div className="relative pt-1">
-            
-				<Image
+            <Image
               src="/assets/image.png"
               alt="Breeze healthcare payment platform interface"
               width={9000}
               height={4000}
-			  className="border-18 border-[#d5f9fb] rounded-2xl shadow-2xl"
+              className="border-18 border-[#d5f9fb] rounded-2xl shadow-2xl"
             />
 
             {/* Glow Effect */}
