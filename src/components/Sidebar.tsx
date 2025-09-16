@@ -184,7 +184,7 @@ export default function Sidebar({
 
                 <div className="leading-tight">
                   <span className="text-lg font-bold text-gray-900">
-                    HealthPay
+                    Breeze
                   </span>
                   <p className="text-[11px] text-gray-500 font-medium">
                     Healthcare Platform
