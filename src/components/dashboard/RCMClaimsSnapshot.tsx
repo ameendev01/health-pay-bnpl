@@ -52,11 +52,13 @@ const BRAND = {
 };
 
 const clsNum = "[font-variant-numeric:tabular-nums_lining-nums]";
-const fmtUSD = new Intl.NumberFormat(undefined, {
-  style: "currency",
-  currency: "USD",
+const fmtUSD = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  currencyDisplay: 'narrowSymbol', // or 'symbol'
   maximumFractionDigits: 0,
 });
+const fmtNum = new Intl.NumberFormat('en-US');
 const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 
 // ---- sample status (adapt to API) ----
@@ -327,7 +329,7 @@ function KPITile({
               ? fmtUSD.format(value)
               : percent
               ? `${value}%`
-              : value.toLocaleString()}
+              : fmtNum.format(value)}
           </span>
           {unit && <span className="text-sm text-neutral-500">{unit}</span>}
         </div>
@@ -733,7 +735,7 @@ export default function RevenueCycleManagement() {
 
             {/* Table container */}
             <div className="rounded-lg border border-neutral-200 flex-1 flex flex-col max-h-[480px] min-h-[480px]">
-              <div className="flex-1 overflow-auto">
+              <div className="flex-1 overflow-auto overscroll-contain scrollbar-breeze">
                 <Table className="w-full">
                   <TableHeader>
                     <TableRow className="border-b border-neutral-200">

@@ -1059,7 +1059,7 @@ export default function PatientsTable() {
 
       {/* ---------- SCROLL AREA: patients only ---------- */}
       <div
-        className="min-h-0 grow overflow-y-auto overscroll-contain"
+        className="min-h-0 grow overflow-y-auto overscroll-contain scrollbar-breeze"
         style={bodyMaxH !== null ? { maxHeight: `${bodyMaxH}px` } : undefined}
       >
         {/* Column header (sticky within scroll area) */}

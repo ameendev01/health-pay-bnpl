@@ -24,10 +24,9 @@ export default function ProtectedLayout({
         />
       </div>
 
-      <div
-        className={`transition-all duration-500 ease-in-out ${
+      <div className={`transition-all duration-500 ease-in-out ${
           sidebarCollapsed ? "col-span-38" : "col-span-33"
-        } min-w-0 rounded-2xl bg-[#fefcf5] overflow-y-auto flex flex-col shadow-xl border border-[#e7e4db]/50 px-4 sm:px-6 lg:px-6 pb-6 pt-3`}
+        } min-w-0 rounded-2xl bg-[#fefcf5] overflow-y-auto flex flex-col shadow-xl border border-[#e7e4db]/50 px-4 sm:px-6 lg:px-6 pb-6 pt-3 overscroll-contain scrollbar-breeze`}
       >
         <div className="flex-shrink-0">
           <Header

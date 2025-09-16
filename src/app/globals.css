@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --background: #fefcf5;
   --foreground: #171717d0;
@@ -25,6 +27,11 @@
 
   --progress-diluted: #5f8ae6;
   --background-soft-strong: #e7e4db;
+  --color-1: oklch(66.2% 0.225 25.9);
+  --color-2: oklch(60.4% 0.26 302);
+  --color-3: oklch(69.6% 0.165 251);
+  --color-4: oklch(80.2% 0.134 225);
+  --color-5: oklch(90.7% 0.231 133);
 }
 
 @theme inline {
@@ -53,6 +60,20 @@
 
   --color-progress-diluted: var(--progress-diluted);
   --color-background-soft-strong: var(--background-soft-strong);
+  --animate-rainbow: rainbow var(--speed, 2s) infinite linear;
+  --color-color-5: var(--color-5);
+  --color-color-4: var(--color-4);
+  --color-color-3: var(--color-3);
+  --color-color-2: var(--color-2);
+  --color-color-1: var(--color-1);
+  @keyframes rainbow {
+  0% {
+    background-position: 0%;
+    }
+  100% {
+    background-position: 200%;
+    }
+  }
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -84,13 +105,9 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
 
-::-webkit-scrollbar-track {
+
+/* ::-webkit-scrollbar-track {
   background: transparent;
 }
 
@@ -101,7 +118,7 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
-}
+} */
 
 /* Smooth transitions */
 
@@ -254,3 +271,70 @@ body {
 @media (max-width: 640px) {
   .notion-header { display: none; }
 }
+
+.dark {
+  --color-1: oklch(66.2% 0.225 25.9);
+  --color-2: oklch(60.4% 0.26 302);
+  --color-3: oklch(69.6% 0.165 251);
+  --color-4: oklch(80.2% 0.134 225);
+  --color-5: oklch(90.7% 0.231 133);
+}
+
+@layer base {
+  /* your existing base rules... */
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
+
+  /* Hide the root scrollbar but keep scrolling */
+  html, body {
+    -ms-overflow-style: none; /* IE/old Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;            /* Chrome/Safari/Edge (Blink/WebKit) */
+  }
+}
+
+@layer utilities {
+  /* Breeze-scoped scrollbar for any inner scroll body */
+  .scrollbar-breeze {
+    /* Firefox */
+    scrollbar-width: thin;                             /* auto | thin | none */
+    scrollbar-color: color-mix(in oklab, var(--foreground) 32%, transparent)
+                     transparent;
+    /* Prevent layout shift when bar appears */
+    scrollbar-gutter: stable both-edges;
+  }
+
+  /* WebKit (Chrome/Edge/Safari) */
+  .scrollbar-breeze::-webkit-scrollbar {
+    width: 10px;                                       /* thickness */
+    height: 10px;
+  }
+  .scrollbar-breeze::-webkit-scrollbar-track {
+    background: transparent;                           /* clean track */
+  }
+  .scrollbar-breeze::-webkit-scrollbar-thumb {
+    /* neutral thumb with “pill” look and padded rail */
+    background: color-mix(in oklab, var(--foreground) 28%, transparent);
+    border-radius: 999px;
+    border: 3px solid transparent;                     /* rail padding */
+    background-clip: content-box;
+  }
+  .scrollbar-breeze:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 45%, transparent);
+  }
+  .scrollbar-breeze:active::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 60%, transparent);
+  }
+
+  /* Quick brand tint option */
+  .scrollbar-breeze-blue::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, #2563eb 40%, transparent);
+  }
+  .scrollbar-breeze-blue:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, #2563eb 60%, transparent);
+  }
+}
+
