@@ -2,7 +2,7 @@
 
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { OnboardingData } from "@/features/onboarding/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,7 +39,7 @@ import {
   step8Schema,
   step9Schema,
   step10Schema,
-} from "./schemas";
+} from "@/features/onboarding/schemas";
 import { useState, useEffect } from "react";
 import { completeOnboarding } from "@/app/(auth)/onboarding/_actions";
 import { useUser } from "@clerk/nextjs";
@@ -48,6 +48,7 @@ import { useRouter } from "next/navigation";
 import SaveAndContinueLaterButton from './SaveAndContinueLaterButton';
 import { savePartialOnboarding } from "@/app/(auth)/onboarding/_partial_actions";
 import { useSupabaseClient } from "../../../supabase/client";
+import { fetchPartialOnboarding } from "@/features/onboarding/api/partialOnboarding";
 
 // Compact Progress Card Component
 function ProgressCard({ currentStep = 5 }: { currentStep?: number }) {
@@ -402,7 +403,6 @@ const STEPS = [
   { id: 10, title: "Agreements", icon: FileText, schema: step10Schema },
 ];
 
-export type OnboardingData = z.infer<typeof onboardingSchema>;
 
 type StepProps = {
   form: any;
@@ -1610,14 +1610,11 @@ export default function ModernOnboardingFlow() {
     const fetchPartialData = async () => {
       if (!supabase || !isLoading) return;
 
-      const { data } = await supabase
-        .from('partial_onboarding')
-        .select('data, last_completed_step')
-        .single();
+      const res = await fetchPartialOnboarding(supabase);
 
-      if (data) {
-        form.reset(data.data);
-        setCurrentStep(data.last_completed_step + 1);
+      if (res) {
+        form.reset(res.data);
+        setCurrentStep(res.lastCompletedStep + 1);
       }
       setIsLoading(false);
     };

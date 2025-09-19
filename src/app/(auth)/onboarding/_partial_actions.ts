@@ -2,7 +2,7 @@
 
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '../../../../supabase/admin';
-import { OnboardingData } from '@/components/onboarding/ModernOnboardingFlow';
+import type { OnboardingData } from '@/features/onboarding/types';
 
 export const savePartialOnboarding = async (data: Partial<OnboardingData>, lastCompletedStep: number) => {
   const { userId } = await auth();
