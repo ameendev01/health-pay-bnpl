@@ -3,12 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 // const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
 const isPublicRoute = createRouteMatcher([
-  "/login(.*)",
-  "/signup(.*)",
   "/",
   "/api/webhooks(.*)",
+  "/login(.*)",
+  "/signup(.*)",
   "/verify-email(.*)",
-  "/forgot-password(.*)"
+  "/forgot-password(.*)",
+]);
+
+const isAuthRoute = createRouteMatcher([
+  "/login(.*)",
+  "/signup(.*)",
+  "/verify-email(.*)",
+  "/forgot-password(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
@@ -22,29 +29,27 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   //   return NextResponse.next();
   // }
 
-  // If the user isn't signed in and the route is private, redirect to sign-in
-  if (!userId && !isPublicRoute(req))
-    return NextResponse.redirect(new URL("/login", req.url));
+  if (userId && isAuthRoute(req)) {
+    const url = new URL(req.url);
+    const to = url.searchParams.get("redirect_url") || "/dashboard";
+    return NextResponse.redirect(new URL(to, req.url));
+  }
 
-  // if (userId && !sessionClaims?.metadata?.onboardingComplete && req.nextUrl.pathname !== "/onboarding"){
-  //   const onboardingUrl = new URL("/onboarding", req.url);
-  //   return NextResponse.redirect(onboardingUrl);
-  // }
+  if (!userId && !isPublicRoute(req)) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set(
+      "redirect_url",
+      req.nextUrl.pathname + req.nextUrl.search
+    );
+    return NextResponse.redirect(loginUrl);
+  }
 
-  // If the user is logged in and the route is protected, let them view.
-if (!userId && !isPublicRoute(req)) {
-  const loginUrl = new URL("/login", req.url);
-  loginUrl.searchParams.set("redirect_url", req.nextUrl.pathname + req.nextUrl.search);
-  return NextResponse.redirect(loginUrl);
-}
-  // return NextResponse.next();
+  return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     "/(api|trpc)(.*)",
   ],
 };
