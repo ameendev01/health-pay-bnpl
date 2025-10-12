@@ -105,6 +105,8 @@ const quickActions = [
   { name: "Notifications", icon: Bell, count: "12" },
 ];
 
+const FRAMER = process.env.NEXT_PUBLIC_FRAMER_URL ?? "https://breeze.framer.ai";
+
 export default function Sidebar({
   isOpen,
   setIsOpen,
@@ -383,7 +385,7 @@ export default function Sidebar({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => signOut(() => router.push("/"))}
+                  onClick={() => signOut({ redirectUrl: FRAMER })}
                   className="cursor-pointer text-red-600 focus:text-red-600"
                 >
                   <LogOut className="mr-2 h-4 w-4" />

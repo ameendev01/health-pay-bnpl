@@ -48,7 +48,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Welcome back, ${
+        title={`Hi, ${
           user?.firstName
             ? user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1)
             : ""

@@ -1,41 +1,54 @@
+"use client";
+
 import { useSignIn } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useCallback } from "react";
+
+type Credentials = { email: string; password: string };
 
 export const useSignInFlow = () => {
   const { isLoaded, signIn, setActive } = useSignIn();
   const router = useRouter();
+  const params = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = async (data: any) => {
-    if (!isLoaded) {
-      return;
-    }
+  const onSubmit = useCallback(
+    async ({ email, password }: Credentials) => {
+      if (!isLoaded || isLoading) return;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await signIn.create({ 
-        identifier: data.email,
-        password: data.password,
-      });
+      try {
+        const res = await signIn.create({ identifier: email, password });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
-      } else {
-        // Handle other statuses, e.g., MFA required
-        console.log(result);
+        if (res.status === "complete") {
+          await setActive({ session: res.createdSessionId });
+          const to = params.get("redirect_url") || "/dashboard";
+          router.replace(to);
+          return;
+        }
+
+        if (res.status === "needs_second_factor") {
+          setError("Two-factor authentication required.");
+          return;
+        }
+
+        // Fallback for any other intermediate status
+        setError("Additional authentication step required.");
+      } catch (e: any) {
+        const msg =
+          e?.errors?.[0]?.longMessage ??
+          e?.errors?.[0]?.message ??
+          "Login failed.";
+        setError(msg);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err: any) {
-      console.error("Error signing in:", JSON.stringify(err, null, 2));
-      setError(err.errors?.[0]?.longMessage || "An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [isLoaded, isLoading, signIn, setActive, router, params]
+  );
 
   return { onSubmit, isLoading, error };
 };
