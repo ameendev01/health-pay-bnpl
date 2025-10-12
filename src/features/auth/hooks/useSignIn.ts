@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
