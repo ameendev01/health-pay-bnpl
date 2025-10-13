@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "lint-and-build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"lint",
+				"--silent",
+				"--",
+				"--no-error-on-unmatched-pattern"
+			]
+		},
+		{
+			"label": "type-check",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"-s",
+				"tsc",
+				"--",
+				"-p",
+				"tsconfig.json",
+				"--noEmit"
+			]
+		},
+		{
+			"label": "build-app",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"-s",
+				"build"
+			]
+		}
+	]
+}

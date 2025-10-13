@@ -165,14 +165,19 @@ This directory contains comprehensive security documentation for the HealthPay B
 ## 📅 Action Plan Timeline
 
 ### Week 1 (October 12-19, 2025)
+### Week 1 (October 12-19, 2025)
 - [ ] Update all dependencies
-- [ ] Add security headers
-- [ ] Fix open redirect vulnerability
-- [ ] Remove sensitive logging
+- [x] Add security headers
+   - Implemented in `next.config.ts` with CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy
+- [x] Fix open redirect vulnerability
+   - Added redirect allowlist validation in `src/middleware.ts` and `src/features/auth/hooks/useSignIn.ts`
+- [x] Remove sensitive logging
+   - Replaced console logs in `VerifyOtpForm` and settings hooks with safe, dev-only logs or removed entirely
 - [ ] Configure strong password policy
+   - Pending: evaluate Clerk password settings and update configuration
 
 ### Weeks 2-4 (October 20 - November 9, 2025)
-- [ ] Fix RLS policies
+ - [ ] Implement rate limiting
 - [ ] Implement rate limiting
 - [ ] Add server-side validation
 - [ ] Implement session timeout

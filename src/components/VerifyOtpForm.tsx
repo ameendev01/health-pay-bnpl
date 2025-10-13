@@ -64,7 +64,10 @@ export const VerifyOtpForm = () => {
   };
 
   const onSubmit = async (data: OtpFormValues) => {
-    console.log("onSubmit triggered with data:", data);
+    if (process.env.NODE_ENV !== "production") {
+      // Minimal non-sensitive debug info in development only
+      console.debug("Submitting OTP of length", data.otp.length);
+    }
     if (!isLoaded) return;
 
     setIsLoading(true);
@@ -83,7 +86,9 @@ export const VerifyOtpForm = () => {
         setError("Invalid or expired OTP. Please try again.");
       }
     } catch (err: any) {
-      console.error("Error verifying OTP:", JSON.stringify(err, null, 2));
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Error verifying OTP");
+      }
       setError(
         err.errors?.[0]?.longMessage ||
           "An unexpected error occurred. Please try again."
@@ -103,7 +108,9 @@ export const VerifyOtpForm = () => {
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       alert("A new OTP has been sent to your email.");
     } catch (err: any) {
-      console.error("Error resending OTP:", JSON.stringify(err, null, 2));
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Error resending OTP");
+      }
       setError(
         err.errors?.[0]?.longMessage ||
           "Failed to resend OTP. Please try again."

@@ -11,22 +11,22 @@ export function useSettings() {
   const updateProfile = (newProfile: UserProfile) => {
     setProfile(newProfile);
     // In a real app, you'd make an API call here
-    console.log('Updating profile:', newProfile);
+    // Avoid logging potentially sensitive user data
   };
 
   const updateCompanyInfo = (newCompanyInfo: CompanyInfo) => {
     setCompanyInfo(newCompanyInfo);
-    console.log('Updating company info:', newCompanyInfo);
+    // Avoid logging company data in client console
   };
 
   const updateNotifications = (newNotifications: NotificationSettings) => {
     setNotifications(newNotifications);
-    console.log('Updating notifications:', newNotifications);
+    // Avoid logging notification preferences
   };
 
   const updateGeneralSettings = (newGeneralSettings: GeneralSettings) => {
     setGeneralSettings(newGeneralSettings);
-    console.log('Updating general settings:', newGeneralSettings);
+    // Avoid logging general settings
   };
 
   return {

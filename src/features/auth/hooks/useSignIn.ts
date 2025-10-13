@@ -25,7 +25,19 @@ export const useSignInFlow = () => {
 
         if (res.status === "complete") {
           await setActive({ session: res.createdSessionId });
-          const to = params.get("redirect_url") || "/dashboard";
+          const requested = params.get("redirect_url");
+          const allowlist = ["/dashboard", "/patients", "/claims", "/clinics", "/settings", "/payments", "/onboarding"];
+          let to = "/dashboard";
+          if (requested && requested.startsWith("/")) {
+            try {
+              const parsed = new URL(requested, "http://localhost");
+              if (allowlist.some((p) => parsed.pathname.startsWith(p))) {
+                to = requested;
+              }
+            } catch {
+              // ignore invalid URL and fallback
+            }
+          }
           router.replace(to);
           return;
         }
