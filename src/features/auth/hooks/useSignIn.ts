@@ -30,13 +30,9 @@ export const useSignInFlow = () => {
           const allowlist = REDIRECT_ALLOWLIST;
           let to = "/dashboard";
           if (requested && requested.startsWith("/")) {
-            try {
-              const parsed = new URL(requested, "http://localhost");
-              if (allowlist.some((p: string) => parsed.pathname.startsWith(p))) {
-                to = requested;
-              }
-            } catch {
-              // ignore invalid URL and fallback
+            // No need to construct a URL; we only care about the pathname
+            if (allowlist.some((p: string) => requested.startsWith(p))) {
+              to = requested;
             }
           }
           router.replace(to);
