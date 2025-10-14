@@ -3,6 +3,7 @@
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useCallback } from "react";
+import { REDIRECT_ALLOWLIST } from "@/constants/redirectAllowlist";
 
 type Credentials = { email: string; password: string };
 
@@ -26,12 +27,12 @@ export const useSignInFlow = () => {
         if (res.status === "complete") {
           await setActive({ session: res.createdSessionId });
           const requested = params.get("redirect_url");
-          const allowlist = ["/dashboard", "/patients", "/claims", "/clinics", "/settings", "/payments", "/onboarding"];
+          const allowlist = REDIRECT_ALLOWLIST;
           let to = "/dashboard";
           if (requested && requested.startsWith("/")) {
             try {
               const parsed = new URL(requested, "http://localhost");
-              if (allowlist.some((p) => parsed.pathname.startsWith(p))) {
+              if (allowlist.some((p: string) => parsed.pathname.startsWith(p))) {
                 to = requested;
               }
             } catch {

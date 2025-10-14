@@ -1,26 +1,27 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-
-// Simple allowlist for safe in-app redirects to mitigate open redirect
-const ALLOWED_REDIRECTS = [
-  "/dashboard",
-  "/patients",
-  "/claims",
-  "/clinics",
-  "/settings",
-  "/payments",
-  "/onboarding",
-];
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+import { isAllowedRedirect } from "@/constants/redirectAllowlist";
 
 function isValidRedirect(to: string | null | undefined): boolean {
   if (!to) return false;
-  try {
-    // Support relative paths only; absolute URLs are rejected
-    const url = new URL(to, "http://localhost");
-    return to.startsWith("/") && ALLOWED_REDIRECTS.some((p) => url.pathname.startsWith(p));
-  } catch {
-    return false;
+  return isAllowedRedirect(to);
+}
+
+// Optional Upstash-based rate limiter: activates only if env is configured
+let ratelimit: Ratelimit | null = null;
+try {
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    ratelimit = new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(10, "10 s"),
+      analytics: false,
+    });
   }
+} catch {
+  // Fail open: do not crash middleware if Upstash misconfigured
+  ratelimit = null;
 }
 
 // const isOnboardingRoute = createRouteMatcher(["/onboarding(.*)"]);
@@ -46,6 +47,22 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
 
   const { userId } = await auth();
+
+  // Basic API rate limit (if enabled)
+  if (ratelimit && req.nextUrl.pathname.startsWith("/api/")) {
+    const ip =
+      // Standard headers commonly set by reverse proxies
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      // Next.js request IP helper (may be undefined locally)
+      (req as any).ip ||
+      // Fallback to clientId if available or a static placeholder
+      (await auth()).userId ||
+      "127.0.0.1";
+    const { success } = await ratelimit.limit(`api:${ip}`);
+    if (!success) {
+      return new NextResponse("Too Many Requests", { status: 429 });
+    }
+  }
 
   // if (userId && isOnboardingRoute(req)) {
   //   return NextResponse.next();

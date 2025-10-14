@@ -177,7 +177,12 @@ This directory contains comprehensive security documentation for the HealthPay B
    - Pending: evaluate Clerk password settings and update configuration
 
 ### Weeks 2-4 (October 20 - November 9, 2025)
- - [ ] Implement rate limiting
+- [ ] Implement rate limiting
+   - Optional Upstash Redis-based rate limiting added in middleware (10 req/10s per IP). Enable by setting:
+      - `UPSTASH_REDIS_REST_URL`
+      - `UPSTASH_REDIS_REST_TOKEN`
+   - If unset, rate limiting is disabled without affecting app behavior.
+   - Note: Supabase remains the application backend; Upstash is used only for distributed counters.
 - [ ] Implement rate limiting
 - [ ] Add server-side validation
 - [ ] Implement session timeout
