@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Health Pay",
+  title: "Breeze",
   description: "Get Cured, Pay Later",
 };
 
