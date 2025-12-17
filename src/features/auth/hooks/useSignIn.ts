@@ -3,6 +3,7 @@
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useCallback } from "react";
+import { REDIRECT_ALLOWLIST } from "@/constants/redirectAllowlist";
 
 type Credentials = { email: string; password: string };
 
@@ -25,7 +26,15 @@ export const useSignInFlow = () => {
 
         if (res.status === "complete") {
           await setActive({ session: res.createdSessionId });
-          const to = params.get("redirect_url") || "/dashboard";
+          const requested = params.get("redirect_url");
+          const allowlist = REDIRECT_ALLOWLIST;
+          let to = "/dashboard";
+          if (requested && requested.startsWith("/")) {
+            // No need to construct a URL; we only care about the pathname
+            if (allowlist.some((p: string) => requested.startsWith(p))) {
+              to = requested;
+            }
+          }
           router.replace(to);
           return;
         }
