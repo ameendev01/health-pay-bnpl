@@ -15,7 +15,7 @@ const csp = [
   // Fonts: self + data URLs
   "font-src 'self' data:",
   // XHR/fetch/WebSocket targets
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://clerk.com https://*.clerk.com https://clerkcdn.com https://*.clerk.accounts.dev https://api.clerk.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://clerk.com https://*.clerk.com https://clerkcdn.com https://*.clerk.accounts.dev https://api.clerk.com wss://*.supabase.co",
   // Clerk embeds sign-in iframes; allow their hosts
   "frame-src https://clerk.com https://*.clerk.com https://clerkcdn.com https://*.clerk.accounts.dev",
   // Lock forms and base URL
