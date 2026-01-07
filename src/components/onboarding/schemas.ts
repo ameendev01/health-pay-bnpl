@@ -1,3 +1,4 @@
+import { isValidNpi } from "@/lib/luhncheck";
 import { z } from "zod";
 
 // const luhnCheck = (value: string): boolean => {
@@ -20,29 +21,28 @@ import { z } from "zod";
 //   return sum % 10 === 0;
 // };
 
-const npiCheck = (npi: string): boolean => {
-  if (!/^\d{10}$/.test(npi)) return false;
+// const npiCheck = (npi: string): boolean => {
+//   if (!/^\d{10}$/.test(npi)) return false;
 
-  const base9 = npi.slice(0, 9);
-  const claimedCheck = Number(npi[9]);
+//   const base9 = npi.slice(0, 9);
+//   const claimedCheck = Number(npi[9]);
 
-  const payload = "80840" + base9; // 14 digits
+//   const payload = "80840" + base9; // 14 digits
 
-  // Compute Luhn sum over payload
-  let sum = 0;
-  let double = false; // because we start from rightmost of payload; choose parity carefully
-  // Easier: implement Luhn exactly as you already did but on payload only, then derive check digit.
-  for (let i = payload.length - 1; i >= 0; i--) {
-    let d = Number(payload[i]);
-    if (double) d *= 2;
-    sum += Math.floor(d / 10) + (d % 10);
-    double = !double;
-  }
+//   // Compute Luhn sum over payload
+//   let sum = 0;
+//   let double = false; // because we start from rightmost of payload; choose parity carefully
+//   // Easier: implement Luhn exactly as you already did but on payload only, then derive check digit.
+//   for (let i = payload.length - 1; i >= 0; i--) {
+//     let d = Number(payload[i]);
+//     if (double) d *= 2;
+//     sum += Math.floor(d / 10) + (d % 10);
+//     double = !double;
+//   }
 
-  const expectedCheck = (10 - (sum % 10)) % 10;
-  return expectedCheck === claimedCheck;
-};
-
+//   const expectedCheck = (10 - (sum % 10)) % 10;
+//   return expectedCheck === claimedCheck;
+// };
 
 /* ── 2. Helper: ABA checksum (3-7-1 weighting) ───────────────────────────── */
 const abaChecksumPass = (raw: string): boolean => {
@@ -93,7 +93,7 @@ export const step3Schema = z.object({
     //   const clean = npi.trim();
     //   return luhnCheck("80840" + clean);
     // }, "Invalid NPI number (Luhn check failed)."),
-    .refine((npi) => npiCheck(npi), "Invalid NPI number (Luhn check failed)."),
+    .refine((npi) => isValidNpi(npi), "Invalid NPI number (Luhn check failed)."),
 
   stateOfIssuance: z.string().min(1, "State of issuance is required."),
   expiryDate: z
